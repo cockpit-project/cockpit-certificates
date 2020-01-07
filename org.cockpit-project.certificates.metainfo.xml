@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="addon">
-  <id>org.cockpit_project.starter_kit</id>
+  <id>org.cockpit_project.certificates</id>
   <metadata_license>CC0-1.0</metadata_license>
   <name>Starter Kit</name>
   <summary>
@@ -12,5 +12,5 @@
     </p>
   </description>
   <extends>org.cockpit_project.cockpit</extends>
-  <launchable type="cockpit-manifest">cockpit-starter-kit</launchable>
+  <launchable type="cockpit-manifest">cockpit-certificates</launchable>
 </component>
