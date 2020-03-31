@@ -1,7 +1,7 @@
 /*
  * This file is part of Cockpit.
  *
- * Copyright (C) 2017 Red Hat, Inc.
+ * Copyright (C) 2020 Red Hat, Inc.
  *
  * Cockpit is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published by
@@ -17,29 +17,21 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
-import cockpit from 'cockpit';
-import React from 'react';
-import './app.scss';
+import cockpit from "cockpit";
+import React from "react";
+import "./app.scss";
 
 const _ = cockpit.gettext;
 
 export class Application extends React.Component {
     constructor() {
         super();
-        this.state = { hostname: _("Unknown") };
-
-        cockpit.file('/etc/hostname').watch(content => {
-            this.setState({ hostname: content.trim() });
-        });
     }
 
     render() {
         return (
             <div className="container-fluid">
                 <h2>Certificates</h2>
-                <p>
-                    { cockpit.format(_("Running on $0"), path) }
-                </p>
             </div>
         );
     }
