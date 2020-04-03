@@ -19,6 +19,36 @@ class TestApplication(testlib.MachineCase):
 
         m.execute("selfsign-getcert request -d /etc/pki/nssdb -n {0}".format(nickName))
 
+    def testEmptyState(self):
+        b = self.browser
+        m = self.machine
+
+        # Check service was started automatically when when first entering certficates page
+        m.execute("systemctl stop certmonger.service")
+
+        self.login_and_go("/certificates")
+
+        b.wait_not_present(".pf-c-empty-state")
+        b.wait_text(".container-fluid h2", "Certificates")
+
+        # Check Empty State is present if service was stopped when certificates page is open
+        m.execute("systemctl stop certmonger.service")
+        b.wait_text(".pf-c-empty-state h1", "The certificate service is not active")
+
+        # Check Starting service from UI works
+        b.click(".pf-c-empty-state button:contains(Start the certificate service)")
+
+        b.wait_not_present(".pf-c-empty-state")
+        b.wait_text(".container-fluid h2", "Certificates")
+
+        # Check check stopping and starting UI from command line reflects state of UI
+        m.execute("systemctl stop certmonger.service")
+        b.wait_text(".pf-c-empty-state h1", "The certificate service is not active")
+
+        m.execute("systemctl start certmonger.service")
+        b.wait_not_present(".pf-c-empty-state")
+        b.wait_text(".container-fluid h2", "Certificates")
+
     def testBasic(self):
         b = self.browser
         m = self.machine

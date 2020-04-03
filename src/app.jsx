@@ -22,19 +22,23 @@ import React from "react";
 import "./app.scss";
 
 import { Alert, AlertGroup, AlertActionCloseButton, AlertVariant } from '@patternfly/react-core';
+import EmptyState from "./emptyState.jsx";
+import * as service from "../lib/service.js";
 
 const _ = cockpit.gettext;
+const CERTMONGER_SERVICE_NAME = "certmonger.service";
 
 export class Application extends React.Component {
     constructor() {
         super();
         this.state = {
-            alerts: []
+            alerts: [],
+            certmongerService: undefined,
+            initialPhase: true,
         };
 
         this.addAlert = this.addAlert.bind(this);
         this.removeAlert = this.removeAlert.bind(this);
-
     }
 
     addAlert(title, message) {
@@ -51,11 +55,62 @@ export class Application extends React.Component {
         this.setState({ alerts: alerts });
     }
 
+    componentDidMount() {
+        this.subscribeToSystemd();
+        this.updateCertmongerService();
+    }
+
+    subscribeToSystemd() {
+        const systemdClient = cockpit.dbus('org.freedesktop.systemd1', { bus: "system" });
+        systemdClient.subscribe(
+            // path string source:
+            // #dbus-send --system --dest=org.freedesktop.systemd1 --type=method_call --print-reply /org/freedesktop/systemd1 org.freedesktop.systemd1.Manager.ListUnits
+            { interface: 'org.freedesktop.DBus.Properties', path: '/org/freedesktop/systemd1/unit/certmonger_2eservice', member: 'PropertiesChanged' },
+            (path, iface, signal, args) => {
+                if (args[0] === "org.freedesktop.systemd1.Unit")
+                    this.updateCertmongerService();
+            }
+        );
+    }
+
+    updateCertmongerService() {
+        const { initialPhase } = this.state;
+
+        const certmongerService = service.proxy(CERTMONGER_SERVICE_NAME);
+        certmongerService.wait(() => {
+            if (initialPhase && certmongerService.state === "stopped") {
+                certmongerService.start()
+                        .fail(error => this.setState({ startErrorMessage: JSON.stringify(error) }));
+            }
+            this.setState({ initialPhase: false, certmongerService });
+        });
+    }
+
     render() {
+        const { certmongerService, startErrorMessage } = this.state;
+
+        const certificatesBody = (
+            <h2>{_("Certificates")}</h2>
+        );
+
+        const emptyStateBody = (
+            <EmptyState service={ certmongerService }
+                serviceName={ CERTMONGER_SERVICE_NAME }
+                errorMessage={ startErrorMessage }
+                updateService={ () => this.updateCertmongerService() } />
+        );
+
+        const body = () => {
+            if (!certmongerService || !certmongerService.exists || !certmongerService.state || certmongerService.state !== "running")
+                return emptyStateBody;
+
+            return certificatesBody;
+        }
+
         return (
             <>
                 <div className="container-fluid">
-                    <h2>Certificates</h2>
+                    { body() }
                 </div>
                 <AlertGroup isToast>
                     {this.state.alerts.map((danger, index) => (
