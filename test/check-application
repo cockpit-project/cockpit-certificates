@@ -6,13 +6,13 @@
 import os
 import sys
 import datetime
+import time
 
 # import Cockpit's machinery for test VMs and its browser test API
 TEST_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.join(TEST_DIR, "common"))
 sys.path.append(os.path.join(os.path.dirname(TEST_DIR), "bots/machine"))
 import testlib
-
 
 class TestApplication(testlib.MachineCase):
     def setUp(self):
@@ -237,6 +237,121 @@ class TestApplication(testlib.MachineCase):
         b.wait_not_present("#certificate-0-name")
         # Check files were deleted
         m.execute("! test -f {0}; ! test -f {1}".format(cert_path, key_path))
+
+    def testRequestCert(self):
+        b = self.browser
+        m = self.machine
+
+        self.login_and_go("/certificates")
+        # verify expected heading
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+
+        class RequestCertDialog(object):
+            def __init__(
+                self, test_obj, ca=None, storage_type="NSSDB", nickname=None,
+                key_path="", cert_path=""
+            ):
+                self.test_obj = test_obj
+                self.ca = ca
+                self.storage_type = storage_type
+                self.nickname = nickname
+                self.cert_path = cert_path
+                self.key_path = key_path
+
+            def execute(self):
+                self.open()
+                self.fill()
+                self.create()
+                self.verify_frontend()
+                self.verify_backend()
+                self.cleanup()
+
+            def open(self):
+                b.click("#request-certificate-action")
+                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Request Certificate")
+
+            def fill(self):
+                if self.ca:
+                    b.select_from_dropdown("#ca", self.ca)
+                if self.storage_type:
+                    b.click(".pf-c-radio__input + label:contains({0})".format(self.storage_type))
+
+                if self.storage_type == "NSSDB":
+                    if self.nickname:
+                        b.set_input_text("#nickname", self.nickname)
+                else:
+                    b.set_input_text("input[placeholder='Path to store the certificate']", self.cert_path)
+                    b.set_input_text("input[placeholder='Path to store the generated key or to an existing key']", self.key_path)
+
+            def cancel(self):
+                b.click(".modal-footer button:contains(Cancel)")
+                b.wait_not_present(".modal-dialog")
+
+            def create(self):
+                b.click(".modal-footer button:contains(Request)")
+                b.wait_not_present(".modal-dialog")
+                time.sleep(4) # Certificate enrollment takes some time
+
+            def verify_frontend(self):
+                if self.storage_type == "NSSDB" and not self.nickname:
+                    self.nickname = b.text("#certificate-0-name")
+
+                b.click("button#expandable-toggle0")
+                if self.storage_type == "NSSDB":
+                        b.wait_in_text("#certificate-0-name", self.nickname)
+                        b.click("#certificate-0-cert-tab")
+                        b.wait_in_text("#certificate-0-cert-storage", "NSSDB")
+                        b.click("#certificate-0-keys-tab")
+                        b.wait_in_text("#certificate-0-key-storage", "NSSDB")
+                else:
+                    if self.key_path:
+                        b.click("#certificate-0-keys-tab")
+                        b.wait_in_text("#certificate-0-key-location", self.key_path)
+                    if self.cert_path:
+                        b.click("#certificate-0-cert-tab")
+                        b.wait_in_text("#certificate-0-cert-location", self.cert_path)
+
+            def verify_backend(self):
+                if self.storage_type == "NSSDB":
+                    command_output = m.execute("selfsign-getcert list -d /etc/pki/nssdb -n {0} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.nickname))
+                    self.test_obj.assertEqual(command_output, "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
+                    command_output = m.execute("selfsign-getcert list -d /etc/pki/nssdb -n {0} | grep 'certificate:' | awk '{{print $2}}'".format(self.nickname))
+                    self.test_obj.assertEqual(command_output, "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
+                elif self.storage_type == "File":
+                    command_output = m.execute("selfsign-getcert list -f {0} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.cert_path))
+                    self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.key_path))
+                    command_output = m.execute("selfsign-getcert list -f {0} | grep 'certificate:' | awk '{{print $2}}'".format(self.cert_path))
+                    self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.cert_path))
+
+            def cleanup(self):
+                if self.storage_type == "NSSDB":
+                    m.execute("selfsign-getcert stop-tracking -d /etc/pki/nssdb -n {0}".format(self.nickname))
+                else:
+                    m.execute("selfsign-getcert stop-tracking -f {0} -k {1}".format(self.cert_path, self.key_path))
+                b.reload()
+                b.enter_page('/certificates')
+
+        # Test certificate request with everything pre-generated.
+        RequestCertDialog(
+            self,
+        ).execute()
+
+        # Test request of basic NSSDB stored certificate
+        RequestCertDialog(
+            self,
+            ca="SelfSign",
+            nickname="testcert1",
+            storage_type="NSSDB",
+        ).execute()
+
+        # Test request of basic system file stored certificate
+        RequestCertDialog(
+            self,
+            ca="SelfSign",
+            cert_path="/etc/pki/tls/certs/testcert2.cert",
+            key_path="/etc/pki/tls/private/testkey2.key",
+            storage_type="File",
+        ).execute()
 
 
 if __name__ == '__main__':

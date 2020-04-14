@@ -41,6 +41,7 @@ import {
 } from "@patternfly/react-core";
 
 import { CertificateActions } from "./certificateActions.jsx";
+import { RequestCertificate } from './requestCertificate.jsx';
 import "../lib/form-layout.scss";
 import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
 import { ListingTable } from "../lib/cockpit-components-table.jsx";
@@ -284,6 +285,10 @@ class CertificateList extends React.Component {
             };
         });
 
+        const actions = (
+            <RequestCertificate cas={cas} addAlert={addAlert} />
+        );
+
         return (
             <ListingTable caption={_("Certificates")}
                 variant='compact'
@@ -294,6 +299,7 @@ class CertificateList extends React.Component {
                     { title: _("Certificate Authority") },
                     { title: _("Actions") },
                 ]}
+                actions={actions}
                 rows={items} />
         );
     }

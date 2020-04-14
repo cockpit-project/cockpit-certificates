@@ -26,9 +26,9 @@ function dbusCall(objectPath, iface, method, args) {
     return clientCertmonger.call(objectPath, iface, method, args);
 }
 
-export function getRequest(path) {
-    return dbusCall(path, "org.freedesktop.DBus.Properties", "GetAll",
-                    ["org.fedorahosted.certmonger.request"]);
+export function addRequest(argument) {
+    return dbusCall("/org/fedorahosted/certmonger", "org.fedorahosted.certmonger",
+                    "add_request", [argument]);
 }
 
 export function getCA(path) {
@@ -39,6 +39,11 @@ export function getCA(path) {
 export function getCAs() {
     return dbusCall("/org/fedorahosted/certmonger", "org.fedorahosted.certmonger",
                     "get_known_cas", []);
+}
+
+export function getRequest(path) {
+    return dbusCall(path, "org.freedesktop.DBus.Properties", "GetAll",
+                    ["org.fedorahosted.certmonger.request"]);
 }
 
 export function getRequests() {
