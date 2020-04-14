@@ -24,8 +24,8 @@ import "./app.scss";
 import { Alert, AlertGroup, AlertActionCloseButton, AlertVariant } from '@patternfly/react-core';
 
 import EmptyState from "./emptyState.jsx";
+import { getRequests, getRequest, getCAs, getCA } from './dbus.js';
 import * as service from "../lib/service.js";
-import { getRequests, getRequest, getCA, getCAs } from "./dbus.js";
 import CertificateList from "./certificateList.jsx";
 
 const _ = cockpit.gettext;
