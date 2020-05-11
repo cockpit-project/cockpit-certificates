@@ -22,9 +22,10 @@ import React from "react";
 import "./app.scss";
 
 import { Alert, AlertGroup, AlertActionCloseButton, AlertVariant } from '@patternfly/react-core';
+
 import EmptyState from "./emptyState.jsx";
 import * as service from "../lib/service.js";
-
+import { getRequests, getRequest, getCA, getCAs } from "./dbus.js";
 import CertificateList from "./certificateList.jsx";
 
 const _ = cockpit.gettext;
@@ -37,6 +38,8 @@ export class Application extends React.Component {
             alerts: [],
             certmongerService: undefined,
             initialPhase: true,
+            cas: [],
+            certs: [],
         };
 
         this.addAlert = this.addAlert.bind(this);
@@ -60,6 +63,50 @@ export class Application extends React.Component {
     componentDidMount() {
         this.subscribeToSystemd();
         this.updateCertmongerService();
+        this.getCertificateAuthorities();
+        this.getCertificates();
+    }
+
+    getCertificateAuthority(path) {
+        getCA(path)
+                .then(ret => {
+                    const cas = { ...this.state.cas, [path]: ret[0] };
+                    this.setState({ cas });
+                })
+                .catch(error => {
+                    this.addAlert(_("Error: ") + error.name, error.message);
+                });
+    }
+
+    getCertificateAuthorities() {
+        getCAs()
+                .then(paths => {
+                    paths[0].forEach(path => getCertificateAuthority(path));
+                })
+                .catch(error => {
+                    this.addAlert(_("Error: ") + error.name, error.message);
+                });
+    }
+
+    getCertificate(path) {
+        getRequest(path)
+                .then(ret => {
+                    const certs = { ...this.state.certs, [path]: ret[0] };
+                    this.setState({ certs });
+                })
+                .catch(error => {
+                    addAlert(_("Error: ") + error.name, error.message);
+                });
+    }
+
+    getCertificates() {
+        getRequests()
+                .then(paths => {
+                    paths[0].forEach(path => getCertificate(path));
+                })
+                .catch(error => {
+                    addAlert(_("Error: ") + error.name, error.message);
+                });
     }
 
     subscribeToSystemd() {
@@ -89,10 +136,10 @@ export class Application extends React.Component {
     }
 
     render() {
-        const { certmongerService, startErrorMessage } = this.state;
+        const { certmongerService, startErrorMessage, cas, certs } = this.state;
 
         const certificatesBody = (
-            <CertificateList addAlert={this.addAlert}/>
+            <CertificateList cas={cas} certs={certs} addAlert={this.addAlert}/>
         );
 
         const emptyStateBody = (
