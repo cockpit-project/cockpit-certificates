@@ -45,3 +45,8 @@ export function getRequests() {
     return dbusCall("/org/fedorahosted/certmonger", "org.fedorahosted.certmonger",
                     "get_requests", []);
 }
+
+export function removeRequest(requestPath) {
+    return dbusCall("/org/fedorahosted/certmonger", "org.fedorahosted.certmonger",
+                    "remove_request", [requestPath]);
+}

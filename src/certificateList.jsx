@@ -40,6 +40,7 @@ import {
     TabContent
 } from "@patternfly/react-core";
 
+import { CertificateActions } from "./certificateActions.jsx";
 import "../lib/form-layout.scss";
 import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
 import { ListingTable } from "../lib/cockpit-components-table.jsx";
@@ -216,9 +217,9 @@ class CertificateList extends React.Component {
     }
 
     render() {
-        const { addAlert, certs, cas } = this.props;
+        const { addAlert, certs, cas, appOnValueChanged } = this.props;
 
-        const items = Object.values(certs).map((cert, idx) => {
+        const items = Object.entries(certs).map(([certPath, cert], idx) => {
             const idPrefix = cockpit.format("certificate-$0", idx);
 
             const tabRenderers = [
@@ -268,6 +269,13 @@ class CertificateList extends React.Component {
                     { title: cert["not-valid-after"] && cert["not-valid-after"].v !== 0 &&
                         <span id={`${idPrefix}-validity`}>{getExpirationTime(cert)}</span> },
                     { title: cert.ca && cert.ca.v && caTitle },
+                    { title: <CertificateActions certs={certs}
+                                 cert={cert}
+                                 certs={certs}
+                                 certPath={certPath}
+                                 addAlert={addAlert}
+                                 appOnValueChanged={appOnValueChanged}
+                                 idPrefix={idPrefix} /> },
                 ],
                 rowId: idPrefix,
                 props: { key: idPrefix },
@@ -284,6 +292,7 @@ class CertificateList extends React.Component {
                     { title: _("Name") },
                     { title: _("Validity") },
                     { title: _("Certificate Authority") },
+                    { title: _("Actions") },
                 ]}
                 rows={items} />
         );
