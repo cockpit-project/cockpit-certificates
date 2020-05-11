@@ -162,6 +162,80 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-cert-storage", "FILE")
         b.wait_in_text("#certificate-0-cert-location", cert_path)
 
+    def testRemoveCert(self):
+        b = self.browser
+        m = self.machine
+
+        # Test removal of NSSDB-stored certificate
+        cert_name = "Server-Cert"
+        db_path = "/etc/pki/nssdb"
+        m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
+
+        self.login_and_go("/certificates")
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+
+        # Check certificate is present
+        b.wait_in_text("#certificate-0-name", cert_name)
+
+        # Remove certificate
+        b.click("#certificate-0-action-kebab button")
+        b.click("#certificate-0-remove a")
+        b.wait_in_text(".modal-title", "Remove Certificate")
+        b.wait_not_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.click(".modal-footer button:contains(Remove)")
+        b.wait_not_present(".modal-dialog")
+
+        # Check cert is not present
+        b.wait_not_present("#certificate-0-name")
+
+        # Test removal of files based certificate. Remove without deleting files
+        cert_path = "/etc/pki/tls/certs/myCert.cert"
+        key_path = "/etc/pki/tls/private/myKey.key"
+        m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+
+        self.login_and_go("/certificates")
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+
+        # Check certificate is present
+        b.wait_present("#certificate-0-name")
+
+        # Remove certificate
+        b.click("#certificate-0-action-kebab button")
+        b.click("#certificate-0-remove a")
+        b.wait_in_text(".modal-title", "Remove Certificate")
+        b.wait_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.click(".modal-footer button:contains(Remove)")
+        b.wait_not_present(".modal-dialog")
+
+        # Check cert is not present
+        b.wait_not_present("#certificate-0-name")
+        # Check files were left untouched
+        m.execute("test -f {0}; test -f {1}".format(cert_path, key_path))
+
+        # Test removal of files based certificate. Remove without deleting files
+        cert_path = "/etc/pki/tls/certs/myCert.cert"
+        key_path = "/etc/pki/tls/private/myKey.key"
+        m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+
+        self.login_and_go("/certificates")
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+
+        # Check certificate is present
+        b.wait_present("#certificate-0-name")
+
+        # Remove certificate
+        b.click("#certificate-0-action-kebab button")
+        b.click("#certificate-0-remove a")
+        b.wait_in_text(".modal-title", "Remove Certificate")
+        b.click("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.click(".modal-footer button:contains(Remove)")
+        b.wait_not_present(".modal-dialog")
+
+        # Check cert is not present
+        b.wait_not_present("#certificate-0-name")
+        # Check files were deleted
+        m.execute("! test -f {0}; ! test -f {1}".format(cert_path, key_path))
+
 
 if __name__ == '__main__':
     testlib.test_main()

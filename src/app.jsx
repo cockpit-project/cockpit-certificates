@@ -42,8 +42,13 @@ export class Application extends React.Component {
             certs: [],
         };
 
+        this.onValueChanged = this.onValueChanged.bind(this);
         this.addAlert = this.addAlert.bind(this);
         this.removeAlert = this.removeAlert.bind(this);
+    }
+
+    onValueChanged(key, value) {
+        this.setState({ [key]: value });
     }
 
     addAlert(title, message) {
@@ -174,7 +179,7 @@ export class Application extends React.Component {
         const { certmongerService, startErrorMessage, cas, certs } = this.state;
 
         const certificatesBody = (
-            <CertificateList cas={cas} certs={certs} addAlert={this.addAlert}/>
+            <CertificateList cas={cas} certs={certs} addAlert={this.addAlert} appOnValueChanged={this.onValueChanged} />
         );
 
         const emptyStateBody = (
