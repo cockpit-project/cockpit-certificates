@@ -43,7 +43,6 @@ import {
 import "../lib/form-layout.scss";
 import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
 import { ListingTable } from "../lib/cockpit-components-table.jsx";
-import { getRequests, getRequest, getCA } from "./dbus.js";
 
 const _ = cockpit.gettext;
 function prettyTime(unixTime) {
@@ -191,45 +190,12 @@ class CertificateList extends React.Component {
     constructor() {
         super();
         this.state = {
-            certs: [],
-            cas: {},
             expanded: [],
             activeTabKey: 0,
         };
 
         this.toggle = this.toggle.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
-    }
-
-    componentDidMount() {
-        const addAlert = this.props.addAlert;
-
-        getRequests()
-                .then(paths => {
-                    paths[0].forEach(p => {
-                        let caPath;
-                        return getRequest(p)
-                                .then(ret => {
-                                    const certs = [...this.state.certs, ret[0]];
-                                    this.onValueChanged("certs", certs);
-
-                                    if (ret[0].ca) {
-                                        // TODO report bug
-                                        caPath = ret[0].ca.v.replace("request", "ca");
-                                        return getCA(caPath);
-                                    }
-                                })
-                                .then(ret => {
-                                    if (ret) {
-                                        const cas = {...this.state.cas, [caPath]: ret[0]};
-                                        this.onValueChanged("cas", cas);
-                                    }
-                                })
-                    });
-                })
-                .catch(error => {
-                    addAlert(_("Error: ") + error.name, error.message);
-                });
     }
 
     toggle(certId) {
@@ -250,9 +216,9 @@ class CertificateList extends React.Component {
     }
 
     render() {
-        const { cas, certs} = this.state;
+        const { addAlert, certs, cas } = this.props;
 
-        const items = certs.map((cert, idx) => {
+        const items = Object.values(certs).map((cert, idx) => {
             const idPrefix = cockpit.format("certificate-$0", idx);
 
             const tabRenderers = [

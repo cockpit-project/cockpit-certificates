@@ -36,6 +36,11 @@ export function getCA(path) {
                     ["org.fedorahosted.certmonger.ca"]);
 }
 
+export function getCAs() {
+    return dbusCall("/org/fedorahosted/certmonger", "org.fedorahosted.certmonger",
+                    "get_known_cas", []);
+}
+
 export function getRequests() {
     return dbusCall("/org/fedorahosted/certmonger", "org.fedorahosted.certmonger",
                     "get_requests", []);
