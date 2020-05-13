@@ -61,6 +61,7 @@ export class Application extends React.Component {
     }
 
     componentDidMount() {
+        this.subscribeToCertmonger();
         this.subscribeToSystemd();
         this.updateCertmongerService();
         this.getCertificateAuthorities();
@@ -81,7 +82,7 @@ export class Application extends React.Component {
     getCertificateAuthorities() {
         getCAs()
                 .then(paths => {
-                    paths[0].forEach(path => getCertificateAuthority(path));
+                    paths[0].forEach(path => this.getCertificateAuthority(path));
                 })
                 .catch(error => {
                     this.addAlert(_("Error: ") + error.name, error.message);
@@ -102,11 +103,45 @@ export class Application extends React.Component {
     getCertificates() {
         getRequests()
                 .then(paths => {
-                    paths[0].forEach(path => getCertificate(path));
+                    paths[0].forEach(path => this.getCertificate(path));
                 })
                 .catch(error => {
                     addAlert(_("Error: ") + error.name, error.message);
                 });
+    }
+
+    subscribeToCertmonger() {
+        const systemdClient = cockpit.dbus('org.fedorahosted.certmonger', { bus: "system" });
+        systemdClient.subscribe(
+            { interface: 'org.freedesktop.DBus.Properties', member: 'PropertiesChanged' },
+            (path, iface, signal, args) => {
+                if (signal === "PropertiesChanged") {
+                    if (args[0] === "org.fedorahosted.certmonger.request") {
+                        const certs = {...this.state.certs};
+
+                        if (!certs[path]) { // new cert was added
+                            this.getCertificate(path);
+                        } else { // update property of existing cert
+                            for (const [key, value] of Object.entries(args[1]))
+                                certs[path][key] = value;
+
+                            this.setState({ certs });
+                        }
+                    } else if (args[0] === "org.fedorahosted.certmonger.ca") {
+                        const cas = {...this.state.cas};
+
+                        if (!cas[path]) { // new ca was added
+                            this.getCertificateAuthority(path);
+                        } else { // update property of existing CA
+                            for (const [key, value] of Object.entries(args[1]))
+                                cas[path][key] = value;
+
+                            this.setState({ cas });
+                        }
+                    }
+                }
+            }
+        );
     }
 
     subscribeToSystemd() {

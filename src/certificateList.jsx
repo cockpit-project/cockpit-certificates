@@ -68,7 +68,7 @@ function prettyTime(unixTime) {
 }
 
 function getExpirationTime(cert) {
-    if (cert.autorenew.v) {
+    if (cert.autorenew && cert.autorenew.v) {
         return _("Auto-renews before ") + prettyTime(cert["not-valid-after"].v).toLowerCase();
     } else {
         const eventdate = moment(Number(cert["not-valid-after"].v) * 1000);
@@ -85,8 +85,8 @@ function getExpirationTime(cert) {
 }
 
 function getCAName(cas, cert) {
-    return cas[cert.ca.v.replace("request", "ca")]
-        && cas[cert.ca.v.replace("request", "ca")].nickname.v;
+    if (cert.ca && cas[cert.ca.v.replace("request", "ca")])
+        return cas[cert.ca.v.replace("request", "ca")].nickname.v;
 }
 
 const generalDetails = ({ idPrefix, cas, cert }) => (
@@ -263,7 +263,7 @@ class CertificateList extends React.Component {
                     { title: (cert["cert-nickname"] && cert["cert-nickname"].v)
                         ? <span id={`${idPrefix}-name`}>{cert["cert-nickname"].v}</span>
                         : <span id={`${idPrefix}-name`}>
-                              {cert["nickname"].v +  _(" (Request ID)")}
+                              {cert["nickname"] && cert["nickname"].v +  _(" (Request ID)")}
                           </span> },
                     { title: cert["not-valid-after"] && cert["not-valid-after"].v !== 0 &&
                         <span id={`${idPrefix}-validity`}>{getExpirationTime(cert)}</span> },

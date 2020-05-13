@@ -96,6 +96,29 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-cert-storage", "NSSDB")
         b.wait_in_text("#certificate-0-cert-location", db_path)
 
+    # Test subscription to Dbus PropertyChanged signal which is emmitted when property of
+    # dbus object is changed
+    # Check whetever UI is dynamically updated
+    def testDbusPropertyChanged(self):
+        b = self.browser
+        m = self.machine
+
+        cert_path = "/tmp/myCert.cert"
+        key_path = "/tmp/myKey.cert"
+        m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+
+        self.login_and_go("/certificates")
+
+        b.click("button#expandable-toggle0")
+        # Check General tab
+        validity = b.text("#certificate-0-general-validity")
+
+        # Renew a certificate
+        m.execute("selfsign-getcert resubmit -f {0}".format(cert_path))
+
+        # Check validity time changed
+        b.wait_not_in_text("#certificate-0-general-validity", validity)
+
     def testFileCert(self):
         b = self.browser
         m = self.machine
