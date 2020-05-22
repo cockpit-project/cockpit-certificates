@@ -15,6 +15,12 @@ import testlib
 
 
 class TestApplication(testlib.MachineCase):
+    def setUp(self):
+        super().setUp()
+
+        # When we disconnect while certmonger wants to tell us something
+        self.allow_journal_messages("org.fedorahosted.certmonger: couldn't introspect /org/fedorahosted/certmonger/.*Remote peer disconnected")
+
     def testEmptyState(self):
         b = self.browser
         m = self.machine
