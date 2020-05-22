@@ -96,7 +96,7 @@ export class Application extends React.Component {
                     this.setState({ certs });
                 })
                 .catch(error => {
-                    addAlert(_("Error: ") + error.name, error.message);
+                    this.addAlert(_("Error: ") + error.name, error.message);
                 });
     }
 
@@ -106,7 +106,7 @@ export class Application extends React.Component {
                     paths[0].forEach(path => this.getCertificate(path));
                 })
                 .catch(error => {
-                    addAlert(_("Error: ") + error.name, error.message);
+                    this.addAlert(_("Error: ") + error.name, error.message);
                 });
     }
 
