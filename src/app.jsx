@@ -26,6 +26,7 @@ import { Alert, AlertGroup, AlertActionCloseButton, AlertVariant } from '@patter
 import EmptyState from "./emptyState.jsx";
 import { getRequests, getRequest, getCAs, getCA } from './dbus.js';
 import * as service from "../lib/service.js";
+import { page_status } from "../lib/notifications.js";
 import CertificateList from "./certificateList.jsx";
 
 const _ = cockpit.gettext;
@@ -40,6 +41,8 @@ export class Application extends React.Component {
             initialPhase: true,
             cas: [],
             certs: [],
+            expiredCerts: 0,
+            toExpireCerts: 0,
         };
 
         this.onValueChanged = this.onValueChanged.bind(this);
@@ -63,6 +66,18 @@ export class Application extends React.Component {
         alerts.splice(index, 1);
 
         this.setState({ alerts: alerts });
+    }
+
+    checkExpiration(cert) {
+        const eventdate = moment(Number(cert["not-valid-after"].v) * 1000);
+        const todaysdate = moment();
+        const diffDays = eventdate.diff(todaysdate, "days");
+        const diffSeconds = eventdate.diff(todaysdate, "seconds");
+
+        if (diffSeconds < 0)
+            this.setState(prevState => { expiredCerts: prevState.expiredCerts++ });
+        else if (diffDays > 28)
+            this.setState(prevState => { toExpireCerts: prevState.toExpireCerts++ });
     }
 
     componentDidMount() {
@@ -176,7 +191,25 @@ export class Application extends React.Component {
     }
 
     render() {
-        const { certmongerService, startErrorMessage, cas, certs } = this.state;
+        const { certmongerService, startErrorMessage, cas, certs, toExpireCerts, expiredCerts } = this.state;
+
+        if (expiredCerts > 0) {
+            page_status.set_own({
+                type: "error",
+                title: cockpit.format(cockpit.ngettext("$0 certificate has expired",
+                                                       "$0 certificates have expired",
+                                                       expiredCerts), expiredCerts),
+                details: []
+            });
+        } else if (toExpireCerts > 0) {
+            page_status.set_own({
+                type: "warning",
+                title: cockpit.format(cockpit.ngettext("$0 certificate expires soon",
+                                                       "$0 certificates expire soon",
+                                                       toExpireCerts), toExpireCerts),
+                details: []
+            });
+        }
 
         const certificatesBody = (
             <CertificateList cas={cas} certs={certs} addAlert={this.addAlert} appOnValueChanged={this.onValueChanged} />

@@ -1,0 +1,9 @@
+.fa-exclamation-circle {
+    color: var(--pf-global--danger-color--100);
+    margin-right: 0.5rem
+}
+
+.fa-exclamation-triangle {
+    color: var(--pf-global--warning-color--100);
+    margin-right: 0.5rem
+}
