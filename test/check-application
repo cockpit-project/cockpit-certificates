@@ -60,6 +60,55 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_in_text(".ct-table-empty tr td", "No certificate is tracked on this host")
 
+    def testWarningExpiredCert(self):
+        b = self.browser
+        m = self.machine
+
+        db_path = "/etc/pki/nssdb"
+        # Request certificate without automatical renewal
+        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, "Server-Cert1"))
+
+        self.login_and_go("/certificates")
+        # Verify expected heading
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+
+        # Check certificate validity doesn't containt warning
+        b.wait_not_present("#certificate-0-validity .fa-exclamation-triangle")
+
+        # Remove cert
+        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, "Server-Cert1"))
+        self.browser.reload()
+        self.browser.enter_page('/certificates')
+
+        # Change validity of new certs to 2 weeks
+        m.execute("echo -e '[selfsign]\nvalidity_period = 2w' > /etc/certmonger/certmonger.conf")
+        m.execute("systemctl restart certmonger.service")
+        m.execute("selfsign-getcert request -d {0} -n Server-Cert2 -R".format(db_path, "Server-Cert2"))
+
+        # Check warning about near expiration
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+        b.wait_present("#certificate-0-validity .fa-exclamation-triangle")
+
+        # Remove cert
+        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, "Server-Cert2"))
+        self.browser.reload()
+        self.browser.enter_page('/certificates')
+
+        # Change validity of new certs to 1 second
+        m.execute("echo -e '[selfsign]\nvalidity_period = 1s' > /etc/certmonger/certmonger.conf")
+        m.execute("systemctl restart certmonger.service")
+        # Wait 4 seconds after requesting which should make the certificate already expired
+        # TODO requesting itself takes some time and 4 seconds might now be enough.
+        # Fix this if race condition starts to show up
+        m.execute("selfsign-getcert request -d {0} -n {1} -R && sleep 4".format(db_path, "Server-Cert3"))
+
+        self.browser.reload()
+        self.browser.enter_page('/certificates')
+        # Check error about expired certificate
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+        b.wait_present("#certificate-0-validity .fa-exclamation-circle")
+
+
     def testNssdbCert(self):
         b = self.browser
         m = self.machine

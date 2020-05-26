@@ -8,5 +8,7 @@
         "index": {
             "label": "Certificates"
         }
-    }
+    },
+
+    "preload": [ "index" ]
 }

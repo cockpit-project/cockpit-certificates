@@ -43,6 +43,7 @@ import {
 import { CertificateActions } from "./certificateActions.jsx";
 import { RequestCertificate } from './requestCertificate.jsx';
 import "../lib/form-layout.scss";
+import "./certificateList.css";
 import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
 import { ListingTable } from "../lib/cockpit-components-table.jsx";
 
@@ -76,13 +77,51 @@ function getExpirationTime(cert) {
         const eventdate = moment(Number(cert["not-valid-after"].v) * 1000);
         const todaysdate = moment();
         const diff = eventdate.diff(todaysdate, "days");
+        const diffSeconds = eventdate.diff(todaysdate, "seconds");
 
-        if (diff < 2) // Today or Tomorrow
-            return _("Expires ") + prettyTime(cert["not-valid-after"].v).toLowerCase();
-        if (diff < 30)
-            return _("Expires in ") + diff + _(" days");
-        else
-            return _("Expires on ") + prettyTime(cert["not-valid-after"].v);
+        if (diffSeconds < 0) { // Expired
+            if (diff > -1) { // Expired yesterday
+                return (
+                    <>
+                        <span className="fa fa-exclamation-circle" />
+                        {_("Expired ") + prettyTime(cert["not-valid-after"].v).toLowerCase()}
+                    </>
+                );
+            }
+            if (diff > -28) { // Expired X days ago
+                return (
+                    <>
+                        <span className="fa fa-exclamation-circle" />
+                        {_("Expired ") + diff + _(" ago")}
+                    </>
+                );
+            }
+            return (
+                <>
+                    <span className="fa fa-exclamation-circle" />
+                    {_("Expired on ") + prettyTime(cert["not-valid-after"].v)}
+                </>
+            );
+        }
+
+        // Expires
+        if (diff < 2) { // Expires today or tomorrow
+            return (
+                <>
+                    <span className="fa fa-exclamation-triangle" />
+                    {_("Expires ") + prettyTime(cert["not-valid-after"].v).toLowerCase()}
+                </>
+            );
+        }
+        if (diff < 28) { // Expires in X days
+            return (
+                <>
+                    <span className="fa fa-exclamation-triangle" />
+                    {_("Expires in ") + diff + _(" days")}
+                </>
+            );
+        }
+        return _("Expires on ") + prettyTime(cert["not-valid-after"].v);
     }
 }
 
