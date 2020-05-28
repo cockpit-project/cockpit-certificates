@@ -35,7 +35,7 @@ class TestApplication(testlib.MachineCase):
 
         # Check Empty State is present if service was stopped when certificates page is open
         m.execute("systemctl stop certmonger.service")
-        b.wait_in_text(".pf-c-empty-state h1", "The certificate service is not active")
+        b.wait_present(".pf-c-empty-state")
 
         # Check Starting service from UI works
         b.click(".pf-c-empty-state button:contains(Start the certificate service)")
@@ -45,7 +45,7 @@ class TestApplication(testlib.MachineCase):
 
         # Check check stopping and starting UI from command line reflects state of UI
         m.execute("systemctl stop certmonger.service")
-        b.wait_in_text(".pf-c-empty-state h1", "The certificate service is not active")
+        b.wait_present(".pf-c-empty-state")
 
         m.execute("systemctl start certmonger.service")
         b.wait_not_present(".pf-c-empty-state")
