@@ -109,8 +109,8 @@ class TestApplication(testlib.MachineCase):
         b = self.browser
         m = self.machine
 
-        cert_path = "/tmp/myCert.cert"
-        key_path = "/tmp/myKey.cert"
+        cert_path = "/etc/pki/tls/certs/myCert.cert"
+        key_path = "/etc/pki/tls/private/myKey.key"
         m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
 
         self.login_and_go("/certificates")
@@ -132,8 +132,8 @@ class TestApplication(testlib.MachineCase):
         next_year = datetime.datetime.now() + datetime.timedelta(days=365)
         next_year_str = next_year.strftime('%d/%m/%Y')
 
-        cert_path = "/tmp/myCert.cert"
-        key_path = "/tmp/myKey.cert"
+        cert_path = "/etc/pki/tls/certs/myCert.cert"
+        key_path = "/etc/pki/tls/private/myKey.key"
         m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
 
         self.login_and_go("/certificates")
