@@ -86,6 +86,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-general-ca", "SelfSign")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str)) # TODO better date handling
         b.wait_in_text("#certificate-0-general-autorenewal", "Yes")
+        b.wait_in_text("#certificate-0-general-stuck", "No")
 
         b.click("#certificate-0-keys-tab")
         # Check Key tab
@@ -150,6 +151,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-general-ca", "SelfSign")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))
         b.wait_in_text("#certificate-0-general-autorenewal", "Yes")
+        b.wait_in_text("#certificate-0-general-stuck", "No")
 
         b.click("#certificate-0-keys-tab")
         # Check Key tab

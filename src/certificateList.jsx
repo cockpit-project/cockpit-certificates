@@ -118,13 +118,13 @@ const generalDetails = ({ idPrefix, cas, cert }) => (
                         +  _(" to ") + prettyTime(cert["not-valid-after"].v)}
                     </span>
                 </>}
-                {cert.autorenew && cert.autorenew.v && <>
+                {cert.autorenew && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-autorenewal`}>
                         {_("Auto-renewal")}
                     </label>
                     <span id={`${idPrefix}-general-autorenewal`}>{cert.autorenew.v ? _("Yes") : _("No")}</span>
                 </>}
-                {cert.stuck && cert.stuck.v && <>
+                {cert.stuck && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-stuck`}>{_("Stuck")}</label>
                     <span id={`${idPrefix}-general-stuck`}>{cert.stuck.v ? _("Yes") : _("No")}</span>
                 </>}
