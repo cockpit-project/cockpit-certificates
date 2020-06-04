@@ -108,6 +108,30 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_present("#certificate-0-validity .fa-exclamation-circle")
 
+    def testModifyAutorenewal(self):
+        b = self.browser
+        m = self.machine
+
+        cert_name = "Server-Cert"
+        db_path = "/etc/pki/nssdb"
+        m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
+
+        self.login_and_go("/certificates")
+
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+        b.wait_in_text("#certificate-0-name", cert_name)
+
+        b.click("button#expandable-toggle0")
+        # Check General tab
+        renewal_state = b.get_checked("#certificate-0-general-autorenewal")
+        b.set_checked("#certificate-0-general-autorenewal", not renewal_state)
+        b.wait_present("#certificate-0-general-autorenewal:not(:checked)")
+
+        command_output = m.execute("selfsign-getcert list -d {0} -n {1} | grep 'auto-renew:' | awk '{{print $2}}'".format(db_path, cert_name))
+        if not renewal_state: # renewal state updated to the opposite
+            self.assertEqual(command_output, "yes\n")
+        else:
+            self.assertEqual(command_output, "no\n")
 
     def testNssdbCert(self):
         b = self.browser
@@ -134,8 +158,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
         b.wait_in_text("#certificate-0-general-ca", "SelfSign")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str)) # TODO better date handling
-        b.wait_in_text("#certificate-0-general-autorenewal", "Yes")
-        b.wait_in_text("#certificate-0-general-stuck", "No")
+        self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
         b.click("#certificate-0-keys-tab")
         # Check Key tab
@@ -199,8 +222,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
         b.wait_in_text("#certificate-0-general-ca", "SelfSign")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))
-        b.wait_in_text("#certificate-0-general-autorenewal", "Yes")
-        b.wait_in_text("#certificate-0-general-stuck", "No")
+        self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
         b.click("#certificate-0-keys-tab")
         # Check Key tab

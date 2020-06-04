@@ -34,6 +34,7 @@ import "../lib/form-layout.scss";
 import "./certificateList.css";
 import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
 import { ListingTable } from "../lib/cockpit-components-table.jsx";
+import { modifyRequest } from "./dbus.js";
 
 const _ = cockpit.gettext;
 function prettyTime(unixTime) {
@@ -118,7 +119,7 @@ function getCAName(cas, cert) {
         return cas[cert.ca.v.replace("request", "ca")].nickname.v;
 }
 
-const generalDetails = ({ idPrefix, cas, cert }) => (
+const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => (
     <Flex breakpointMods={[{ modifier: FlexModifiers["justify-content-space-between"] }]}>
         <Flex breakpointMods={[{ modifier: FlexModifiers.column }, { modifier: FlexModifiers["flex-1"] }]}>
             <div className="ct-form">
@@ -150,7 +151,13 @@ const generalDetails = ({ idPrefix, cas, cert }) => (
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-autorenewal`}>
                         {_("Auto-renewal")}
                     </label>
-                    <span id={`${idPrefix}-general-autorenewal`}>{cert.autorenew.v ? _("Yes") : _("No")}</span>
+                    <label className='checkbox-inline'>
+                        <input id={`${idPrefix}-general-autorenewal`}
+                               type="checkbox"
+                               checked={cert.autorenew.v}
+                               onChange={() => onAutorenewChanged(cert, certPath)} />
+                        {_("Renew before expiration")}
+                    </label>
                 </>}
                 {cert.stuck && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-stuck`}>{_("Stuck")}</label>
@@ -223,6 +230,15 @@ class CertificateList extends React.Component {
 
         this.toggle = this.toggle.bind(this);
         this.onValueChanged = this.onValueChanged.bind(this);
+        this.onAutorenewChanged = this.onAutorenewChanged.bind(this);
+    }
+
+    onAutorenewChanged(cert, certPath) {
+        const { addAlert } = this.props;
+        const updates = { autorenew: cockpit.variant("b", !cert.autorenew.v) };
+
+        modifyRequest(certPath, updates)
+                .catch(error => addAlert(error.name, error.message));
     }
 
     toggle(certId) {
@@ -247,13 +263,14 @@ class CertificateList extends React.Component {
 
         const items = Object.entries(certs).map(([certPath, cert], idx) => {
             const idPrefix = cockpit.format("certificate-$0", idx);
+            const onAutorenewChanged = this.onAutorenewChanged;
 
             const tabRenderers = [
                 {
                     name: _("General"),
                     id: idPrefix + "-general-tab",
                     renderer: generalDetails,
-                    data: { idPrefix, cas, cert }
+                    data: { idPrefix, cas, cert, certPath, onAutorenewChanged }
                 },
                 {
                     name: _("Keys"),
