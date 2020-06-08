@@ -79,7 +79,7 @@ function getExpirationTime(cert) {
         if (diff < 2) // Today or Tomorrow
             return _("Expires ") + prettyTime(cert["not-valid-after"].v).toLowerCase();
         if (diff < 30)
-            return _("Expires in ") + cert["not-valid-after"].v + _(" days");
+            return _("Expires in ") + diff + _(" days");
         else
             return _("Expires on ") + prettyTime(cert["not-valid-after"].v);
     }
