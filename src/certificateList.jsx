@@ -1,4 +1,3 @@
-
 /*
  * This file is part of Cockpit.
  *
@@ -26,7 +25,10 @@ import {
     Badge,
     Flex,
     FlexModifiers,
+    Tooltip,
+    TooltipPosition
 } from "@patternfly/react-core";
+import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { CertificateActions } from "./certificateActions.jsx";
 import { RequestCertificate } from './requestCertificate.jsx';
@@ -35,6 +37,7 @@ import "./certificateList.css";
 import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
 import { ListingTable } from "../lib/cockpit-components-table.jsx";
 import { modifyRequest } from "./dbus.js";
+import { certificateStates } from "./states.js";
 
 const _ = cockpit.gettext;
 function prettyTime(unixTime) {
@@ -125,10 +128,24 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
             <div className="ct-form">
                 {cert.status && cert.status.v && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-status`}>{_("Status")}</label>
-                    <span id={`${idPrefix}-general-status`}>
-                        {cert.status.v.charAt(0) +
-                         cert.status.v.substring(1).toLowerCase()}
-                    </span>
+                    <div id={`${idPrefix}-general-status`} role="group">
+                        {cert.stuck.v && (<span>
+                            <span className="fa fa-exclamation-triangle" />
+                            <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
+                        </span>)}
+                        <span>
+                            {cert.status.v.includes('_')
+                                ? cert.status.v
+                                : cert.status.v.charAt(0) + cert.status.v.slice(1).toLowerCase()}
+                            <Tooltip position={TooltipPosition.top}
+                                entryDelay={0}
+                                content={certificateStates[cert.status.v]}>
+                                <span className="info-circle">
+                                    <InfoAltIcon />
+                                </span>
+                            </Tooltip>
+                        </span>
+                    </div>
                 </>}
                 {cert.ca && cert.ca.v && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-ca`}>{_("CA")}</label>
@@ -158,10 +175,6 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                                onChange={() => onAutorenewChanged(cert, certPath)} />
                         {_("Renew before expiration")}
                     </label>
-                </>}
-                {cert.stuck && <>
-                    <label className='control-label label-title' htmlFor={`${idPrefix}-general-stuck`}>{_("Stuck")}</label>
-                    <span id={`${idPrefix}-general-stuck`}>{cert.stuck.v ? _("Yes") : _("No")}</span>
                 </>}
             </div>
         </Flex>

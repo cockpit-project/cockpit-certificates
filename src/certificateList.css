@@ -7,3 +7,7 @@
     color: var(--pf-global--warning-color--100);
     margin-right: 0.5rem
 }
+
+.info-circle {
+    padding-left: .5rem
+}
