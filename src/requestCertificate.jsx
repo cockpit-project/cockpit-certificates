@@ -172,9 +172,11 @@ const CertFileRow = ({ onValueChanged, dialogValues }) => {
             </label>
             <FileAutoComplete id="cert-file"
                 superuser="try"
-                placeholder={_("Path to store the certificate")}
+                placeholder={dialogValues._mode === "request"
+                    ? _("Path to store the certificate")
+                    : _("Path to an existing certificate file")}
                 onChange={value => onValueChanged("certFile", value)}
-                fileExists={false} />
+                fileExists={dialogValues._mode === "import"} />
         </>
     );
 };
@@ -187,9 +189,11 @@ const KeyFileRow = ({ onValueChanged, dialogValues }) => {
             </label>
             <FileAutoComplete id="key-file"
                 superuser="try"
-                placeholder={_("Path to store the generated key or to an existing key")}
+                placeholder={dialogValues._mode === "request"
+                    ? _("Path to store the generated key or to an existing key")
+                    : _("Path to an existing key file")}
                 onChange={value => onValueChanged("keyFile", value)}
-                fileExists={false} />
+                fileExists={dialogValues._mode === "import"} />
         </>
     );
 };
@@ -198,10 +202,11 @@ export class RequestCertificateModal extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
+            _mode: props.mode,
             _hostname: undefined,
             _userChangedNickname: false,
             ca: props.cas[Object.keys(props.cas)[0]] ? props.cas[Object.keys(props.cas)[0]].nickname.v : undefined,
-            storage: "nssdb",
+            storage: props.mode === "request" ? "nssdb" : "file",
             nickname: "",
             certFile: "",
             keyFile: "",
@@ -216,20 +221,24 @@ export class RequestCertificateModal extends React.Component {
     }
 
     componentDidMount() {
-        cockpit.file("/etc/hostname", { superuser: "try" }).read()
-                .done((content, tag) => this.onValueChanged("hostname", content.trim()))
-                .catch(error => this.onAddError(error.name, error.message));
+        const { _mode } = this.state;
+
+        if (_mode === "request") {
+            cockpit.file("/etc/hostname", { superuser: "try" }).read()
+                    .done((content, tag) => this.onValueChanged("hostname", content.trim()))
+                    .catch(error => this.onAddError(error.name, error.message));
+        }
     }
 
     onValueChanged(key, value) {
-        const { _userChangedNickname, hostname, ca } = this.state;
+        const { _userChangedNickname, hostname, ca, _mode } = this.state;
         const stateDelta = { [key]: value };
 
-        if (key === "hostname" && !_userChangedNickname) {
+        if (key === "hostname" && !_userChangedNickname && _mode === "request") {
             stateDelta.nickname = value + '_' + ca + '_' + moment().format("DD-MM-YYYYTHH:mm:ss");
             stateDelta.subjectName = "CN=" + value;
         }
-        if (key === "ca" && !_userChangedNickname) {
+        if (key === "ca" && !_userChangedNickname && _mode === "request") {
             stateDelta.nickname = hostname + '_' + value + '_' + moment().format("DD-MM-YYYYTHH:mm:ss");
         }
         if (key === "nickname")
@@ -297,7 +306,7 @@ export class RequestCertificateModal extends React.Component {
     }
 
     render() {
-        const { onClose } = this.props;
+        const { onClose, mode } = this.props;
         const cas = Object.values(this.props.cas);
 
         const body = (
@@ -319,14 +328,14 @@ export class RequestCertificateModal extends React.Component {
                     <hr />
                 </>}
 
-                <SetSigningParametersRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                {this.state.signingParameters && <div className="ct-form">
-                    <SubjectNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                    <DNSNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                    <PrincipalNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                </div>}
-
-                <hr />
+                {this.state._mode === "request" && <>
+                    <SetSigningParametersRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
+                    {this.state.signingParameters && <div className="ct-form">
+                        <SubjectNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
+                        <DNSNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
+                        <PrincipalNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
+                    </div>}
+                </>}
             </form>
         );
 
@@ -334,7 +343,7 @@ export class RequestCertificateModal extends React.Component {
             <Modal id="request-certificate-dialog" onHide={onClose} show>
                 <Modal.Header>
                     <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title> {_("Request Certificate")} </Modal.Title>
+                    <Modal.Title> {mode === "import" ? _("Import Certificate") : _("Request Certificate")} </Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                     {body}
@@ -343,7 +352,9 @@ export class RequestCertificateModal extends React.Component {
                     {this.state.errorName && <ModalError dialogError={this.state.errorName} dialogErrorDetail={this.state.errorMessage} />}
                     <Button variant="primary"
                         onClick={this.onRequest}>
-                        {_("Request")}
+                        {mode === "import"
+                            ? _("Import")
+                            : _("Request")}
                     </Button>
                     <Button variant="link" className="btn-cancel" onClick={onClose}>
                         {_("Cancel")}
@@ -374,17 +385,25 @@ export class RequestCertificate extends React.Component {
     }
 
     render() {
+        const { mode } = this.props;
         const cas = Object.values(this.props.cas);
         const canRequest = cas.length !== 0;
 
         return (
             <>
-                <Button id="request-certificate-action"
+                {mode == "import"
+                    ? <Button id="import-certificate-action"
                         variant="secondary"
                         isDisabled={!canRequest}
                         onClick={this.onOpen}>
-                    {_("Request Certificate")}
-                </Button>
+                        {_("Import Certificate")}
+                    </Button>
+                    : <Button id="request-certificate-action"
+                          variant="secondary"
+                          isDisabled={!canRequest}
+                          onClick={this.onOpen}>
+                        {_("Request Certificate")}
+                    </Button>}
 
                 { canRequest && this.state.showDialog &&
                     <RequestCertificateModal onClose={this.onClose} {...this.props} /> }

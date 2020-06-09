@@ -384,9 +384,10 @@ class CertificateList extends React.Component {
             };
         });
 
-        const actions = (
-            <RequestCertificate cas={cas} addAlert={addAlert} />
-        );
+        const actions = (<>
+            <RequestCertificate cas={cas} addAlert={addAlert} mode="import" />
+            <RequestCertificate cas={cas} addAlert={addAlert} mode="request" />
+        </>);
 
         return (
             <ListingTable caption={_("Certificates")}
