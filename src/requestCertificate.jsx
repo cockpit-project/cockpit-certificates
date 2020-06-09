@@ -30,12 +30,13 @@ import {
     TextInput
 } from "@patternfly/react-core";
 
-import { addRequest } from "./dbus.js";
+import { addRequest, modifyRequest, resubmitRequest } from "./dbus.js";
 import "../lib/form-layout.scss";
 import { ModalError } from "../lib/cockpit-components-inline-notification.jsx";
 import { FileAutoComplete } from "../lib/cockpit-components-file-autocomplete.jsx";
 import * as Select from "../lib/cockpit-components-select.jsx";
 import "./requestCertificate.scss";
+import { getCAName } from "./helpers.js";
 
 const _ = cockpit.gettext;
 
@@ -197,6 +198,146 @@ const KeyFileRow = ({ onValueChanged, dialogValues }) => {
         </>
     );
 };
+
+export class ResubmitCertificateModal extends React.Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            _mode: "resubmit",
+            ca: getCAName(props.cas, props.cert),
+            storage: props.cert["cert-storage"].v === "NSSDB" ? "nssdb" : "file",
+            nickname: props.cert["cert-nickname"] && props.cert["cert-nickname"].v,
+            certFile: props.cert["cert-file"] && props.cert["cert-file"].v,
+            keyFile: props.cert["key-file"] && props.cert["key-file"].v,
+            subjectName: props.cert.subject && props.cert.subject.v,
+            dnsName: props.cert.hostname && props.cert.hostname.v.join(','),
+            principalName: props.cert.principal && props.cert.principal.v.join(','),
+        };
+
+        this.onValueChanged = this.onValueChanged.bind(this);
+        this.onResubmit = this.onResubmit.bind(this);
+        this.onAddError = this.onAddError.bind(this);
+    }
+
+    onValueChanged(key, value) {
+        const stateDelta = { [key]: value };
+
+        if (key === "dnsName") {
+            value = value.replace(/\s/g, ',');
+            while (value.includes(",,"))
+                value = value.replace(",,", ',');
+            stateDelta.dnsName = value;
+        }
+
+        this.setState(stateDelta);
+    }
+
+    checkParameters() {
+        return null;
+    }
+
+    onAddError(errorName, errorMessage) {
+        this.setState({ errorName, errorMessage });
+    }
+
+    onResubmit() {
+        const { cas, certPath } = this.props;
+        const casKeys = Object.keys(cas);
+        let caPath;
+        casKeys.forEach(key => {
+            if (cas[key].nickname.v === this.state.ca)
+                caPath = key;
+        });
+
+        let subjectName = this.state.subjectName;
+        if (subjectName && !subjectName.includes("="))
+            subjectName = "CN=" + subjectName;
+        let dnsNames;
+        if (this.state.dnsName) {
+            dnsNames = this.state.dnsName.split(',');
+            dnsNames = dnsNames.filter(Boolean); // Removes empty string entries
+        }
+
+        const parameter = { ca: cockpit.variant("s", caPath) };
+        parameter["template-subject"] = subjectName
+            ? cockpit.variant("s", subjectName)
+            : cockpit.variant("s", "");
+        parameter["template-principal"] = this.state.principalName
+            ? cockpit.variant("as", [this.state.principalName])
+            : cockpit.variant("as", [""]);
+        parameter["template-hostname"] = dnsNames
+            ? cockpit.variant("as", dnsNames)
+            : cockpit.variant("as", [""]);
+
+        modifyRequest(certPath, parameter)
+                .then(() => resubmitRequest(certPath))
+                .then(() => this.props.onClose())
+                .catch(error => this.onAddError(error.name, error.message));
+    }
+
+    render() {
+        const { onClose } = this.props;
+        const cas = Object.values(this.props.cas);
+
+        const body = (
+            <form className="ct-form">
+                {this.state.storage === "nssdb" && <>
+                    <label className="control-label" htmlFor="database-path-row">
+                        {_("Database path")}
+                    </label>
+                    <span id="database-path-row">{ this.props.cert["cert-database"].v }</span>
+                    <label className="control-label" htmlFor="storage-row">
+                        {_("Nickname")}
+                    </label>
+                    <span id="nickname-row">{ this.state.nickname }</span>
+                    <hr />
+                </>}
+
+                {this.state.storage === "file" && <>
+                    <label className="control-label" htmlFor="storage-row">
+                        {_("Certificate file")}
+                    </label>
+                    <span id="cert-file-row">{ this.state.certFile }</span>
+                    <label className="control-label" htmlFor="key-file-row">
+                        {_("Key file")}
+                    </label>
+                    <span id="key-file-row">{ this.state.keyFile }</span>
+                    <hr />
+                </>}
+
+                <CAsRow dialogValues={this.state} onValueChanged={this.onValueChanged} cas={cas} />
+
+                <hr />
+
+                <SubjectNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
+                <DNSNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
+                <PrincipalNameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
+            </form>
+        );
+
+        return (
+            <Modal id="resubmit-certificate-dialog" onHide={onClose} show>
+                <Modal.Header>
+                    <Modal.CloseButton onClick={onClose} />
+                    <Modal.Title>{_("Resubmit Certificate")} </Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {body}
+                </Modal.Body>
+                <Modal.Footer>
+                    {this.state.errorName && <ModalError dialogError={this.state.errorName} dialogErrorDetail={this.state.errorMessage} />}
+                    <Button variant="primary" onClick={this.onResubmit}>
+                        {_("Resubmit")}
+                    </Button>
+                    <Button variant="link" className="btn-cancel" onClick={onClose}>
+                        {_("Cancel")}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        );
+    }
+}
 
 export class RequestCertificateModal extends React.Component {
     constructor(props) {

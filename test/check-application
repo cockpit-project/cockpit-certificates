@@ -573,5 +573,52 @@ class TestApplication(MachineCase):
             principal_name="HTTP/TEST_HOSTNAME",
         ).execute()
 
+    def testResubmit(self):
+        b = self.browser
+        m = self.machine
+
+        cert_name = "Server-Cert"
+        db_path = "/etc/pki/nssdb"
+        dns_name = "example.com"
+        m.execute("selfsign-getcert request -d {0} -n {1} -D {2}".format(db_path, cert_name, dns_name))
+
+        self.login_and_go("/certificates")
+        # Verify expected heading
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+
+        b.wait_in_text("#certificate-0-name", cert_name)
+        b.click("button#expandable-toggle0")
+
+        old_validity = b.text("#certificate-0-general-validity")
+        time.sleep(1) # To prevent race-condition: wait 1 second so resubmitted certificate would have the same time validity in the UI as before
+
+        b.wait_not_present("#certificate-0-general-subject")
+        b.wait_not_present("#certificate-0-general-principal")
+        b.wait_in_text("#certificate-0-general-dns", dns_name)
+
+        # Resubmit certificate with different signing request parameters
+        b.click("#certificate-0-action-kebab button")
+        b.click("#certificate-0-resubmit a")
+        b.wait_in_text(".modal-title", "Resubmit Certificate")
+
+        # Change signing request propertes for resubmit
+        subject_name="CN=TEST_HOSTAME"
+        principal_name="HTTP/TEST_HOSTNAME",
+        b.set_input_text("#subject-name", subject_name)
+        b.set_input_text("#principal-name", principal_name)
+        b.set_input_text("#dns-name", "") # Remove DNS name
+
+        b.click(".modal-footer button:contains(Resubmit)")
+        b.wait_not_present(".modal-dialog")
+
+        # Check validity time differs which means certificate was resubmitted and renewed
+        new_validity = b.text("#certificate-0-general-validity")
+        self.assertNotEqual(old_validity, new_validity)
+
+        # Check signing properties are updated
+        b.wait_in_text("#certificate-0-general-subject", subject_name)
+        b.wait_in_text("#certificate-0-general-principal", principal_name)
+        b.wait_not_present("#certificate-0-general-dns")
+
 if __name__ == '__main__':
     test_main()

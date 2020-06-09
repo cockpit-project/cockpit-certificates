@@ -40,6 +40,7 @@ import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
 import { ListingTable } from "../lib/cockpit-components-table.jsx";
 import { modifyRequest } from "./dbus.js";
 import { certificateStates } from "./states.js";
+import { getCAName } from "./helpers.js";
 
 const _ = cockpit.gettext;
 function prettyTime(unixTime) {
@@ -117,11 +118,6 @@ function getExpirationTime(cert) {
         }
         return _("Expires on ") + prettyTime(cert["not-valid-after"].v);
     }
-}
-
-function getCAName(cas, cert) {
-    if (cert.ca && cas[cert.ca.v.replace("request", "ca")])
-        return cas[cert.ca.v.replace("request", "ca")].nickname.v;
 }
 
 const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => (
@@ -370,6 +366,7 @@ class CertificateList extends React.Component {
                     { title: cert.ca && cert.ca.v && caTitle },
                     {
                         title: <CertificateActions certs={certs}
+                                 cas={cas}
                                  cert={cert}
                                  certPath={certPath}
                                  addAlert={addAlert}
