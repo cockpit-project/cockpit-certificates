@@ -158,18 +158,6 @@ module.exports = {
                 ]
             },
             {
-                test: /\.less$/,
-                use: [
-                    extract.loader,
-                    {
-                        loader: 'css-loader'
-                    },
-                    {
-                        loader: "less-loader"
-                    }
-                ]
-            },
-            {
                 // See https://github.com/patternfly/patternfly-react/issues/3815 and
                 // [Redefine grid breakpoints] section in pkg/lib/_global-variables.scss for more details
                 // Components which are using the pf-global--breakpoint-* variables should import scss manually
