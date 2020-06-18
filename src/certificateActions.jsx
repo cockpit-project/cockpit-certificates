@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from "cockpit";
 import React from "react";
 
 import "./certificateActions.css";
@@ -26,7 +27,6 @@ import {
     Button,
     Dropdown,
     DropdownItem,
-    DropdownSeparator,
     KebabToggle
 } from "@patternfly/react-core";
 
@@ -64,7 +64,7 @@ export class RemoveModal extends React.Component {
                         appOnValueChanged("certs, certs");
                     })
                     .catch(error => {
-                        addAlert(_("Error: ") + (error.name || error.problem), error.message)
+                        addAlert(_("Error: ") + (error.name || error.problem), error.message);
                         onClose();
                     });
         } else {
@@ -76,7 +76,7 @@ export class RemoveModal extends React.Component {
                         appOnValueChanged("certs, certs");
                     })
                     .catch(error => {
-                        addAlert(_("Error: ") + error.name, error.message)
+                        addAlert(_("Error: ") + error.name, error.message);
                         onClose();
                     });
         }
@@ -123,14 +123,14 @@ export class RemoveModal extends React.Component {
         const body = (<>
             { cert["cert-storage"].v === "FILE" ? fileCertBody : nssdbCertBody }
             { cert["key-file"] && cert["cert-file"] && cert["key-file"].v && cert["cert-file"].v && (
-                    <label className="checkbox-inline checkbox-delete-files">
-                        <input id={idPrefix + "-delete-files"}
+                <label className="checkbox-inline checkbox-delete-files">
+                    <input id={idPrefix + "-delete-files"}
                             type="checkbox"
                             checked={deleteFiles}
                             onChange={e => this.onValueChanged("deleteFiles", !deleteFiles)} />
-                        {_("Also delete certificate and key files")}
-                    </label>) }
-            </>);
+                    {_("Also delete certificate and key files")}
+                </label>) }
+        </>);
 
         return (
             <Modal id={idPrefix + "-remove-dialog"} onHide={onClose} show>
@@ -153,7 +153,6 @@ export class RemoveModal extends React.Component {
         );
     }
 }
-
 
 export class CertificateActions extends React.Component {
     constructor(props) {

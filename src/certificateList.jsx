@@ -24,20 +24,8 @@ import moment from "moment";
 
 import {
     Badge,
-    DataList,
-    DataListItem,
-    DataListItemRow,
-    DataListCell,
-    DataListToggle,
-    DataListContent,
-    DataListItemCells,
     Flex,
-    FlexItem,
     FlexModifiers,
-    Tabs,
-    Tab,
-    TabsVariant,
-    TabContent
 } from "@patternfly/react-core";
 
 import { CertificateActions } from "./certificateActions.jsx";
@@ -131,14 +119,14 @@ function getCAName(cas, cert) {
 }
 
 const generalDetails = ({ idPrefix, cas, cert }) => (
-    <Flex breakpointMods={[{modifier: FlexModifiers["justify-content-space-between"]}]}>
-        <Flex breakpointMods={[{modifier: FlexModifiers["column", "flex-1"]}]}>
+    <Flex breakpointMods={[{ modifier: FlexModifiers["justify-content-space-between"] }]}>
+        <Flex breakpointMods={[{ modifier: FlexModifiers.column }, { modifier: FlexModifiers["flex-1"] }]}>
             <div className="ct-form">
                 {cert.status && cert.status.v && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-status`}>{_("Status")}</label>
                     <span id={`${idPrefix}-general-status`}>
-                        {cert.status.v.charAt(0)
-                         + cert.status.v.substring(1).toLowerCase()}
+                        {cert.status.v.charAt(0) +
+                         cert.status.v.substring(1).toLowerCase()}
                     </span>
                 </>}
                 {cert.ca && cert.ca.v && <>
@@ -147,15 +135,15 @@ const generalDetails = ({ idPrefix, cas, cert }) => (
                 </>}
             </div>
         </Flex>
-        <Flex breakpointMods={[{modifier: FlexModifiers["column", "flex-1"]}]}>
+        <Flex breakpointMods={[{ modifier: FlexModifiers.column }, { modifier: FlexModifiers["flex-1"] }]}>
             <div className="ct-form">
                 {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-validity`}>
                         {_("Valid")}
                     </label>
                     <span id={`${idPrefix}-general-validity`}>
-                        {prettyTime(cert["not-valid-before"].v)
-                        +  _(" to ") + prettyTime(cert["not-valid-after"].v)}
+                        {prettyTime(cert["not-valid-before"].v) +
+                        _(" to ") + prettyTime(cert["not-valid-after"].v)}
                     </span>
                 </>}
                 {cert.autorenew && <>
@@ -191,8 +179,7 @@ const keyDetails = ({ idPrefix, cert }) => (
             <label className='control-label label-title' htmlFor={`${idPrefix}-key-storage`}>{_("Storage")}</label>
             <span id={`${idPrefix}-key-storage`}>{cert["key-storage"].v}</span>
         </>}
-        {((cert["key-database"] && cert["key-database"].v)
-         || (cert["key-file"] && cert["key-file"].v)) && <>
+        {((cert["key-database"] && cert["key-database"].v) || (cert["key-file"] && cert["key-file"].v)) && <>
             <label className='control-label label-title' htmlFor={`${idPrefix}-key-location`}>{_("Location")}</label>
             {cert["key-storage"].v === "FILE"
                 ? <span id={`${idPrefix}-key-location`}>{cert["key-file"].v}</span>
@@ -216,9 +203,8 @@ const certDetails = ({ idPrefix, cert }) => (
             <label className='control-label label-title' htmlFor={`${idPrefix}-cert-storage`}>{_("Storage")}</label>
             <span id={`${idPrefix}-cert-storage`}>{cert["cert-storage"].v}</span>
         </>}
-        {((cert["cert-database"] && cert["cert-database"].v)
-         || (cert["cert-file"] && cert["cert-file"].v)) && <>
-        <label className='control-label label-title' htmlFor={`${idPrefix}-cert-location`}>{_("Location")}</label>
+        {((cert["cert-database"] && cert["cert-database"].v) || (cert["cert-file"] && cert["cert-file"].v)) && <>
+            <label className='control-label label-title' htmlFor={`${idPrefix}-cert-location`}>{_("Location")}</label>
             {cert["cert-storage"].v === "FILE"
                 ? <span id={`${idPrefix}-cert-location`}>{cert["cert-file"].v}</span>
                 : <span id={`${idPrefix}-cert-location`}>{cert["cert-database"].v}</span>
@@ -301,21 +287,26 @@ class CertificateList extends React.Component {
 
             return {
                 columns: [
-                    { title: (cert["cert-nickname"] && cert["cert-nickname"].v)
-                        ? <span id={`${idPrefix}-name`}>{cert["cert-nickname"].v}</span>
-                        : <span id={`${idPrefix}-name`}>
-                              {cert["nickname"] && cert["nickname"].v +  _(" (Request ID)")}
-                          </span> },
-                    { title: cert["not-valid-after"] && cert["not-valid-after"].v !== 0 &&
-                        <span id={`${idPrefix}-validity`}>{getExpirationTime(cert)}</span> },
+                    {
+                        title: (cert["cert-nickname"] && cert["cert-nickname"].v)
+                            ? <span id={`${idPrefix}-name`}>{cert["cert-nickname"].v}</span>
+                            : <span id={`${idPrefix}-name`}>
+                                {cert.nickname && cert.nickname.v + _(" (Request ID)")}
+                            </span>
+                    },
+                    {
+                        title: cert["not-valid-after"] && cert["not-valid-after"].v !== 0 &&
+                        <span id={`${idPrefix}-validity`}>{getExpirationTime(cert)}</span>
+                    },
                     { title: cert.ca && cert.ca.v && caTitle },
-                    { title: <CertificateActions certs={certs}
+                    {
+                        title: <CertificateActions certs={certs}
                                  cert={cert}
-                                 certs={certs}
                                  certPath={certPath}
                                  addAlert={addAlert}
                                  appOnValueChanged={appOnValueChanged}
-                                 idPrefix={idPrefix} /> },
+                                 idPrefix={idPrefix} />
+                    },
                 ],
                 rowId: idPrefix,
                 props: { key: idPrefix },

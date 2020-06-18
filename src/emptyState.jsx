@@ -17,6 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 
+import cockpit from "cockpit";
 import React from "react";
 
 import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
@@ -32,8 +33,8 @@ class EmptyState extends React.Component {
 
         service.start()
                 .then(() => updateService())
-                .fail(error => console.error(_("Starting a service failed: ")
-                + JSON.stringify(error))); // TODO better error handling
+                .fail(error => console.error(_("Starting a service failed: ") +
+                JSON.stringify(error))); // TODO better error handling
     }
 
     render() {
@@ -47,9 +48,9 @@ class EmptyState extends React.Component {
         );
 
         if (!service || !service.exists) {
-            return <EmptyStatePanel title={ _("Loading the certificate service") } loading/>;
+            return <EmptyStatePanel title={ _("Loading the certificate service") } loading />;
         } else if (service.state === "starting") {
-            return <EmptyStatePanel title={ _("Starting the certificate service") } loading/>;
+            return <EmptyStatePanel title={ _("Starting the certificate service") } loading />;
         } else if (!service.state !== "running") {
             return <EmptyStatePanel title={ _("The certificate service is not active") }
                        icon={ ExclamationCircleIcon }
@@ -62,4 +63,3 @@ class EmptyState extends React.Component {
 }
 
 export default EmptyState;
-

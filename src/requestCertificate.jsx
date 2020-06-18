@@ -23,7 +23,6 @@ import moment from "moment";
 import { Modal } from "patternfly-react";
 import {
     Button,
-    FormGroup,
     Radio,
     TextInput
 } from "@patternfly/react-core";
@@ -61,7 +60,7 @@ const StorageRow = ({ onValueChanged, dialogValues }) => {
             </div>
         </>
     );
-}
+};
 
 const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
     return (
@@ -72,17 +71,17 @@ const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
             <Select.Select id="ca"
                 initial={dialogValues.ca}
                 onChange={value => onValueChanged("ca", value)}>
-                    {cas.map(ca => {
-                        return (
+                {cas.map(ca => {
+                    return (
                         <Select.SelectEntry data={ca.nickname.v} key={ca.nickname.v}>
                             {ca.nickname.v}
                         </Select.SelectEntry>
-                        );
-                    })}
+                    );
+                })}
             </Select.Select>
         </>
     );
-}
+};
 
 const NicknameRow = ({ onValueChanged, dialogValues }) => {
     return (
@@ -97,7 +96,7 @@ const NicknameRow = ({ onValueChanged, dialogValues }) => {
                 aria-label={_("Nickname input text")} />
         </>
     );
-}
+};
 
 const CertFileRow = ({ onValueChanged, dialogValues }) => {
     return (
@@ -112,7 +111,7 @@ const CertFileRow = ({ onValueChanged, dialogValues }) => {
                 fileExists={false} />
         </>
     );
-}
+};
 
 const KeyFileRow = ({ onValueChanged, dialogValues }) => {
     return (
@@ -127,7 +126,7 @@ const KeyFileRow = ({ onValueChanged, dialogValues }) => {
                 fileExists={false} />
         </>
     );
-}
+};
 
 export class RequestCertificateModal extends React.Component {
     constructor(props) {
@@ -149,8 +148,8 @@ export class RequestCertificateModal extends React.Component {
 
     componentDidMount() {
         cockpit.file("/etc/hostname", { superuser: "try" }).read()
-            .done((content, tag) => this.onValueChanged("hostname", content.trim()))
-            .catch(error => this.onAddError(error.name, error.message));
+                .done((content, tag) => this.onValueChanged("hostname", content.trim()))
+                .catch(error => this.onAddError(error.name, error.message));
     }
 
     onValueChanged(key, value) {
@@ -188,8 +187,8 @@ export class RequestCertificateModal extends React.Component {
         const parameter = {
             "cert-storage": cockpit.variant("s", this.state.storage),
             "key-storage": cockpit.variant("s", this.state.storage),
-            "ca": cockpit.variant("s", caPath),
-        }
+            ca: cockpit.variant("s", caPath),
+        };
 
         if (this.state.storage === "nssdb") {
             parameter["cert-database"] = cockpit.variant("s", NSSDB_PATH);
@@ -205,7 +204,7 @@ export class RequestCertificateModal extends React.Component {
 
         addRequest(parameter)
                 .then(() => this.props.onClose())
-                .catch(error => this.onAddError(error.name, error.message))
+                .catch(error => this.onAddError(error.name, error.message));
     }
 
     render() {
@@ -214,20 +213,20 @@ export class RequestCertificateModal extends React.Component {
 
         const body = (
             <form className="ct-form">
-                <CAsRow dialogValues={this.state} onValueChanged={this.onValueChanged} cas={cas}/>
+                <CAsRow dialogValues={this.state} onValueChanged={this.onValueChanged} cas={cas} />
 
                 <hr />
 
-                <StorageRow dialogValues={this.state} onValueChanged={this.onValueChanged}/>
+                <StorageRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
                 {this.state.storage === "nssdb" &&
-                    <NicknameRow dialogValues={this.state} onValueChanged={this.onValueChanged}/>}
+                    <NicknameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />}
 
                 <hr />
 
                 {this.state.storage === "file" && <>
-                    <CertFileRow dialogValues={this.state} onValueChanged={this.onValueChanged}/>
+                    <CertFileRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
                     <hr />
-                    <KeyFileRow dialogValues={this.state} onValueChanged={this.onValueChanged}/>
+                    <KeyFileRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
                 </>}
 
                 <hr />
@@ -290,7 +289,7 @@ export class RequestCertificate extends React.Component {
                     {_("Request Certificate")}
                 </Button>
 
-                { canRequest && this.state.showDialog && 
+                { canRequest && this.state.showDialog &&
                     <RequestCertificateModal onClose={this.onClose} {...this.props} /> }
             </>
         );
