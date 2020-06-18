@@ -29,6 +29,8 @@ import * as service from "../lib/service.js";
 import { page_status } from "../lib/notifications.js";
 import CertificateList from "./certificateList.jsx";
 
+import moment from "moment";
+
 const _ = cockpit.gettext;
 const CERTMONGER_SERVICE_NAME = "certmonger.service";
 
@@ -75,9 +77,9 @@ export class Application extends React.Component {
         const diffSeconds = eventdate.diff(todaysdate, "seconds");
 
         if (diffSeconds < 0)
-            this.setState(prevState => { expiredCerts: prevState.expiredCerts++ });
+            this.setState(prevState => { prevState.expiredCerts++ });
         else if (diffDays > 28)
-            this.setState(prevState => { toExpireCerts: prevState.toExpireCerts++ });
+            this.setState(prevState => { prevState.toExpireCerts++ });
     }
 
     componentDidMount() {
@@ -137,7 +139,7 @@ export class Application extends React.Component {
             (path, iface, signal, args) => {
                 if (signal === "PropertiesChanged") {
                     if (args[0] === "org.fedorahosted.certmonger.request") {
-                        const certs = {...this.state.certs};
+                        const certs = { ...this.state.certs };
 
                         if (!certs[path]) { // new cert was added
                             this.getCertificate(path);
@@ -148,7 +150,7 @@ export class Application extends React.Component {
                             this.setState({ certs });
                         }
                     } else if (args[0] === "org.fedorahosted.certmonger.ca") {
-                        const cas = {...this.state.cas};
+                        const cas = { ...this.state.cas };
 
                         if (!cas[path]) { // new ca was added
                             this.getCertificateAuthority(path);
@@ -227,7 +229,7 @@ export class Application extends React.Component {
                 return emptyStateBody;
 
             return certificatesBody;
-        }
+        };
 
         return (
             <>
@@ -237,15 +239,15 @@ export class Application extends React.Component {
                 <AlertGroup isToast>
                     {this.state.alerts.map((danger, index) => (
                         <Alert isLiveRegion
-                            variant={AlertVariant["danger"]}
+                            variant={AlertVariant.danger}
                             title={danger.title}
                             action={
                                 <AlertActionCloseButton variantLabel="danger alert"
                                   onClose={() => this.removeAlert(index)} />
                             }
                             key={index}>
-                                {_("Error message: ") + danger.message}
-                            </Alert>
+                            {_("Error message: ") + danger.message}
+                        </Alert>
                     ))}
                 </AlertGroup>
             </>
