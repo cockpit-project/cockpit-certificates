@@ -9,6 +9,7 @@ BuildArch: noarch
 BuildRequires:  libappstream-glib
 
 Requires: cockpit-system
+Requires: certmonger
 
 %define debug_package %{nil}
 
