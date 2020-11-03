@@ -364,6 +364,8 @@ class TestApplication(testlib.MachineCase):
                 time.sleep(4) # Certificate enrollment takes some time
 
             def verify_frontend(self):
+                if not self.ca:
+                    self.ca = b.text("#certificate-0-ca")
                 if self.storage_type == "NSSDB" and not self.nickname:
                     self.nickname = b.text("#certificate-0-name")
 
@@ -384,21 +386,21 @@ class TestApplication(testlib.MachineCase):
 
             def verify_backend(self):
                 if self.storage_type == "NSSDB":
-                    command_output = m.execute("selfsign-getcert list -d /etc/pki/nssdb -n {0} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.nickname))
-                    self.test_obj.assertEqual(command_output, "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
-                    command_output = m.execute("selfsign-getcert list -d /etc/pki/nssdb -n {0} | grep 'certificate:' | awk '{{print $2}}'".format(self.nickname))
-                    self.test_obj.assertEqual(command_output, "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
+                    command_output = m.execute("getcert list -d /etc/pki/nssdb -n {0} -c {1} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.nickname, self.ca))
+                    self.test_obj.assertIn(command_output.strip(), "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
+                    command_output = m.execute("getcert list -d /etc/pki/nssdb -n {0} -c {1} | grep 'certificate:' | awk '{{print $2}}'".format(self.nickname, self.ca))
+                    self.test_obj.assertIn(command_output.strip(), "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
                 elif self.storage_type == "File":
-                    command_output = m.execute("selfsign-getcert list -f {0} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.cert_path))
+                    command_output = m.execute("getcert list -f {0} -c {1} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.cert_path, self.ca))
                     self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.key_path))
-                    command_output = m.execute("selfsign-getcert list -f {0} | grep 'certificate:' | awk '{{print $2}}'".format(self.cert_path))
+                    command_output = m.execute("getcert list -f {0} -c {1} | grep 'certificate:' | awk '{{print $2}}'".format(self.cert_path, self.ca))
                     self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.cert_path))
 
             def cleanup(self):
                 if self.storage_type == "NSSDB":
-                    m.execute("selfsign-getcert stop-tracking -d /etc/pki/nssdb -n {0}".format(self.nickname))
+                    m.execute("getcert stop-tracking -d /etc/pki/nssdb -n {0} -c {1}".format(self.nickname, self.ca))
                 else:
-                    m.execute("selfsign-getcert stop-tracking -f {0} -k {1}".format(self.cert_path, self.key_path))
+                    m.execute("getcert stop-tracking -f {0} -k {1} -c {2}".format(self.cert_path, self.key_path, self.ca))
                 b.reload()
                 b.enter_page('/certificates')
 
