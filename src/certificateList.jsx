@@ -41,7 +41,7 @@ import { certificateStates } from "./states.js";
 
 const _ = cockpit.gettext;
 function prettyTime(unixTime) {
-    moment.locale(cockpit.language, {
+    moment.locale(cockpit.language || 'en', {
         longDateFormat : {
             LT: "hh:mm:ss",
             L: "DD/MM/YYYY",
@@ -50,7 +50,7 @@ function prettyTime(unixTime) {
     const yesterday = _("Yesterday");
     const today = _("Today");
     const tomorrow = _("Tomorrow");
-    moment.locale(cockpit.language, {
+    moment.locale(cockpit.language || 'en', {
         calendar : {
             lastDay : `[${yesterday}] LT`,
             sameDay : `[${today}] LT`,
