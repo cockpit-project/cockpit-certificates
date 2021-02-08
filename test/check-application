@@ -253,10 +253,10 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".modal-title", "Remove Certificate")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
         b.wait_not_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
-        b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present(".modal-dialog")
+        b.click(".pf-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-c-modal-box")
 
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
@@ -275,10 +275,10 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".modal-title", "Remove Certificate")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
         b.wait_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
-        b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present(".modal-dialog")
+        b.click(".pf-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-c-modal-box")
 
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
@@ -299,10 +299,10 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".modal-title", "Remove Certificate")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
         b.click("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
-        b.click(".modal-footer button:contains(Remove)")
-        b.wait_not_present(".modal-dialog")
+        b.click(".pf-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-c-modal-box")
 
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
@@ -339,7 +339,7 @@ class TestApplication(testlib.MachineCase):
 
             def open(self):
                 b.click("#request-certificate-action")
-                b.wait_in_text(".modal-dialog .modal-header .modal-title", "Request Certificate")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Request Certificate")
 
             def fill(self):
                 if self.ca:
@@ -355,12 +355,12 @@ class TestApplication(testlib.MachineCase):
                     b.set_input_text("input[placeholder='Path to store the generated key or to an existing key']", self.key_path)
 
             def cancel(self):
-                b.click(".modal-footer button:contains(Cancel)")
-                b.wait_not_present(".modal-dialog")
+                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present(".pf-c-modal-box")
 
             def create(self):
-                b.click(".modal-footer button:contains(Request)")
-                b.wait_not_present(".modal-dialog")
+                b.click(".pf-c-modal-box__footer button:contains(Request)")
+                b.wait_not_present(".pf-c-modal-box")
                 time.sleep(4) # Certificate enrollment takes some time
 
             def verify_frontend(self):

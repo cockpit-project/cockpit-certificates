@@ -20,9 +20,9 @@ import cockpit from "cockpit";
 import React from "react";
 import moment from "moment";
 
-import { Modal } from "patternfly-react";
 import {
     Button,
+    Modal,
     Radio,
     TextInput
 } from "@patternfly/react-core";
@@ -234,24 +234,21 @@ export class RequestCertificateModal extends React.Component {
         );
 
         return (
-            <Modal id="request-certificate-dialog" onHide={onClose} show>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title> {_("Request Certificate")} </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                <Modal.Footer>
-                    {this.state.errorName && <ModalError dialogError={this.state.errorName} dialogErrorDetail={this.state.errorMessage} />}
-                    <Button variant="primary"
-                        onClick={this.onRequest}>
-                        {_("Request")}
-                    </Button>
-                    <Button variant="link" className="btn-cancel" onClick={onClose}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+            <Modal id="request-certificate-dialog" onClose={onClose}
+                   position="top" variant="medium"
+                   isOpen
+                   title={_("Request Certificate")}
+                   footer={<>
+                       {this.state.errorName && <ModalError dialogError={this.state.errorName} dialogErrorDetail={this.state.errorMessage} />}
+                       <Button variant="primary"
+                           onClick={this.onRequest}>
+                           {_("Request")}
+                       </Button>
+                       <Button variant="link" className="btn-cancel" onClick={onClose}>
+                           {_("Cancel")}
+                       </Button>
+                   </>}>
+                {body}
             </Modal>
         );
     }

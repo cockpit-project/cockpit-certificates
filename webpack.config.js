@@ -1,9 +1,11 @@
+const childProcess = require('child_process');
 const path = require("path");
 const copy = require("copy-webpack-plugin");
 const extract = require("mini-css-extract-plugin");
 const fs = require("fs");
 const webpack = require("webpack");
 const CompressionPlugin = require("compression-webpack-plugin");
+const CockpitPoPlugin = require("./src/lib/cockpit-po-plugin");
 
 var externals = {
     "cockpit": "cockpit",
@@ -15,7 +17,6 @@ const builddir = (process.env.SRCDIR || __dirname);
 const distdir = builddir + path.sep + "dist";
 const section = process.env.ONLYDIR || null;
 const nodedir = path.resolve((process.env.SRCDIR || __dirname), "node_modules");
-const libdir = path.resolve((process.env.SRCDIR || __dirname), "lib");
 
 /* A standard nodejs and webpack pattern */
 var production = process.env.NODE_ENV === 'production';
@@ -80,7 +81,8 @@ info.files = files;
 
 var plugins = [
     new copy(info.files),
-    new extract({filename: "[name].css"})
+    new extract({filename: "[name].css"}),
+    new CockpitPoPlugin(),
 ];
 
 /* Only minimize when in production mode */
@@ -114,12 +116,27 @@ var babel_loader = {
     }
 }
 
+/* check if sassc is available, to avoid unintelligible error messages */
+try {
+    childProcess.execFileSync('sassc', ['--version'], { stdio: ['pipe', 'pipe', 'inherit'] });
+} catch (e) {
+    if (e.code === 'ENOENT') {
+        console.error("ERROR: You need to install the 'sassc' package to build this project.");
+        process.exit(1);
+    } else {
+        throw e;
+    }
+}
+
 module.exports = {
     mode: production ? 'production' : 'development',
     entry: info.entries,
     resolve: {
         modules: [ nodedir, path.resolve(__dirname, 'src/lib') ],
         alias: { 'font-awesome': path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets') },
+    },
+    resolveLoader: {
+        modules: [ nodedir, path.resolve(__dirname, 'src/lib') ],
     },
     externals: externals,
     output: output,
@@ -173,20 +190,7 @@ module.exports = {
                             ]
                         },
                     },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sassOptions: {
-                                includePaths: [
-                                    // Teach webpack to resolve these references in order to build PF3 scss
-                                    path.resolve(nodedir, 'font-awesome-sass', 'assets', 'stylesheets'),
-                                    path.resolve(nodedir, 'patternfly', 'dist', 'sass'),
-                                    path.resolve(nodedir, 'bootstrap-sass', 'assets', 'stylesheets'),
-                                ],
-                                outputStyle: 'compressed',
-                            },
-                        },
-                    },
+                    'sassc-loader',
                 ]
             },
             {
@@ -198,25 +202,7 @@ module.exports = {
                         loader: 'css-loader',
                         options: { url: false }
                     },
-                    {
-                        loader: 'sass-loader',
-                        options: {
-                            sassOptions: {
-                                outputStyle: 'compressed',
-                            }
-                        }
-                    },
-                    {
-                        loader: 'sass-resources-loader',
-                            // Make PF3 and PF4 variables globably accessible to be used by the components scss
-                            options: {
-                                resources: [
-                                    path.resolve(libdir, './_global-variables.scss'),
-                                    path.resolve(nodedir, './@patternfly/patternfly/patternfly-variables.scss'),
-                                    path.resolve(nodedir, './patternfly/dist/sass/patternfly/_variables.scss')
-                                ],
-                            },
-                    },
+                    'sassc-loader',
                 ]
             },
             {
