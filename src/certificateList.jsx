@@ -24,7 +24,6 @@ import moment from "moment";
 import {
     Badge,
     Flex,
-    FlexModifiers,
     Tooltip,
     TooltipPosition
 } from "@patternfly/react-core";
@@ -123,8 +122,8 @@ function getCAName(cas, cert) {
 }
 
 const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => (
-    <Flex breakpointMods={[{ modifier: FlexModifiers["justify-content-space-between"] }]}>
-        <Flex breakpointMods={[{ modifier: FlexModifiers.column }, { modifier: FlexModifiers["flex-1"] }]}>
+    <Flex justifyContent={{ default: "justifyContentCenter" }}>
+        <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
             <div className="ct-form">
                 {cert.status && cert.status.v && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-status`}>{_("Status")}</label>
@@ -153,7 +152,7 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                 </>}
             </div>
         </Flex>
-        <Flex breakpointMods={[{ modifier: FlexModifiers.column }, { modifier: FlexModifiers["flex-1"] }]}>
+        <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
             <div className="ct-form">
                 {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <>
                     <label className='control-label label-title' htmlFor={`${idPrefix}-general-validity`}>

@@ -22,12 +22,12 @@ import React from "react";
 
 import "./certificateActions.css";
 
-import { Modal } from 'patternfly-react';
 import {
     Button,
     Dropdown,
     DropdownItem,
-    KebabToggle
+    KebabToggle,
+    Modal,
 } from "@patternfly/react-core";
 
 import { removeRequest } from "./dbus.js";
@@ -133,22 +133,20 @@ export class RemoveModal extends React.Component {
         </>);
 
         return (
-            <Modal id={idPrefix + "-remove-dialog"} onHide={onClose} show>
-                <Modal.Header>
-                    <Modal.CloseButton onClick={onClose} />
-                    <Modal.Title> { title } </Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    {body}
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="danger" onClick={this.onRemove}>
-                        { deleteFiles ? _("Remove and delete") : _("Remove") }
-                    </Button>
-                    <Button variant="link" className="btn-cancel" onClick={onClose}>
-                        {_("Cancel")}
-                    </Button>
-                </Modal.Footer>
+            <Modal id={idPrefix + "-remove-dialog"}
+                   position="top" variant="medium"
+                   onClose={onClose}
+                   isOpen
+                   title={title}
+                   footer={<>
+                       <Button variant="danger" onClick={this.onRemove}>
+                           { deleteFiles ? _("Remove and delete") : _("Remove") }
+                       </Button>
+                       <Button variant="link" className="btn-cancel" onClick={onClose}>
+                           {_("Cancel")}
+                       </Button>
+                   </>}>
+                {body}
             </Modal>
         );
     }
