@@ -10,6 +10,8 @@ VM_IMAGE=$(CURDIR)/test/images/$(TEST_OS)
 NODE_MODULES_TEST=package-lock.json
 # one example file in dist/ from webpack to check if that already ran
 WEBPACK_TEST=dist/index.html
+# one example file in src/lib to check if it was already checked out
+LIB_TEST=src/lib/cockpit-components-table.jsx
 
 all: $(WEBPACK_TEST)
 
@@ -147,6 +149,14 @@ test/common:
 	git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 233
 	git checkout --force FETCH_HEAD -- test/common
 	git reset test/common
+
+# checkout Cockpit's PF/React/build library; again this has no API stability guarantee, so check out a stable tag
+$(LIB_TEST):
+	flock Makefile sh -ec '\
+	    git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 236; \
+	    git checkout --force FETCH_HEAD -- pkg/lib; \
+	    git reset -- pkg/lib'
+	mv pkg/lib src/ && rmdir -p pkg
 
 $(NODE_MODULES_TEST): package.json
 	# if it exists already, npm install won't update it; force that so that we always get up-to-date packages

@@ -25,8 +25,8 @@ import { Alert, AlertGroup, AlertActionCloseButton, AlertVariant } from '@patter
 
 import EmptyState from "./emptyState.jsx";
 import { getRequests, getRequest, getCAs, getCA } from './dbus.js';
-import * as service from "../lib/service.js";
-import { page_status } from "../lib/notifications.js";
+import * as service from "service.js";
+import { page_status } from "notifications.js";
 import CertificateList from "./certificateList.jsx";
 
 import moment from "moment";

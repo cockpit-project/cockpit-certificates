@@ -20,7 +20,7 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import { EmptyStatePanel } from "../lib/cockpit-components-empty-state.jsx";
+import { EmptyStatePanel } from "cockpit-components-empty-state.jsx";
 import { Button } from '@patternfly/react-core';
 
 import { ExclamationCircleIcon } from "@patternfly/react-icons";
