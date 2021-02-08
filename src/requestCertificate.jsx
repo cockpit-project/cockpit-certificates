@@ -22,6 +22,7 @@ import moment from "moment";
 
 import {
     Button,
+    FormSelect, FormSelectOption,
     Modal,
     Radio,
     TextInput
@@ -31,7 +32,6 @@ import { addRequest } from "./dbus.js";
 import "form-layout.scss";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
-import * as Select from "cockpit-components-select.jsx";
 import "./requestCertificate.scss";
 
 const _ = cockpit.gettext;
@@ -68,17 +68,16 @@ const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
             <label className="control-label" htmlFor="ca">
                 {_("CA")}
             </label>
-            <Select.Select id="ca"
-                initial={dialogValues.ca}
+            <FormSelect id="ca"
+                value={dialogValues.ca}
                 onChange={value => onValueChanged("ca", value)}>
                 {cas.map(ca => {
                     return (
-                        <Select.SelectEntry data={ca.nickname.v} key={ca.nickname.v}>
-                            {ca.nickname.v}
-                        </Select.SelectEntry>
+                        <FormSelectOption value={ca.nickname.v} key={ca.nickname.v}
+                                          label={ca.nickname.v} />
                     );
                 })}
-            </Select.Select>
+            </FormSelect>
         </>
     );
 };
@@ -99,31 +98,41 @@ const NicknameRow = ({ onValueChanged, dialogValues }) => {
 };
 
 const CertFileRow = ({ onValueChanged, dialogValues }) => {
+    /* FileAutoComplete does not accept custom className and without it the Select gets shrinked
+     * because of ct-form. Let's just have this workaround and fix this properly by *not* using ct-form
+     */
     return (
         <>
             <label className="control-label" htmlFor="cert-file">
                 {_("Certificate path")}
             </label>
-            <FileAutoComplete id="cert-file"
-                superuser="try"
-                placeholder={_("Path to store the certificate")}
-                onChange={value => onValueChanged("certFile", value)}
-                fileExists={false} />
+            <span className="ct-form-stretch">
+                <FileAutoComplete id="cert-file"
+                    isOptionCreatable
+                    superuser="try"
+                    placeholder={_("Path to store the certificate")}
+                    onChange={value => onValueChanged("certFile", value)} />
+            </span>
         </>
     );
 };
 
 const KeyFileRow = ({ onValueChanged, dialogValues }) => {
+    /* FileAutoComplete does not accept custom className and without it the Select gets shrinked
+     * because of ct-form. Let's just have this workaround and fix this properly by *not* using ct-form
+     */
     return (
         <>
             <label className="control-label" htmlFor="key-file">
                 {_("Key path")}
             </label>
-            <FileAutoComplete id="key-file"
-                superuser="try"
-                placeholder={_("Path to store the generated key or to an existing key")}
-                onChange={value => onValueChanged("keyFile", value)}
-                fileExists={false} />
+            <span className="ct-form-stretch">
+                <FileAutoComplete id="key-file"
+                    isOptionCreatable
+                    superuser="try"
+                    placeholder={_("Path to store the generated key or to an existing key")}
+                    onChange={value => onValueChanged("keyFile", value)} />
+            </span>
         </>
     );
 };

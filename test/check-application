@@ -30,25 +30,25 @@ class TestApplication(testlib.MachineCase):
 
         self.login_and_go("/certificates")
 
-        b.wait_not_present(".pf-c-empty-state")
+        b.wait_visible("table .pf-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check Empty State is present if service was stopped when certificates page is open
         m.execute("systemctl stop certmonger.service")
-        b.wait_present(".pf-c-empty-state")
+        b.wait_visible(".pf-c-empty-state")
 
         # Check Starting service from UI works
         b.click(".pf-c-empty-state button:contains(Start the certificate service)")
 
-        b.wait_not_present(".pf-c-empty-state")
+        b.wait_visible("table .pf-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check check stopping and starting UI from command line reflects state of UI
         m.execute("systemctl stop certmonger.service")
-        b.wait_present(".pf-c-empty-state")
+        b.wait_visible(".pf-c-empty-state")
 
         m.execute("systemctl start certmonger.service")
-        b.wait_not_present(".pf-c-empty-state")
+        b.wait_visible("table .pf-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
     def testNoCertificates(self):
@@ -87,7 +87,7 @@ class TestApplication(testlib.MachineCase):
 
         # Check warning about near expiration
         b.wait_in_text(".ct-table-header h3", "Certificates")
-        b.wait_present("#certificate-0-validity .fa-exclamation-triangle")
+        b.wait_visible("#certificate-0-validity .fa-exclamation-triangle")
 
         # Remove cert
         m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, "Server-Cert2"))
@@ -106,7 +106,7 @@ class TestApplication(testlib.MachineCase):
         self.browser.enter_page('/certificates')
         # Check error about expired certificate
         b.wait_in_text(".ct-table-header h3", "Certificates")
-        b.wait_present("#certificate-0-validity .fa-exclamation-circle")
+        b.wait_visible("#certificate-0-validity .fa-exclamation-circle")
 
     def testModifyAutorenewal(self):
         b = self.browser
@@ -125,7 +125,7 @@ class TestApplication(testlib.MachineCase):
         # Check General tab
         renewal_state = b.get_checked("#certificate-0-general-autorenewal")
         b.set_checked("#certificate-0-general-autorenewal", not renewal_state)
-        b.wait_present("#certificate-0-general-autorenewal:not(:checked)")
+        b.wait_visible("#certificate-0-general-autorenewal:not(:checked)")
 
         command_output = m.execute("selfsign-getcert list -d {0} -n {1} | grep 'auto-renew:' | awk '{{print $2}}'".format(db_path, cert_name))
         if not renewal_state: # renewal state updated to the opposite
@@ -270,13 +270,13 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check certificate is present
-        b.wait_present("#certificate-0-name")
+        b.wait_visible("#certificate-0-name")
 
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
-        b.wait_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.wait_visible("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -294,7 +294,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check certificate is present
-        b.wait_present("#certificate-0-name")
+        b.wait_visible("#certificate-0-name")
 
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
@@ -352,7 +352,9 @@ class TestApplication(testlib.MachineCase):
                         b.set_input_text("#nickname", self.nickname)
                 else:
                     b.set_input_text("input[placeholder='Path to store the certificate']", self.cert_path)
+                    b.click("#cert-file .pf-c-select__menu-item")
                     b.set_input_text("input[placeholder='Path to store the generated key or to an existing key']", self.key_path)
+                    b.click("#key-file .pf-c-select__menu-item")
 
             def cancel(self):
                 b.click(".pf-c-modal-box__footer button:contains(Cancel)")
