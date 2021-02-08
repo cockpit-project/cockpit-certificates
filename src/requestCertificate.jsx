@@ -28,10 +28,10 @@ import {
 } from "@patternfly/react-core";
 
 import { addRequest } from "./dbus.js";
-import "../lib/form-layout.scss";
-import { ModalError } from "../lib/cockpit-components-inline-notification.jsx";
-import { FileAutoComplete } from "../lib/cockpit-components-file-autocomplete.jsx";
-import * as Select from "../lib/cockpit-components-select.jsx";
+import "form-layout.scss";
+import { ModalError } from "cockpit-components-inline-notification.jsx";
+import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
+import * as Select from "cockpit-components-select.jsx";
 import "./requestCertificate.scss";
 
 const _ = cockpit.gettext;

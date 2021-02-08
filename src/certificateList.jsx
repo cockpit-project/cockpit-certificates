@@ -32,10 +32,10 @@ import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { CertificateActions } from "./certificateActions.jsx";
 import { RequestCertificate } from './requestCertificate.jsx';
-import "../lib/form-layout.scss";
+import "form-layout.scss";
 import "./certificateList.css";
-import { ListingPanel } from "../lib/cockpit-components-listing-panel.jsx";
-import { ListingTable } from "../lib/cockpit-components-table.jsx";
+import { ListingPanel } from "cockpit-components-listing-panel.jsx";
+import { ListingTable } from "cockpit-components-table.jsx";
 import { modifyRequest } from "./dbus.js";
 import { certificateStates } from "./states.js";
 

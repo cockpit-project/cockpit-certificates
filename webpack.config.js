@@ -118,6 +118,7 @@ module.exports = {
     mode: production ? 'production' : 'development',
     entry: info.entries,
     resolve: {
+        modules: [ nodedir, path.resolve(__dirname, 'src/lib') ],
         alias: { 'font-awesome': path.resolve(nodedir, 'font-awesome-sass/assets/stylesheets') },
     },
     externals: externals,
