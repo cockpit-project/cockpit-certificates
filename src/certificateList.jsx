@@ -39,26 +39,10 @@ import { ListingTable } from "../lib/cockpit-components-table.jsx";
 import { modifyRequest } from "./dbus.js";
 import { certificateStates } from "./states.js";
 
+moment.locale(cockpit.language);
 const _ = cockpit.gettext;
-function prettyTime(unixTime) {
-    moment.locale(cockpit.language, {
-        longDateFormat : {
-            LT: "hh:mm:ss",
-            L: "DD/MM/YYYY",
-        }
-    });
-    const yesterday = _("Yesterday");
-    const today = _("Today");
-    const tomorrow = _("Tomorrow");
-    moment.locale(cockpit.language, {
-        calendar : {
-            lastDay : `[${yesterday}] LT`,
-            sameDay : `[${today}] LT`,
-            nextDay : `[${tomorrow}] LT`,
-            sameElse : "L"
-        }
-    });
 
+function prettyTime(unixTime) {
     return moment(Number(unixTime) * 1000).calendar();
 }
 
