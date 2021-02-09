@@ -192,9 +192,11 @@ class TestApplication(testlib.MachineCase):
         # Check General tab
         validity = b.text("#certificate-0-general-validity")
 
+        # If we resubmit in the same minute in which we created the certificate no visual change
+        time.sleep(61)
+
         # Renew a certificate
         m.execute("selfsign-getcert resubmit -f {0}".format(cert_path))
-
         # Check validity time changed
         b.wait_not_in_text("#certificate-0-general-validity", validity)
 
