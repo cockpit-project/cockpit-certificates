@@ -38,7 +38,6 @@ import { ListingTable } from "cockpit-components-table.jsx";
 import { modifyRequest } from "./dbus.js";
 import { certificateStates } from "./states.js";
 
-moment.locale(cockpit.language);
 const _ = cockpit.gettext;
 
 function prettyTime(unixTime) {
