@@ -56,19 +56,11 @@ function getExpirationTime(cert) {
         const diffSeconds = eventdate.diff(todaysdate, "seconds");
 
         if (diffSeconds < 0) { // Expired
-            if (diff > -1) { // Expired yesterday
-                return (
-                    <>
-                        <span className="fa fa-exclamation-circle" />
-                        {_("Expired ") + prettyTime(cert["not-valid-after"].v).toLowerCase()}
-                    </>
-                );
-            }
             if (diff > -28) { // Expired X days ago
                 return (
                     <>
                         <span className="fa fa-exclamation-circle" />
-                        {_("Expired ") + diff + _(" ago")}
+                        {_("Expired ") + eventdate.fromNow()}
                     </>
                 );
             }
@@ -81,19 +73,11 @@ function getExpirationTime(cert) {
         }
 
         // Expires
-        if (diff < 2) { // Expires today or tomorrow
-            return (
-                <>
-                    <span className="fa fa-exclamation-triangle" />
-                    {_("Expires ") + prettyTime(cert["not-valid-after"].v).toLowerCase()}
-                </>
-            );
-        }
         if (diff < 28) { // Expires in X days
             return (
                 <>
                     <span className="fa fa-exclamation-triangle" />
-                    {_("Expires in ") + diff + _(" days")}
+                    {_("Expires ") + eventdate.fromNow()}
                 </>
             );
         }
