@@ -12,9 +12,9 @@ import time
 TEST_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.join(TEST_DIR, "common"))
 sys.path.append(os.path.join(os.path.dirname(TEST_DIR), "bots/machine"))
-import testlib
+from testlib import *
 
-class TestApplication(testlib.MachineCase):
+class TestApplication(MachineCase):
     def setUp(self):
         super().setUp()
 
@@ -196,7 +196,7 @@ class TestApplication(testlib.MachineCase):
         m.execute("selfsign-getcert resubmit -f {0}".format(cert_path))
 
         # Check validity time changed
-        b.wait_not_in_text("#certificate-0-general-validity", validity)
+        wait(lambda: validity not in b.text("#certificate-0-general-validity"), delay=3)
 
     def testFileCert(self):
         b = self.browser
@@ -430,4 +430,4 @@ class TestApplication(testlib.MachineCase):
 
 
 if __name__ == '__main__':
-    testlib.test_main()
+    test_main()
