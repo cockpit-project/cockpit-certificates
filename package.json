@@ -63,7 +63,7 @@
     "node-sass": "^4.13.1",
     "patternfly": "3.59.5",
     "prop-types": "15.7.2",
-    "react": "16.12.0",
+    "react": "16.14.0",
     "react-addons-css-transition-group": "15.6.2",
     "react-addons-transition-group": "15.6.2",
     "react-dom": "16.12.0",
