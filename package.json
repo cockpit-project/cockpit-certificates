@@ -52,7 +52,7 @@
   },
   "dependencies": {
     "@patternfly/patternfly": "4.80.3",
-    "@patternfly/react-core": "4.91.0",
+    "@patternfly/react-core": "4.97.0",
     "@patternfly/react-styles": "4.7.29",
     "@patternfly/react-table": "4.20.15",
     "bootstrap": "4.6.0",
