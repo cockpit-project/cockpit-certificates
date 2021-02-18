@@ -51,10 +51,10 @@
     "webpack-cli": "^3.1.0"
   },
   "dependencies": {
-    "@patternfly/patternfly": "4.80.3",
+    "@patternfly/patternfly": "4.87.3",
     "@patternfly/react-core": "4.91.0",
-    "@patternfly/react-styles": "4.7.29",
-    "@patternfly/react-table": "4.20.15",
+    "@patternfly/react-styles": "4.8.2",
+    "@patternfly/react-table": "4.23.2",
     "bootstrap": "4.6.0",
     "core-js": "3.8.3",
     "deep-equal": "^2.0.5",
