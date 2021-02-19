@@ -56,7 +56,7 @@
     "@patternfly/react-styles": "4.7.29",
     "@patternfly/react-table": "4.20.15",
     "bootstrap": "4.6.0",
-    "core-js": "3.8.3",
+    "core-js": "3.9.0",
     "deep-equal": "^2.0.5",
     "docker-names": "1.1.1",
     "moment": "2.29.1",
