@@ -26,6 +26,7 @@ import {
     Button,
     Dropdown,
     DropdownItem,
+    Form, FormGroup,
     KebabToggle,
     Modal,
 } from "@patternfly/react-core";
@@ -88,37 +89,37 @@ export class RemoveModal extends React.Component {
 
         const title = _("Remove Certificate: ") + (cert["cert-storage"].v === "FILE" ? cert.nickname.v : cert["cert-nickname"].v);
 
-        const fileCertBody = (<div className="ct-form ct-form-delete-dialog">
-            <label className="control-label" htmlFor={idPrefix + "cert-file"}>
-                {_("Certificate file")}
-            </label>
-            <samp id={idPrefix + "cert-file"}>
-                {cert["cert-file"].v}
-            </samp>
+        const fileCertBody = (
+            <Form isHorizontal>
+                <FormGroup label={_("Certificate file")} hasNoPaddingTop>
+                    <samp id={idPrefix + "cert-file"}>
+                        {cert["cert-file"].v}
+                    </samp>
+                </FormGroup>
 
-            <label className="control-label" htmlFor={idPrefix + "key-file"}>
-                {_("Key file")}
-            </label>
-            <samp id={idPrefix + "key-file"}>
-                {cert["key-file"].v}
-            </samp>
-        </div>);
+                <FormGroup label={_("Key file")}>
+                    <samp id={idPrefix + "key-file"} hasNoPaddingTop>
+                        {cert["key-file"].v}
+                    </samp>
+                </FormGroup>
+            </Form>
+        );
 
-        const nssdbCertBody = (<div className="ct-form ct-form-delete-dialog">
-            <label className="control-label" htmlFor={idPrefix + "cert-database"}>
-                {_("NSSDB path")}
-            </label>
-            <samp id={idPrefix + "cert-database"}>
-                {cert["cert-database"].v}
-            </samp>
+        const nssdbCertBody = (
+            <Form isHorizontal>
+                <FormGroup label={_("NSSDB path")} hasNoPaddingTop>
+                    <samp id={idPrefix + "cert-database"}>
+                        {cert["cert-database"].v}
+                    </samp>
+                </FormGroup>
 
-            <label className="control-label" htmlFor={idPrefix + "cert-nickname"}>
-                {_("Nickname")}
-            </label>
-            <samp id={idPrefix + "cert-nickname"}>
-                {cert["cert-nickname"].v}
-            </samp>
-        </div>);
+                <FormGroup label={_("Nickname")} hasNoPaddingTop>
+                    <samp id={idPrefix + "cert-nickname"}>
+                        {cert["cert-nickname"].v}
+                    </samp>
+                </FormGroup>
+            </Form>
+        );
 
         const body = (<>
             { cert["cert-storage"].v === "FILE" ? fileCertBody : nssdbCertBody }

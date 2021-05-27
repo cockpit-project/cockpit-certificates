@@ -22,6 +22,7 @@ import moment from "moment";
 
 import {
     Button,
+    Form, FormGroup,
     FormSelect, FormSelectOption,
     Modal,
     Radio,
@@ -29,10 +30,8 @@ import {
 } from "@patternfly/react-core";
 
 import { addRequest } from "./dbus.js";
-import "form-layout.scss";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
-import "./requestCertificate.scss";
 
 const _ = cockpit.gettext;
 
@@ -40,37 +39,32 @@ const NSSDB_PATH = "/etc/pki/nssdb";
 
 const StorageRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <>
-            <label className="control-label" htmlFor="storage-row">
-                {_("Certificate storage")}
-            </label>
-            <div id="storage-row" className="storage-row">
-                <Radio isChecked={dialogValues.storage === "nssdb"}
-                    name="nssdb"
-                    onChange={() => onValueChanged("storage", "nssdb")}
-                    label="NSSDB"
-                    id="nssdb"
-                    value="nssdb" />
-                <Radio isChecked={dialogValues.storage === "file"}
-                    name="file"
-                    onChange={() => onValueChanged("storage", "file")}
-                    label="File"
-                    id="file"
-                    value="file" />
-            </div>
-        </>
+        <FormGroup label={_("Certificate storage")}
+                   id="storage-row"
+                   isInline
+                   hasNoPaddingTop>
+            <Radio isChecked={dialogValues.storage === "nssdb"}
+                   name="storage"
+                   onChange={() => onValueChanged("storage", "nssdb")}
+                   label="NSSDB"
+                   id="nssdb"
+                   value="nssdb" />
+            <Radio isChecked={dialogValues.storage === "file"}
+                   name="storage"
+                   onChange={() => onValueChanged("storage", "file")}
+                   label="File"
+                   id="file"
+                   value="file" />
+        </FormGroup>
     );
 };
 
 const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
     return (
-        <>
-            <label className="control-label" htmlFor="ca">
-                {_("CA")}
-            </label>
+        <FormGroup fieldId="ca" label={_("CA")}>
             <FormSelect id="ca"
-                value={dialogValues.ca}
-                onChange={value => onValueChanged("ca", value)}>
+                        value={dialogValues.ca}
+                        onChange={value => onValueChanged("ca", value)}>
                 {cas.map(ca => {
                     return (
                         <FormSelectOption value={ca.nickname.v} key={ca.nickname.v}
@@ -78,62 +72,42 @@ const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
                     );
                 })}
             </FormSelect>
-        </>
+        </FormGroup>
     );
 };
 
 const NicknameRow = ({ onValueChanged, dialogValues }) => {
     return (
-        <>
-            <label className="control-label" htmlFor="nickname">
-                {_("Nickname")}
-            </label>
+        <FormGroup fieldId="nickname" label={_("Nickname")}>
             <TextInput value={dialogValues.nickname}
-                id="nickname"
-                type="text"
-                onChange={(value) => onValueChanged("nickname", value)}
-                aria-label={_("Nickname input text")} />
-        </>
+                       id="nickname"
+                       onChange={(value) => onValueChanged("nickname", value)}
+                       aria-label={_("Nickname input text")} />
+        </FormGroup>
     );
 };
 
 const CertFileRow = ({ onValueChanged, dialogValues }) => {
-    /* FileAutoComplete does not accept custom className and without it the Select gets shrinked
-     * because of ct-form. Let's just have this workaround and fix this properly by *not* using ct-form
-     */
     return (
-        <>
-            <label className="control-label" htmlFor="cert-file">
-                {_("Certificate path")}
-            </label>
-            <span className="ct-form-stretch">
-                <FileAutoComplete id="cert-file"
-                    isOptionCreatable
-                    superuser="try"
-                    placeholder={_("Path to store the certificate")}
-                    onChange={value => onValueChanged("certFile", value)} />
-            </span>
-        </>
+        <FormGroup label={_("Certificate path")}>
+            <FileAutoComplete id="cert-file"
+                              isOptionCreatable
+                              superuser="try"
+                              placeholder={_("Path to store the certificate")}
+                              onChange={value => onValueChanged("certFile", value)} />
+        </FormGroup>
     );
 };
 
 const KeyFileRow = ({ onValueChanged, dialogValues }) => {
-    /* FileAutoComplete does not accept custom className and without it the Select gets shrinked
-     * because of ct-form. Let's just have this workaround and fix this properly by *not* using ct-form
-     */
     return (
-        <>
-            <label className="control-label" htmlFor="key-file">
-                {_("Key path")}
-            </label>
-            <span className="ct-form-stretch">
-                <FileAutoComplete id="key-file"
-                    isOptionCreatable
-                    superuser="try"
-                    placeholder={_("Path to store the generated key or to an existing key")}
-                    onChange={value => onValueChanged("keyFile", value)} />
-            </span>
-        </>
+        <FormGroup label={_("Key path")}>
+            <FileAutoComplete id="key-file"
+                              isOptionCreatable
+                              superuser="try"
+                              placeholder={_("Path to store the generated key or to an existing key")}
+                              onChange={value => onValueChanged("keyFile", value)} />
+        </FormGroup>
     );
 };
 
@@ -221,25 +195,18 @@ export class RequestCertificateModal extends React.Component {
         const cas = Object.values(this.props.cas);
 
         const body = (
-            <form className="ct-form">
+            <Form isHorizontal>
                 <CAsRow dialogValues={this.state} onValueChanged={this.onValueChanged} cas={cas} />
-
-                <hr />
 
                 <StorageRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
                 {this.state.storage === "nssdb" &&
                     <NicknameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />}
 
-                <hr />
-
                 {this.state.storage === "file" && <>
                     <CertFileRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                    <hr />
                     <KeyFileRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
                 </>}
-
-                <hr />
-            </form>
+            </Form>
         );
 
         return (
