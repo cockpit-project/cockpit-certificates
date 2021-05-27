@@ -245,7 +245,7 @@ export class Application extends React.Component {
                             <Alert isLiveRegion
                                 variant={AlertVariant.danger}
                                 title={danger.title}
-                                action={
+                                actionClose={
                                     <AlertActionCloseButton variantLabel="danger alert"
                                       onClose={() => this.removeAlert(index)} />
                                 }
