@@ -320,6 +320,7 @@ class CertificateList extends React.Component {
 
         return (
             <ListingTable caption={_("Certificates")}
+                isEmptyStateInTable
                 variant='compact'
                 emptyCaption={_("No certificate is tracked on this host")}
                 columns={[
