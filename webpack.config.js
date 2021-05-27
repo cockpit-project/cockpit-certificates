@@ -156,29 +156,20 @@ module.exports = {
             },
             /* HACK: remove unwanted fonts from PatternFly's css */
             {
-                test: /patternfly-cockpit.scss$/,
+                test: /patternfly-4-cockpit.scss$/,
                 use: [
                     extract.loader,
                     {
                         loader: 'css-loader',
-                        options: { url: false },
+                        options: {
+                            sourceMap: true,
+                            url: false,
+                        },
                     },
                     {
                         loader: 'string-replace-loader',
                         options: {
                             multiple: [
-                                {
-                                    search: /src:url[(]"patternfly-icons-fake-path\/glyphicons-halflings-regular[^}]*/g,
-                                    replace: 'font-display:block; src:url("../base1/fonts/glyphicons.woff") format("woff");',
-                                },
-                                {
-                                    search: /src:url[(]"patternfly-fonts-fake-path\/PatternFlyIcons[^}]*/g,
-                                    replace: 'src:url("../base1/fonts/patternfly.woff") format("woff");',
-                                },
-                                {
-                                    search: /src:url[(]"patternfly-fonts-fake-path\/fontawesome[^}]*/,
-                                    replace: 'font-display:block; src:url("../base1/fonts/fontawesome.woff?v=4.2.0") format("woff");',
-                                },
                                 {
                                     search: /src:url\("patternfly-icons-fake-path\/pficon[^}]*/g,
                                     replace: 'src:url("../base1/fonts/patternfly.woff") format("woff");',
@@ -195,12 +186,15 @@ module.exports = {
             },
             {
                 test: /\.s?css$/,
-                exclude: /patternfly-cockpit.scss/,
+                exclude: /patternfly-4-cockpit.scss/,
                 use: [
                     extract.loader,
                     {
                         loader: 'css-loader',
-                        options: { url: false }
+                        options: {
+                            sourceMap: true,
+                            url: false
+                        }
                     },
                     'sassc-loader',
                 ]
