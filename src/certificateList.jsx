@@ -29,11 +29,10 @@ import {
     Tooltip,
     TooltipPosition
 } from "@patternfly/react-core";
-import { InfoAltIcon } from '@patternfly/react-icons';
+import { InfoAltIcon, ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
 
 import { CertificateActions } from "./certificateActions.jsx";
 import { RequestCertificate } from './requestCertificate.jsx';
-import "./certificateList.css";
 import { ListingPanel } from "cockpit-components-listing-panel.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { modifyRequest } from "./dbus.js";
@@ -58,14 +57,14 @@ function getExpirationTime(cert) {
             if (diff > -28) { // Expired X days ago
                 return (
                     <>
-                        <span className="fa fa-exclamation-circle" />
+                        <TimesCircleIcon className="ct-icon-times-circle" />
                         {_("Expired ") + eventdate.fromNow()}
                     </>
                 );
             }
             return (
                 <>
-                    <span className="fa fa-exclamation-circle" />
+                    <TimesCircleIcon className="ct-icon-times-circle" />
                     {_("Expired on ") + prettyTime(cert["not-valid-after"].v)}
                 </>
             );
@@ -75,7 +74,7 @@ function getExpirationTime(cert) {
         if (diff < 28) { // Expires in X days
             return (
                 <>
-                    <span className="fa fa-exclamation-triangle" />
+                    <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
                     {_("Expires ") + eventdate.fromNow()}
                 </>
             );
@@ -97,7 +96,7 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                     <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
                     <DescriptionListDescription id={`${idPrefix}-general-status`}>
                         {cert.stuck.v && (<span>
-                            <span className="fa fa-exclamation-triangle" />
+                            <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
                             <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
                         </span>)}
                         <span>

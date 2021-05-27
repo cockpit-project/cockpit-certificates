@@ -73,7 +73,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check certificate validity doesn't containt warning
-        b.wait_not_present("#certificate-0-validity .fa-exclamation-triangle")
+        b.wait_not_present("#certificate-0-validity .ct-icon-exclamation-triangle")
 
         # Remove cert
         m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, "Server-Cert1"))
@@ -87,7 +87,7 @@ class TestApplication(testlib.MachineCase):
 
         # Check warning about near expiration
         b.wait_in_text(".ct-table-header h3", "Certificates")
-        b.wait_visible("#certificate-0-validity .fa-exclamation-triangle")
+        b.wait_visible("#certificate-0-validity .ct-icon-exclamation-triangle")
 
         # Remove cert
         m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, "Server-Cert2"))
@@ -106,7 +106,7 @@ class TestApplication(testlib.MachineCase):
         self.browser.enter_page('/certificates')
         # Check error about expired certificate
         b.wait_in_text(".ct-table-header h3", "Certificates")
-        b.wait_visible("#certificate-0-validity .fa-exclamation-circle")
+        b.wait_visible("#certificate-0-validity .ct-icon-times-circle")
 
     def testModifyAutorenewal(self):
         b = self.browser
