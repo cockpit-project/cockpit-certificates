@@ -24,6 +24,7 @@ import "./certificateActions.css";
 
 import {
     Button,
+    Checkbox,
     Dropdown,
     DropdownItem,
     Form, FormGroup,
@@ -124,13 +125,12 @@ export class RemoveModal extends React.Component {
         const body = (<>
             { cert["cert-storage"].v === "FILE" ? fileCertBody : nssdbCertBody }
             { cert["key-file"] && cert["cert-file"] && cert["key-file"].v && cert["cert-file"].v && (
-                <label className="checkbox-inline checkbox-delete-files">
-                    <input id={idPrefix + "-delete-files"}
-                            type="checkbox"
-                            checked={deleteFiles}
-                            onChange={e => this.onValueChanged("deleteFiles", !deleteFiles)} />
-                    {_("Also delete certificate and key files")}
-                </label>) }
+                <Checkbox id={idPrefix + "-delete-files"}
+                          className="checkbox-delete-files"
+                          isChecked={deleteFiles}
+                          label={_("Also delete certificate and key files")}
+                          onChange={e => this.onValueChanged("deleteFiles", !deleteFiles)} />
+            )}
         </>);
 
         return (
