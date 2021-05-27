@@ -23,6 +23,8 @@ import moment from "moment";
 
 import {
     Badge,
+    Checkbox,
+    DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
     Flex,
     Tooltip,
     TooltipPosition
@@ -31,7 +33,6 @@ import { InfoAltIcon } from '@patternfly/react-icons';
 
 import { CertificateActions } from "./certificateActions.jsx";
 import { RequestCertificate } from './requestCertificate.jsx';
-import "form-layout.scss";
 import "./certificateList.css";
 import { ListingPanel } from "cockpit-components-listing-panel.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
@@ -91,10 +92,10 @@ function getCAName(cas, cert) {
 const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => (
     <Flex justifyContent={{ default: "justifyContentCenter" }}>
         <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
-            <div className="ct-form">
-                {cert.status && cert.status.v && <>
-                    <label className='control-label label-title' htmlFor={`${idPrefix}-general-status`}>{_("Status")}</label>
-                    <div id={`${idPrefix}-general-status`} role="group">
+            <DescriptionList isHorizontal>
+                {cert.status && cert.status.v && <DescriptionListGroup>
+                    <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
+                    <DescriptionListDescription id={`${idPrefix}-general-status`}>
                         {cert.stuck.v && (<span>
                             <span className="fa fa-exclamation-triangle" />
                             <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
@@ -111,92 +112,91 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                                 </span>
                             </Tooltip>
                         </span>
-                    </div>
-                </>}
-                {cert.ca && cert.ca.v && <>
-                    <label className='control-label label-title' htmlFor={`${idPrefix}-general-ca`}>{_("CA")}</label>
-                    <span id={`${idPrefix}-general-ca`}>{getCAName(cas, cert)}</span>
-                </>}
-            </div>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>}
+                {cert.ca && cert.ca.v && <DescriptionListGroup>
+                    <DescriptionListTerm>{_("CA")}</DescriptionListTerm>
+                    <DescriptionListDescription id={`${idPrefix}-general-ca`}>{getCAName(cas, cert)}</DescriptionListDescription>
+                </DescriptionListGroup>}
+            </DescriptionList>
         </Flex>
         <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
-            <div className="ct-form">
-                {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <>
-                    <label className='control-label label-title' htmlFor={`${idPrefix}-general-validity`}>
+            <DescriptionList isHorizontal>
+                {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <DescriptionListGroup>
+                    <DescriptionListTerm>
                         {_("Valid")}
-                    </label>
-                    <span id={`${idPrefix}-general-validity`}>
+                    </DescriptionListTerm>
+                    <DescriptionListDescription id={`${idPrefix}-general-validity`}>
                         {prettyTime(cert["not-valid-before"].v) +
                         _(" to ") + prettyTime(cert["not-valid-after"].v)}
-                    </span>
-                </>}
-                {cert.autorenew && <>
-                    <label className='control-label label-title' htmlFor={`${idPrefix}-general-autorenewal`}>
+                    </DescriptionListDescription>
+                </DescriptionListGroup>}
+                {cert.autorenew && <DescriptionListGroup>
+                    <DescriptionListTerm>
                         {_("Auto-renewal")}
-                    </label>
-                    <label className='checkbox-inline'>
-                        <input id={`${idPrefix}-general-autorenewal`}
-                               type="checkbox"
-                               checked={cert.autorenew.v}
-                               onChange={() => onAutorenewChanged(cert, certPath)} />
-                        {_("Renew before expiration")}
-                    </label>
-                </>}
-            </div>
+                    </DescriptionListTerm>
+                    <DescriptionListDescription>
+                        <Checkbox id={`${idPrefix}-general-autorenewal`}
+                                  isChecked={cert.autorenew.v}
+                                  label={_("Renew before expiration")}
+                                  onChange={() => onAutorenewChanged(cert, certPath)} />
+                    </DescriptionListDescription>
+                </DescriptionListGroup>}
+            </DescriptionList>
         </Flex>
     </Flex>
 );
 
 const keyDetails = ({ idPrefix, cert }) => (
-    <div className="ct-form">
-        {cert["key-nickname"] && cert["key-nickname"].v && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-key-nickname`}>{_("Nickname")}</label>
+    <DescriptionList isHorizontal>
+        {cert["key-nickname"] && cert["key-nickname"].v && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Nickname")}</DescriptionListTerm>
             <span id={`${idPrefix}-key-nickname`}>{cert["key-nickname"].v}</span>
-        </>}
-        {cert["key-type"] && cert["key-type"].v && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-key-type`}>{_("Type")}</label>
+        </DescriptionListGroup>}
+        {cert["key-type"] && cert["key-type"].v && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Type")}</DescriptionListTerm>
             <span id={`${idPrefix}-key-type`}>{cert["key-type"].v}</span>
-        </>}
-        {cert["key-token"] && cert["key-token"].v && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-key-token`}>{_("Token")}</label>
+        </DescriptionListGroup>}
+        {cert["key-token"] && cert["key-token"].v && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Token")}</DescriptionListTerm>
             <span id={`${idPrefix}-key-token`}>{cert["key-token"].v}</span>
-        </>}
-        {cert["key-storage"] && cert["key-storage"].v && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-key-storage`}>{_("Storage")}</label>
+        </DescriptionListGroup>}
+        {cert["key-storage"] && cert["key-storage"].v && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Storage")}</DescriptionListTerm>
             <span id={`${idPrefix}-key-storage`}>{cert["key-storage"].v}</span>
-        </>}
-        {((cert["key-database"] && cert["key-database"].v) || (cert["key-file"] && cert["key-file"].v)) && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-key-location`}>{_("Location")}</label>
+        </DescriptionListGroup>}
+        {((cert["key-database"] && cert["key-database"].v) || (cert["key-file"] && cert["key-file"].v)) && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Location")}</DescriptionListTerm>
             {cert["key-storage"].v === "FILE"
                 ? <span id={`${idPrefix}-key-location`}>{cert["key-file"].v}</span>
                 : <span id={`${idPrefix}-key-location`}>{cert["key-database"].v}</span>
             }
-        </>}
-    </div>
+        </DescriptionListGroup>}
+    </DescriptionList>
 );
 
 const certDetails = ({ idPrefix, cert }) => (
-    <div className="ct-form">
-        {cert["cert-nickname"] && cert["cert-nickname"].v && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-cert-nickname`}>{_("Nickname")}</label>
+    <DescriptionList isHorizontal>
+        {cert["cert-nickname"] && cert["cert-nickname"].v && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Nickname")}</DescriptionListTerm>
             <span id={`${idPrefix}-cert-nickname`}>{cert["cert-nickname"].v}</span>
-        </>}
-        {cert["cert-token"] && cert["cert-token"].v && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-cert-token`}>{_("Token")}</label>
+        </DescriptionListGroup>}
+        {cert["cert-token"] && cert["cert-token"].v && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Token")}</DescriptionListTerm>
             <span id={`${idPrefix}-cert-token`}>{cert["cert-token"].v}</span>
-        </>}
-        {cert["cert-storage"] && cert["cert-storage"].v && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-cert-storage`}>{_("Storage")}</label>
+        </DescriptionListGroup>}
+        {cert["cert-storage"] && cert["cert-storage"].v && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Storage")}</DescriptionListTerm>
             <span id={`${idPrefix}-cert-storage`}>{cert["cert-storage"].v}</span>
-        </>}
-        {((cert["cert-database"] && cert["cert-database"].v) || (cert["cert-file"] && cert["cert-file"].v)) && <>
-            <label className='control-label label-title' htmlFor={`${idPrefix}-cert-location`}>{_("Location")}</label>
+        </DescriptionListGroup>}
+        {((cert["cert-database"] && cert["cert-database"].v) || (cert["cert-file"] && cert["cert-file"].v)) && <DescriptionListGroup>
+            <DescriptionListTerm>{_("Location")}</DescriptionListTerm>
             {cert["cert-storage"].v === "FILE"
                 ? <span id={`${idPrefix}-cert-location`}>{cert["cert-file"].v}</span>
                 : <span id={`${idPrefix}-cert-location`}>{cert["cert-database"].v}</span>
             }
-        </>}
-    </div>
+        </DescriptionListGroup>}
+    </DescriptionList>
 );
 
 class CertificateList extends React.Component {
