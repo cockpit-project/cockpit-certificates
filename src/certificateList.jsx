@@ -25,7 +25,7 @@ import {
     Badge,
     Checkbox,
     DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
-    Flex,
+    Flex, FlexItem,
     Tooltip,
     TooltipPosition
 } from "@patternfly/react-core";
@@ -56,27 +56,27 @@ function getExpirationTime(cert) {
         if (diffSeconds < 0) { // Expired
             if (diff > -28) { // Expired X days ago
                 return (
-                    <>
+                    <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
                         <TimesCircleIcon className="ct-icon-times-circle" />
-                        {_("Expired ") + eventdate.fromNow()}
-                    </>
+                        <FlexItem>{_("Expired ") + eventdate.fromNow()}</FlexItem>
+                    </Flex>
                 );
             }
             return (
-                <>
+                <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
                     <TimesCircleIcon className="ct-icon-times-circle" />
-                    {_("Expired on ") + prettyTime(cert["not-valid-after"].v)}
-                </>
+                    <FlexItem>{_("Expired on ") + prettyTime(cert["not-valid-after"].v)}</FlexItem>
+                </Flex>
             );
         }
 
         // Expires
         if (diff < 28) { // Expires in X days
             return (
-                <>
+                <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
                     <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
-                    {_("Expires ") + eventdate.fromNow()}
-                </>
+                    <FlexItem>{_("Expires ") + eventdate.fromNow()}</FlexItem>
+                </Flex>
             );
         }
         return _("Expires on ") + prettyTime(cert["not-valid-after"].v);
@@ -95,14 +95,18 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                 {cert.status && cert.status.v && <DescriptionListGroup>
                     <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
                     <DescriptionListDescription id={`${idPrefix}-general-status`}>
-                        {cert.stuck.v && (<span>
-                            <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
-                            <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
-                        </span>)}
-                        <span>
-                            {cert.status.v.includes('_')
-                                ? cert.status.v
-                                : cert.status.v.charAt(0) + cert.status.v.slice(1).toLowerCase()}
+                        {cert.stuck.v && (
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
+                                <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
+                            </Flex>
+                        )}
+                        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                            <FlexItem>
+                                {cert.status.v.includes('_')
+                                    ? cert.status.v
+                                    : cert.status.v.charAt(0) + cert.status.v.slice(1).toLowerCase()}
+                            </FlexItem>
                             <Tooltip position={TooltipPosition.top}
                                 entryDelay={0}
                                 content={certificateStates[cert.status.v]}>
@@ -110,7 +114,7 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                                     <InfoAltIcon />
                                 </span>
                             </Tooltip>
-                        </span>
+                        </Flex>
                     </DescriptionListDescription>
                 </DescriptionListGroup>}
                 {cert.ca && cert.ca.v && <DescriptionListGroup>
