@@ -21,7 +21,10 @@ import cockpit from "cockpit";
 import React from "react";
 import "./app.scss";
 
-import { Alert, AlertGroup, AlertActionCloseButton, AlertVariant } from '@patternfly/react-core';
+import {
+    Alert, AlertGroup, AlertActionCloseButton, AlertVariant,
+    Page, PageSection, PageSectionVariants,
+} from '@patternfly/react-core';
 
 import EmptyState from "./emptyState.jsx";
 import { getRequests, getRequest, getCAs, getCA } from './dbus.js';
@@ -234,25 +237,25 @@ export class Application extends React.Component {
         };
 
         return (
-            <>
-                <div className="container-fluid">
+            <Page>
+                <PageSection variant={PageSectionVariants.light}>
                     { body() }
-                </div>
-                <AlertGroup isToast>
-                    {this.state.alerts.map((danger, index) => (
-                        <Alert isLiveRegion
-                            variant={AlertVariant.danger}
-                            title={danger.title}
-                            action={
-                                <AlertActionCloseButton variantLabel="danger alert"
-                                  onClose={() => this.removeAlert(index)} />
-                            }
-                            key={index}>
-                            {_("Error message: ") + danger.message}
-                        </Alert>
-                    ))}
-                </AlertGroup>
-            </>
+                    <AlertGroup isToast>
+                        {this.state.alerts.map((danger, index) => (
+                            <Alert isLiveRegion
+                                variant={AlertVariant.danger}
+                                title={danger.title}
+                                action={
+                                    <AlertActionCloseButton variantLabel="danger alert"
+                                      onClose={() => this.removeAlert(index)} />
+                                }
+                                key={index}>
+                                {_("Error message: ") + danger.message}
+                            </Alert>
+                        ))}
+                    </AlertGroup>
+                </PageSection>
+            </Page>
         );
     }
 }

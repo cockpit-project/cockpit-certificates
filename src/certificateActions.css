@@ -2,10 +2,6 @@
     color: var(--pf-global--danger-color--200);
 }
 
-.ct-form-delete-dialog {
-    grid-gap: 0rem 1.5rem !important;
-}
-
 .checkbox-delete-files {
     padding-top: 20px;
 }
