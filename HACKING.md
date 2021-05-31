@@ -1,16 +1,26 @@
-This is a plugin for cockpit.
-Install cockpit according to https://cockpit-project.org/running.html
+# Hacking on Cockpit Certificates
 
-Pull the repository and compile:
-```sh
-$ git clone https://github.com/skobyda/cockpit-certificates.git
-$ cd cockpit-certificates
-$ make
-```
+Here's where to get the code:
 
-This project is based on cockpit's [starter-kit](https://github.com/cockpit-project/starter-kit).
-For development, run your module straight out of the git tree:
-```sh
-$ mkdir -p ~/.local/share/cockpit
-$ ln -s `pwd`/dist ~/.local/share/cockpit/certificates
-```
+    $ git clone https://github.com/skobyda/cockpit-certificates
+    $ cd cockpit-certificates
+
+The remainder of the commands assume you're in the top level of the
+Cockpit Certificates git repository checkout.
+
+## Running eslint
+
+Cockpit Certificates uses [ESLint](https://eslint.org/) to automatically check
+JavaScript code style in `.jsx` and `.js` files.
+
+The linter is executed within every build as a webpack preloader.
+
+For developer convenience, the ESLint can be started explicitly by:
+
+    $ npm run eslint
+
+Violations of some rules can be fixed automatically by:
+
+    $ npm run eslint:fix
+
+Rules configuration can be found in the `.eslintrc.json` file.
