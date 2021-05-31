@@ -2,15 +2,17 @@
 <component type="addon">
   <id>org.cockpit_project.certificates</id>
   <metadata_license>CC0-1.0</metadata_license>
-  <name>Starter Kit</name>
+  <name>Certificates</name>
   <summary>
-    Scaffolding for a cockpit module.
+    Manage your certificates with certmonger.
   </summary>
   <description>
     <p>
-      Scaffolding for a cockpit module.
+      You can request, view, and maintain certmonger certificates.
     </p>
   </description>
   <extends>org.cockpit_project.cockpit</extends>
   <launchable type="cockpit-manifest">cockpit-certificates</launchable>
+  <url type="homepage">https://cockpit-project.org/</url>
+  <update_contact>cockpit-devel_AT_lists.fedorahosted.org</update_contact>
 </component>
