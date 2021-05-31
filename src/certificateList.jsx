@@ -121,7 +121,7 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                         </DescriptionListDescription>
                     </DescriptionListGroup>}
                     {cert.ca && cert.ca.v && <DescriptionListGroup>
-                        <DescriptionListTerm>{_("CA")}</DescriptionListTerm>
+                        <DescriptionListTerm>{_("Certificate authority")}</DescriptionListTerm>
                         <DescriptionListDescription id={`${idPrefix}-general-ca`}>{caName == "SelfSign" ? _("Self-signed") : caName}</DescriptionListDescription>
                     </DescriptionListGroup>}
                 </DescriptionList>
@@ -259,13 +259,13 @@ class CertificateList extends React.Component {
                     data: { idPrefix, cas, cert, certPath, onAutorenewChanged }
                 },
                 {
-                    name: _("Keys"),
+                    name: _("Key"),
                     id: idPrefix + "-keys-tab",
                     renderer: keyDetails,
                     data: { idPrefix, cert }
                 },
                 {
-                    name: _("Cert"),
+                    name: _("Certificate"),
                     id: idPrefix + "-cert-tab",
                     renderer: certDetails,
                     data: { idPrefix, cert }
