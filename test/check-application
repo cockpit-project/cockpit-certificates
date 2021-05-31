@@ -151,12 +151,12 @@ class TestApplication(testlib.MachineCase):
         # Check cert header
         b.wait_in_text("#certificate-0-name", cert_name)
         b.wait_in_text("#certificate-0-validity", "Auto-renews before {0}".format(next_year_str))
-        b.wait_in_text("#certificate-0-ca", "SelfSign")
+        b.wait_in_text("#certificate-0-ca", "Self-signed")
 
         b.click("button#expandable-toggle0")
         # Check General tab
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
-        b.wait_in_text("#certificate-0-general-ca", "SelfSign")
+        b.wait_in_text("#certificate-0-general-ca", "Self-signed")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str)) # TODO better date handling
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
@@ -217,12 +217,12 @@ class TestApplication(testlib.MachineCase):
 
         # Check cert header
         b.wait_in_text("#certificate-0-validity", "Auto-renews before {0}".format(next_year_str))
-        b.wait_in_text("#certificate-0-ca", "SelfSign")
+        b.wait_in_text("#certificate-0-ca", "Self-signed")
 
         b.click("button#expandable-toggle0")
         # Check General tab
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
-        b.wait_in_text("#certificate-0-general-ca", "SelfSign")
+        b.wait_in_text("#certificate-0-general-ca", "Self-signed")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 

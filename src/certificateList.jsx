@@ -88,67 +88,71 @@ function getCAName(cas, cert) {
         return cas[cert.ca.v.replace("request", "ca")].nickname.v;
 }
 
-const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => (
-    <Flex justifyContent={{ default: "justifyContentCenter" }}>
-        <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
-            <DescriptionList isHorizontal>
-                {cert.status && cert.status.v && <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
-                    <DescriptionListDescription id={`${idPrefix}-general-status`}>
-                        {cert.stuck.v && (
+const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => {
+    const caName = getCAName(cas, cert);
+
+    return (
+        <Flex justifyContent={{ default: "justifyContentCenter" }}>
+            <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
+                <DescriptionList isHorizontal>
+                    {cert.status && cert.status.v && <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
+                        <DescriptionListDescription id={`${idPrefix}-general-status`}>
+                            {cert.stuck.v && (
+                                <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                                    <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
+                                    <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
+                                </Flex>
+                            )}
                             <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
-                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
-                                <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
+                                <FlexItem>
+                                    {cert.status.v.includes('_')
+                                        ? cert.status.v
+                                        : cert.status.v.charAt(0) + cert.status.v.slice(1).toLowerCase()}
+                                </FlexItem>
+                                <Tooltip position={TooltipPosition.top}
+                                    entryDelay={0}
+                                    content={certificateStates[cert.status.v]}>
+                                    <span className="info-circle">
+                                        <InfoAltIcon />
+                                    </span>
+                                </Tooltip>
                             </Flex>
-                        )}
-                        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
-                            <FlexItem>
-                                {cert.status.v.includes('_')
-                                    ? cert.status.v
-                                    : cert.status.v.charAt(0) + cert.status.v.slice(1).toLowerCase()}
-                            </FlexItem>
-                            <Tooltip position={TooltipPosition.top}
-                                entryDelay={0}
-                                content={certificateStates[cert.status.v]}>
-                                <span className="info-circle">
-                                    <InfoAltIcon />
-                                </span>
-                            </Tooltip>
-                        </Flex>
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
-                {cert.ca && cert.ca.v && <DescriptionListGroup>
-                    <DescriptionListTerm>{_("CA")}</DescriptionListTerm>
-                    <DescriptionListDescription id={`${idPrefix}-general-ca`}>{getCAName(cas, cert)}</DescriptionListDescription>
-                </DescriptionListGroup>}
-            </DescriptionList>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
+                    {cert.ca && cert.ca.v && <DescriptionListGroup>
+                        <DescriptionListTerm>{_("CA")}</DescriptionListTerm>
+                        <DescriptionListDescription id={`${idPrefix}-general-ca`}>{caName == "SelfSign" ? _("Self-signed") : caName}</DescriptionListDescription>
+                    </DescriptionListGroup>}
+                </DescriptionList>
+            </Flex>
+            <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
+                <DescriptionList isHorizontal>
+                    {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <DescriptionListGroup>
+                        <DescriptionListTerm>
+                            {_("Valid")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription id={`${idPrefix}-general-validity`}>
+                            {prettyTime(cert["not-valid-before"].v) +
+                            _(" to ") + prettyTime(cert["not-valid-after"].v)}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
+                    {cert.autorenew && <DescriptionListGroup>
+                        <DescriptionListTerm>
+                            {_("Auto-renewal")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Checkbox id={`${idPrefix}-general-autorenewal`}
+                                      isChecked={cert.autorenew.v}
+                                      label={_("Renew before expiration")}
+                                      onChange={() => onAutorenewChanged(cert, certPath)} />
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
+                </DescriptionList>
+            </Flex>
         </Flex>
-        <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
-            <DescriptionList isHorizontal>
-                {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <DescriptionListGroup>
-                    <DescriptionListTerm>
-                        {_("Valid")}
-                    </DescriptionListTerm>
-                    <DescriptionListDescription id={`${idPrefix}-general-validity`}>
-                        {prettyTime(cert["not-valid-before"].v) +
-                        _(" to ") + prettyTime(cert["not-valid-after"].v)}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
-                {cert.autorenew && <DescriptionListGroup>
-                    <DescriptionListTerm>
-                        {_("Auto-renewal")}
-                    </DescriptionListTerm>
-                    <DescriptionListDescription>
-                        <Checkbox id={`${idPrefix}-general-autorenewal`}
-                                  isChecked={cert.autorenew.v}
-                                  label={_("Renew before expiration")}
-                                  onChange={() => onAutorenewChanged(cert, certPath)} />
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
-            </DescriptionList>
-        </Flex>
-    </Flex>
-);
+    );
+};
 
 const keyDetails = ({ idPrefix, cert }) => (
     <DescriptionList isHorizontal>
@@ -279,7 +283,7 @@ class CertificateList extends React.Component {
             } else {
                 caTitle = (
                     <span id={`${idPrefix}-ca`}>
-                        {caTitle}
+                        {_("Self-signed")}
                     </span>
                 );
             }

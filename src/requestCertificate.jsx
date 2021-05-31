@@ -66,9 +66,10 @@ const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
                         value={dialogValues.ca}
                         onChange={value => onValueChanged("ca", value)}>
                 {cas.map(ca => {
+                    const nick = ca.nickname.v == "SelfSign" ? _("Self-signed") : ca.nickname.v;
                     return (
                         <FormSelectOption value={ca.nickname.v} key={ca.nickname.v}
-                                          label={ca.nickname.v} />
+                                          label={nick} />
                     );
                 })}
             </FormSelect>
