@@ -4,7 +4,7 @@ const path = require("path");
 const copy = require("copy-webpack-plugin");
 const extract = require("mini-css-extract-plugin");
 const TerserJSPlugin = require('terser-webpack-plugin');
-const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
+const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
 const CompressionPlugin = require("compression-webpack-plugin");
 const ESLintPlugin = require('eslint-webpack-plugin');
 const CockpitPoPlugin = require("./src/lib/cockpit-po-plugin");
@@ -79,15 +79,7 @@ module.exports = {
 
     optimization: {
         minimize: production,
-        minimizer: [
-            new TerserJSPlugin({}),
-            // Workaround: https://github.com/patternfly/patternfly-react/issues/5650
-            new OptimizeCSSAssetsPlugin({
-                cssProcessorPluginOptions: {
-                    preset: ['default', { mergeLonghand: false }]
-                }
-            })
-        ],
+        minimizer: [new TerserJSPlugin(), new CssMinimizerPlugin()],
     },
 
     module: {
