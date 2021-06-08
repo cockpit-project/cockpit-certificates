@@ -89,7 +89,11 @@ module.exports = {
                     },
                 },
             }),
-            new CssMinimizerPlugin()
+            new CssMinimizerPlugin({
+                minimizerOptions: {
+                    preset: ['lite']
+                }
+            })
         ],
     },
 
