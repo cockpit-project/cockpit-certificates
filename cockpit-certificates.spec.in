@@ -9,7 +9,6 @@ Source0:        https://github.com/skobyda/cockpit-certificates/releases/downloa
 BuildArch:      noarch
 BuildRequires:  libappstream-glib
 BuildRequires:  make
-BuildRequires:  libappstream-glib
 
 Requires: cockpit-bridge
 Requires: certmonger
