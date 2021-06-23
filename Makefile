@@ -151,7 +151,7 @@ test/common:
 
 $(LIB_TEST):
 	flock Makefile sh -ec '\
-	    git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 245; \
+	    git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 247; \
 	    git checkout --force FETCH_HEAD -- pkg/lib; \
 	    git reset -- pkg/lib'
 	mv pkg/lib src/ && rmdir -p pkg
