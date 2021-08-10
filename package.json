@@ -61,8 +61,6 @@
     "node-sass": "^4.13.1",
     "prop-types": "15.7.2",
     "react": "16.14.0",
-    "react-addons-css-transition-group": "15.6.2",
-    "react-addons-transition-group": "15.6.2",
     "react-dom": "16.14.0",
     "react-scrollable-anchor": "0.6.1",
     "strict-loader": "1.2.0",
