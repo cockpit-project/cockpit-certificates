@@ -75,7 +75,7 @@ class TestApplication(testlib.MachineCase):
         # Verify expected heading
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
-        # Check certificate validity doesn't containt warning
+        # Check certificate validity doesn't contain a warning
         b.wait_not_present("#certificate-0-validity .ct-icon-exclamation-triangle")
 
         # Remove cert
