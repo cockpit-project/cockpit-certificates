@@ -15,6 +15,7 @@ sys.path.append(os.path.join(os.path.dirname(TEST_DIR), "bots/machine"))
 import testlib
 from testlib import nondestructive
 
+
 class TestApplication(testlib.MachineCase):
     def setUp(self):
         super().setUp()
@@ -56,7 +57,6 @@ class TestApplication(testlib.MachineCase):
     @nondestructive
     def testNoCertificates(self):
         b = self.browser
-        m = self.machine
 
         self.login_and_go("/certificates")
         # verify expected heading
