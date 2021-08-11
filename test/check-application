@@ -86,7 +86,7 @@ class TestApplication(testlib.MachineCase):
         # Change validity of new certs to 2 weeks
         m.execute("echo -e '[selfsign]\nvalidity_period = 2w' > /etc/certmonger/certmonger.conf")
         m.execute("systemctl restart certmonger.service")
-        m.execute("selfsign-getcert request -d {0} -n Server-Cert2 -R".format(db_path, "Server-Cert2"))
+        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, "Server-Cert2"))
 
         # Check warning about near expiration
         b.wait_in_text(".ct-table-header h3", "Certificates")
