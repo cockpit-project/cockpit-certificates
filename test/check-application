@@ -125,6 +125,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_visible("#certificate-0-validity .ct-icon-times-circle")
 
+    @nondestructive
     def testModifyAutorenewal(self):
         b = self.browser
         m = self.machine
@@ -132,6 +133,7 @@ class TestApplication(testlib.MachineCase):
         cert_name = "Server-Cert"
         db_path = "/etc/pki/nssdb"
         m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
+        self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.login_and_go("/certificates")
 
