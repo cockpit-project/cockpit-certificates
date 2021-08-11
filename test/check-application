@@ -13,6 +13,7 @@ TEST_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.join(TEST_DIR, "common"))
 sys.path.append(os.path.join(os.path.dirname(TEST_DIR), "bots/machine"))
 import testlib
+from testlib import nondestructive
 
 class TestApplication(testlib.MachineCase):
     def setUp(self):
@@ -21,6 +22,7 @@ class TestApplication(testlib.MachineCase):
         # When we disconnect while certmonger wants to tell us something
         self.allow_journal_messages("org.fedorahosted.certmonger: couldn't introspect /org/fedorahosted/certmonger/.*Remote peer disconnected")
 
+    @nondestructive
     def testEmptyState(self):
         b = self.browser
         m = self.machine
@@ -51,6 +53,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("table .pf-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
+    @nondestructive
     def testNoCertificates(self):
         b = self.browser
         m = self.machine
