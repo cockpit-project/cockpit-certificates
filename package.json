@@ -58,7 +58,6 @@
     "deep-equal": "^2.0.5",
     "docker-names": "1.1.1",
     "moment": "2.29.1",
-    "node-sass": "^4.13.1",
     "prop-types": "15.7.2",
     "react": "16.14.0",
     "react-dom": "16.14.0",
