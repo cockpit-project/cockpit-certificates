@@ -23,6 +23,11 @@ class TestApplication(testlib.MachineCase):
         # When we disconnect while certmonger wants to tell us something
         self.allow_journal_messages("org.fedorahosted.certmonger: couldn't introspect /org/fedorahosted/certmonger/.*Remote peer disconnected")
 
+    def cleanupCertificate(self, cert_name, db_path):
+        output = self.machine.execute("getcert list -d {0} -n {1} || exit 0".format(db_path, cert_name))
+        if cert_name in output:
+            self.machine.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, cert_name))
+
     @nondestructive
     def testEmptyState(self):
         b = self.browser
@@ -63,13 +68,18 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_in_text(".ct-table-empty tr td", "No certificate is tracked on this host")
 
+    @nondestructive
     def testWarningExpiredCert(self):
         b = self.browser
         m = self.machine
 
+        self.restore_file('/etc/certmonger/certmonger.conf', "systemctl restart certmonger")
+
+        cert_name = "Server-Cert1"
         db_path = "/etc/pki/nssdb"
         # Request certificate without automatical renewal
-        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, "Server-Cert1"))
+        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, cert_name))
+        self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.login_and_go("/certificates")
         # Verify expected heading
@@ -79,21 +89,23 @@ class TestApplication(testlib.MachineCase):
         b.wait_not_present("#certificate-0-validity .ct-icon-exclamation-triangle")
 
         # Remove cert
-        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, "Server-Cert1"))
+        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, cert_name))
         self.browser.reload()
         self.browser.enter_page('/certificates')
 
         # Change validity of new certs to 2 weeks
+        cert_name = 'Server-Cert2'
         m.execute("echo -e '[selfsign]\nvalidity_period = 2w' > /etc/certmonger/certmonger.conf")
         m.execute("systemctl restart certmonger.service")
-        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, "Server-Cert2"))
+        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, cert_name))
+        self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         # Check warning about near expiration
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_visible("#certificate-0-validity .ct-icon-exclamation-triangle")
 
         # Remove cert
-        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, "Server-Cert2"))
+        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, cert_name))
         self.browser.reload()
         self.browser.enter_page('/certificates')
 
@@ -103,7 +115,9 @@ class TestApplication(testlib.MachineCase):
         # Wait 4 seconds after requesting which should make the certificate already expired
         # TODO requesting itself takes some time and 4 seconds might now be enough.
         # Fix this if race condition starts to show up
-        m.execute("selfsign-getcert request -d {0} -n {1} -R && sleep 4".format(db_path, "Server-Cert3"))
+        cert_name = "Server-Cert3"
+        m.execute("selfsign-getcert request -d {0} -n {1} -R && sleep 4".format(db_path, cert_name))
+        self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.browser.reload()
         self.browser.enter_page('/certificates')
