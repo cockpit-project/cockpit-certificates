@@ -28,6 +28,12 @@ class TestApplication(testlib.MachineCase):
         if cert_name in output:
             self.machine.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, cert_name))
 
+    def cleanupFileCertificate(self, cert_path, key_path):
+        output = self.machine.execute("getcert list -f {0} || exit 0".format(cert_path))
+        if cert_path in output:
+            self.machine.execute("selfsign-getcert stop-tracking -k {0} -f {1}".format(key_path, cert_path))
+            self.machine.execute("rm {0} {1} || exit 0".format(key_path, cert_path))
+
     @nondestructive
     def testEmptyState(self):
         b = self.browser
@@ -258,6 +264,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-cert-storage", "FILE")
         b.wait_in_text("#certificate-0-cert-location", cert_path)
 
+    @nondestructive
     def testRemoveCert(self):
         b = self.browser
         m = self.machine
@@ -266,9 +273,11 @@ class TestApplication(testlib.MachineCase):
         cert_name = "Server-Cert"
         db_path = "/etc/pki/nssdb"
         m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
+        self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         cert_name2 = "Server-Cert2"
         m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name2))
+        self.addCleanup(self.cleanupCertificate, cert_name2, db_path)
 
         self.login_and_go("/certificates")
         b.wait_in_text(".ct-table-header h3", "Certificates")
@@ -300,6 +309,7 @@ class TestApplication(testlib.MachineCase):
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
         m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+        self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
 
         self.login_and_go("/certificates")
         b.wait_in_text(".ct-table-header h3", "Certificates")
@@ -324,6 +334,7 @@ class TestApplication(testlib.MachineCase):
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
         m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+        self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
 
         self.login_and_go("/certificates")
         b.wait_in_text(".ct-table-header h3", "Certificates")
