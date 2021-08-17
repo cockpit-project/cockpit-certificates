@@ -51,32 +51,32 @@ export class RemoveModal extends React.Component {
         this.setState({ [key]: value });
     }
 
+    onRemoveResponse() {
+        const { certPath, certs, appOnValueChanged, onClose } = this.props;
+        delete certs[certPath];
+
+        appOnValueChanged("certs, certs");
+        onClose();
+    }
+
     onRemove() {
-        const { certPath, cert, addAlert, appOnValueChanged, onClose } = this.props;
+        const { certPath, cert, addAlert, onClose } = this.props;
         const { deleteFiles } = this.state;
 
         if (deleteFiles) {
             cockpit.file(cert["key-file"].v, { superuser: "try" }).replace(null) // delete key file
                     .then(() => cockpit.file(cert["cert-file"].v, { superuser: "try" }).replace(null)) // delete cert file
                     .then(() => removeRequest(certPath))
-                    .then(() => { // There is no dbus signal for cert removal, so we have to update UI manually
-                        const { certs } = this.props;
-                        delete certs[certPath];
-
-                        appOnValueChanged("certs, certs");
-                    })
+                    // There is no dbus signal for cert removal, so we have to update UI manually
+                    .then(() => this.onRemoveResponse())
                     .catch(error => {
                         addAlert(_("Error: ") + (error.name || error.problem), error.message);
                         onClose();
                     });
         } else {
             removeRequest(certPath)
-                    .then(() => { // There is no dbus signal for cert removal, so we have to update UI manually
-                        const { certs } = this.props;
-                        delete certs[certPath];
-
-                        appOnValueChanged("certs, certs");
-                    })
+                    // There is no dbus signal for cert removal, so we have to update UI manually
+                    .then(() => this.onRemoveResponse())
                     .catch(error => {
                         addAlert(_("Error: ") + error.name, error.message);
                         onClose();

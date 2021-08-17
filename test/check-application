@@ -246,6 +246,9 @@ class TestApplication(testlib.MachineCase):
         db_path = "/etc/pki/nssdb"
         m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
 
+        cert_name2 = "Server-Cert2"
+        m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name2))
+
         self.login_and_go("/certificates")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
@@ -257,6 +260,15 @@ class TestApplication(testlib.MachineCase):
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
         b.wait_not_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.click(".pf-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-c-modal-box")
+
+        b.wait_in_text("#certificate-0-name", cert_name2)
+
+        # Remove second certificate
+        b.click("#certificate-0-action-kebab button")
+        b.click("#certificate-0-remove a")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
 
