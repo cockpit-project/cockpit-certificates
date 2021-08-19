@@ -115,12 +115,15 @@ const KeyFileRow = ({ onValueChanged, dialogValues }) => {
 export class RequestCertificateModal extends React.Component {
     constructor(props) {
         super(props);
+        const { cas, hostname } = this.props;
+        const ca = cas[Object.keys(cas)[0]] ? cas[Object.keys(cas)[0]].nickname.v : undefined;
+        const nickname = hostname + '_' + ca + '_' + moment().format("DD-MM-YYYYTHH:mm:ss");
+
         this.state = {
-            _hostname: undefined,
             _userChangedNickname: false,
-            ca: props.cas[Object.keys(props.cas)[0]] ? props.cas[Object.keys(props.cas)[0]].nickname.v : undefined,
+            ca,
             storage: "nssdb",
-            nickname: "",
+            nickname,
             certFile: "",
             keyFile: "",
         };
@@ -130,19 +133,10 @@ export class RequestCertificateModal extends React.Component {
         this.onAddError = this.onAddError.bind(this);
     }
 
-    componentDidMount() {
-        cockpit.file("/etc/hostname", { superuser: "try" }).read()
-                .done((content, tag) => this.onValueChanged("hostname", content.trim()))
-                .catch(error => this.onAddError(error.name, error.message));
-    }
-
     onValueChanged(key, value) {
-        const { _userChangedNickname, hostname, ca } = this.state;
+        const { _userChangedNickname, hostname } = this.state;
         const stateDelta = { [key]: value };
 
-        if (key === "hostname" && !_userChangedNickname) {
-            stateDelta.nickname = value + '_' + ca + '_' + moment().format("DD-MM-YYYYTHH:mm:ss");
-        }
         if (key === "ca" && !_userChangedNickname) {
             stateDelta.nickname = hostname + '_' + value + '_' + moment().format("DD-MM-YYYYTHH:mm:ss");
         }
@@ -236,10 +230,17 @@ export class RequestCertificate extends React.Component {
         super(props);
         this.state = {
             showDialog: false,
+            hostname: "",
         };
 
         this.onOpen = this.onOpen.bind(this);
         this.onClose = this.onClose.bind(this);
+    }
+
+    componentDidMount() {
+        cockpit.file("/etc/hostname", { superuser: "try" }).read()
+                .done((content, tag) => this.setState({ hostname: content.trim() }))
+                .catch(error => console.error(error));
     }
 
     onOpen() {
@@ -251,6 +252,7 @@ export class RequestCertificate extends React.Component {
     }
 
     render() {
+        const { hostname } = this.state;
         const cas = Object.values(this.props.cas);
         const canRequest = cas.length !== 0;
 
@@ -258,13 +260,13 @@ export class RequestCertificate extends React.Component {
             <>
                 <Button id="request-certificate-action"
                         variant="secondary"
-                        isDisabled={!canRequest}
+                        isDisabled={!canRequest && hostname !== ""}
                         onClick={this.onOpen}>
                     {_("Request Certificate")}
                 </Button>
 
                 { canRequest && this.state.showDialog &&
-                    <RequestCertificateModal onClose={this.onClose} {...this.props} /> }
+                    <RequestCertificateModal onClose={this.onClose} hostname={hostname} {...this.props} /> }
             </>
         );
     }
