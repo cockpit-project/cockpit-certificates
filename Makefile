@@ -84,13 +84,11 @@ dist-gzip: $(TARFILE)
 # node_modules/ can be reconstructed if necessary)
 $(TARFILE): NODE_ENV=production
 $(TARFILE): $(WEBPACK_TEST) cockpit-$(PACKAGE_NAME).spec
-	mv node_modules node_modules.release
 	touch -r package.json $(NODE_MODULES_TEST)
 	touch dist/*
 	tar czf $(TARFILE) --transform 's,^,cockpit-$(PACKAGE_NAME)/,' \
-		--exclude cockpit-$(PACKAGE_NAME).spec.in \
+		--exclude cockpit-$(PACKAGE_NAME).spec.in --exclude node_modules \
 		$$(git ls-files) $(LIB_TEST) src/lib/patternfly/*.scss package-lock.json cockpit-$(PACKAGE_NAME).spec dist/
-	mv node_modules.release node_modules
 
 srpm: $(TARFILE) cockpit-$(PACKAGE_NAME).spec
 	rpmbuild -bs \
