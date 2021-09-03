@@ -6,7 +6,9 @@ License:        LGPLv2+ and MIT
 URL:            https://github.com/skobyda/cockpit-certificates
 
 Source0:        https://github.com/skobyda/cockpit-certificates/releases/download/%{version}/cockpit-certificates-%{version}.tar.gz
+Source1:        https://github.com/skobyda/cockpit-certificates/releases/download/%{version}/cockpit-certificates-node-%{version}.tar.xz
 BuildArch:      noarch
+BuildRequires:  nodejs
 BuildRequires:  libappstream-glib
 BuildRequires:  make
 
@@ -17,10 +19,13 @@ Requires: certmonger
 Cockpit component for managing certificates with certmonger.
 
 %prep
-%setup -n cockpit-certificates
+%setup -q -n cockpit-certificates
+%setup -q -a 1 -n cockpit-certificates
 
 %build
-# Nothing to build
+# ignore pre-built webpack in release tarball and rebuild it
+rm -rf dist
+NODE_ENV=production make
 
 %install
 %make_install
