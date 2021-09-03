@@ -88,7 +88,7 @@ $(TARFILE): $(WEBPACK_TEST) cockpit-$(PACKAGE_NAME).spec
 	touch dist/*
 	tar czf $(TARFILE) --transform 's,^,cockpit-$(PACKAGE_NAME)/,' \
 		--exclude cockpit-$(PACKAGE_NAME).spec.in --exclude node_modules \
-		$$(git ls-files) $(LIB_TEST) src/lib/patternfly/*.scss package-lock.json cockpit-$(PACKAGE_NAME).spec dist/
+		$$(git ls-files) src/lib package-lock.json cockpit-$(PACKAGE_NAME).spec dist/
 
 srpm: $(TARFILE) cockpit-$(PACKAGE_NAME).spec
 	rpmbuild -bs \
