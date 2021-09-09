@@ -5,7 +5,7 @@ Summary:        Cockpit user interface for certificates
 License:        LGPLv2+ and MIT
 URL:            https://github.com/skobyda/cockpit-certificates
 
-Source0:        https://github.com/skobyda/cockpit-certificates/releases/download/%{version}/cockpit-certificates-%{version}.tar.gz
+Source0:        https://github.com/skobyda/cockpit-certificates/releases/download/%{version}/cockpit-certificates-%{version}.tar.xz
 Source1:        https://github.com/skobyda/cockpit-certificates/releases/download/%{version}/cockpit-certificates-node-%{version}.tar.xz
 BuildArch:      noarch
 ExclusiveArch:  %{nodejs_arches} noarch
