@@ -5,7 +5,7 @@ ifeq ($(TEST_OS),)
 TEST_OS = fedora-34
 endif
 export TEST_OS
-TARFILE=cockpit-$(PACKAGE_NAME)-$(VERSION).tar.gz
+TARFILE=cockpit-$(PACKAGE_NAME)-$(VERSION).tar.xz
 NODE_CACHE=cockpit-$(PACKAGE_NAME)-node-$(VERSION).tar.xz
 RPMFILE=$(shell rpmspec -D"VERSION $(VERSION)" -q cockpit-$(PACKAGE_NAME).spec.in).rpm
 VM_IMAGE=$(CURDIR)/test/images/$(TEST_OS)
@@ -76,7 +76,7 @@ devel-install: $(WEBPACK_TEST)
 	mkdir -p ~/.local/share/cockpit
 	ln -s `pwd`/dist ~/.local/share/cockpit/$(PACKAGE_NAME)
 
-dist-gzip: $(TARFILE)
+dist: $(TARFILE)
 	@ls -1 $(TARFILE)
 
 # when building a distribution tarball, call webpack with a 'production' environment
@@ -164,4 +164,4 @@ $(NODE_MODULES_TEST): package.json
 	env -u NODE_ENV npm install
 	env -u NODE_ENV npm prune
 
-.PHONY: all clean install devel-install dist-gzip node-cache srpm rpm check vm update-po
+.PHONY: all clean install devel-install dist node-cache srpm rpm check vm update-po
