@@ -3,10 +3,10 @@ Version:        %{VERSION}
 Release:        1%{?dist}
 Summary:        Cockpit user interface for certificates
 License:        LGPLv2+ and MIT
-URL:            https://github.com/skobyda/cockpit-certificates
+URL:            https://github.com/cockpit-project/cockpit-certificates
 
-Source0:        https://github.com/skobyda/cockpit-certificates/releases/download/%{version}/cockpit-certificates-%{version}.tar.xz
-Source1:        https://github.com/skobyda/cockpit-certificates/releases/download/%{version}/cockpit-certificates-node-%{version}.tar.xz
+Source0:        https://github.com/cockpit-project/cockpit-certificates/releases/download/%{version}/%{name}-%{version}.tar.xz
+Source1:        https://github.com/cockpit-project/cockpit-certificates/releases/download/%{version}/%{name}-node-%{version}.tar.xz
 BuildArch:      noarch
 ExclusiveArch:  %{nodejs_arches} noarch
 BuildRequires:  nodejs-devel
@@ -24,8 +24,8 @@ Provides: bundled(nodejs-react) = 16.14.0
 Cockpit component for managing certificates with certmonger.
 
 %prep
-%setup -q -n cockpit-certificates
-%setup -q -a 1 -n cockpit-certificates
+%setup -q -n %{name}
+%setup -q -a 1 -n %{name}
 # ignore pre-built webpack in release tarball and rebuild it
 rm -rf dist
 
