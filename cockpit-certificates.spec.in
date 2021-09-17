@@ -33,6 +33,10 @@ gzip -cd dist/index.js.LICENSE.txt.gz > LICENSE
 %make_install
 appstream-util validate-relax --nonet %{buildroot}/%{_datadir}/metainfo/*
 
+%check
+# this can't be meaningfully tested during package build; tests happen through
+# FMF (see plans/all.fmf) during package gating
+
 %files
 %doc README.md
 %license LICENSE
