@@ -22,10 +22,10 @@ Cockpit component for managing certificates with certmonger.
 %prep
 %setup -q -n cockpit-certificates
 %setup -q -a 1 -n cockpit-certificates
-
-%build
 # ignore pre-built webpack in release tarball and rebuild it
 rm -rf dist
+
+%build
 NODE_ENV=production make
 gzip -cd dist/index.js.LICENSE.txt.gz > LICENSE
 
