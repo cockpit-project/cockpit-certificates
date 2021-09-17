@@ -27,6 +27,7 @@ Cockpit component for managing certificates with certmonger.
 # ignore pre-built webpack in release tarball and rebuild it
 rm -rf dist
 NODE_ENV=production make
+gzip -cd dist/index.js.LICENSE.txt.gz > LICENSE
 
 %install
 %make_install
@@ -34,7 +35,7 @@ appstream-util validate-relax --nonet %{buildroot}/%{_datadir}/metainfo/*
 
 %files
 %doc README.md
-%license LICENSE dist/index.js.LICENSE.txt.gz
+%license LICENSE
 %{_datadir}/cockpit/*
 %{_datadir}/metainfo/*
 
