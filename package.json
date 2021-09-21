@@ -51,11 +51,11 @@
     "webpack-cli": "^4.7.0"
   },
   "dependencies": {
-    "@patternfly/patternfly": "4.132.2",
-    "@patternfly/react-core": "4.152.4",
-    "@patternfly/react-icons": "4.11.14",
-    "@patternfly/react-styles": "4.11.13",
-    "@patternfly/react-table": "4.29.58",
+    "@patternfly/patternfly": "4.135.2",
+    "@patternfly/react-core": "4.157.3",
+    "@patternfly/react-icons": "4.11.17",
+    "@patternfly/react-styles": "4.11.16",
+    "@patternfly/react-table": "4.30.3",
     "deep-equal": "^2.0.5",
     "docker-names": "1.1.1",
     "moment": "2.29.1",
