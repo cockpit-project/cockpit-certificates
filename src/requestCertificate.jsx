@@ -17,7 +17,7 @@
  * along with Cockpit; If not, see <http://www.gnu.org/licenses/>.
  */
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState, useEffect } from "react";
 import moment from "moment";
 
 import {
@@ -37,21 +37,21 @@ const _ = cockpit.gettext;
 
 const NSSDB_PATH = "/etc/pki/nssdb";
 
-const StorageRow = ({ onValueChanged, dialogValues }) => {
+const StorageRow = ({ storage, setStorage }) => {
     return (
         <FormGroup label={_("Certificate storage")}
                    id="storage-row"
                    isInline
                    hasNoPaddingTop>
-            <Radio isChecked={dialogValues.storage === "nssdb"}
+            <Radio isChecked={storage === "nssdb"}
                    name="storage"
-                   onChange={() => onValueChanged("storage", "nssdb")}
+                   onChange={() => setStorage("nssdb")}
                    label="NSSDB"
                    id="nssdb"
                    value="nssdb" />
-            <Radio isChecked={dialogValues.storage === "file"}
+            <Radio isChecked={storage === "file"}
                    name="storage"
-                   onChange={() => onValueChanged("storage", "file")}
+                   onChange={() => setStorage("file")}
                    label="File"
                    id="file"
                    value="file" />
@@ -59,12 +59,12 @@ const StorageRow = ({ onValueChanged, dialogValues }) => {
     );
 };
 
-const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
+const CAsRow = ({ ca, setCa, cas }) => {
     return (
         <FormGroup fieldId="ca" label={_("CA")}>
             <FormSelect id="ca"
-                        value={dialogValues.ca}
-                        onChange={value => onValueChanged("ca", value)}>
+                        value={ca}
+                        onChange={value => setCa(value)}>
                 {cas.map(ca => {
                     const nick = ca.nickname.v == "SelfSign" ? _("Self-signed") : ca.nickname.v;
                     return (
@@ -77,197 +77,154 @@ const CAsRow = ({ onValueChanged, dialogValues, cas }) => {
     );
 };
 
-const NicknameRow = ({ onValueChanged, dialogValues }) => {
+const NicknameRow = ({ nickname, setNickname }) => {
     return (
         <FormGroup fieldId="nickname" label={_("Nickname")}>
-            <TextInput value={dialogValues.nickname}
+            <TextInput value={nickname}
                        id="nickname"
-                       onChange={(value) => onValueChanged("nickname", value)}
+                       onChange={value => setNickname(value)}
                        aria-label={_("Nickname input text")} />
         </FormGroup>
     );
 };
 
-const CertFileRow = ({ onValueChanged, dialogValues }) => {
+const CertFileRow = ({ setCertFile }) => {
     return (
         <FormGroup label={_("Certificate path")}>
             <FileAutoComplete id="cert-file"
                               isOptionCreatable
                               superuser="try"
                               placeholder={_("Path to store the certificate")}
-                              onChange={value => onValueChanged("certFile", value)} />
+                              onChange={value => setCertFile(value)} />
         </FormGroup>
     );
 };
 
-const KeyFileRow = ({ onValueChanged, dialogValues }) => {
+const KeyFileRow = ({ setKeyFile }) => {
     return (
         <FormGroup label={_("Key path")}>
             <FileAutoComplete id="key-file"
                               isOptionCreatable
                               superuser="try"
                               placeholder={_("Path to store the generated key or to an existing key")}
-                              onChange={value => onValueChanged("keyFile", value)} />
+                              onChange={value => setKeyFile(value)} />
         </FormGroup>
     );
 };
 
-export class RequestCertificateModal extends React.Component {
-    constructor(props) {
-        super(props);
-        const { cas, hostname } = this.props;
-        const ca = cas[Object.keys(cas)[0]] ? cas[Object.keys(cas)[0]].nickname.v : undefined;
-        const nickname = hostname + '_' + ca + '_' + moment().format("DD-MM-YYYYTHH:mm:ss");
+export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert }) => {
+    const [_userChangedNickname, setUserChangedNickname] = useState(false);
+    const [ca, _setCa] = useState(cas[Object.keys(cas)[0]] ? cas[Object.keys(cas)[0]].nickname.v : undefined);
+    const [storage, setStorage] = useState("nssdb");
+    const [nickname, _setNickname] = useState(hostname + '_' + ca + '_' + moment().format("DD-MM-YYYYTHH:mm:ss"));
+    const [certFile, setCertFile] = useState("");
+    const [keyFile, setKeyFile] = useState("");
+    const [errorName, setErrorName] = useState();
+    const [errorMessage, setErrorMessage] = useState();
 
-        this.state = {
-            _userChangedNickname: false,
-            ca,
-            storage: "nssdb",
-            nickname,
-            certFile: "",
-            keyFile: "",
-        };
+    const setCa = value => {
+        if (!_userChangedNickname)
+            _setNickname(hostname + '_' + value + '_' + moment().format("DD-MM-YYYYTHH:mm:ss"));
 
-        this.onValueChanged = this.onValueChanged.bind(this);
-        this.onRequest = this.onRequest.bind(this);
-        this.onAddError = this.onAddError.bind(this);
-    }
+        _setCa(value);
+    };
 
-    onValueChanged(key, value) {
-        const { _userChangedNickname, hostname } = this.state;
-        const stateDelta = { [key]: value };
+    const setNickname = value => {
+        setUserChangedNickname(true);
+        _setNickname(value);
+    };
 
-        if (key === "ca" && !_userChangedNickname) {
-            stateDelta.nickname = hostname + '_' + value + '_' + moment().format("DD-MM-YYYYTHH:mm:ss");
-        }
-        if (key === "nickname")
-            stateDelta._userChangedNickname = true;
-
-        this.setState(stateDelta);
-    }
-
-    checkParameters() {
-        return null;
-    }
-
-    onAddError(errorName, errorMessage) {
-        this.setState({ errorName, errorMessage });
-    }
-
-    onRequest() {
-        const casKeys = Object.keys(this.props.cas);
+    const onRequest = () => {
+        const casKeys = Object.keys(cas);
         let caPath;
         casKeys.forEach(key => {
-            if (this.props.cas[key].nickname.v === this.state.ca)
+            if (cas[key].nickname.v === ca)
                 caPath = key;
         });
 
         const parameter = {
-            "cert-storage": cockpit.variant("s", this.state.storage),
-            "key-storage": cockpit.variant("s", this.state.storage),
+            "cert-storage": cockpit.variant("s", storage),
+            "key-storage": cockpit.variant("s", storage),
             ca: cockpit.variant("s", caPath),
         };
 
-        if (this.state.storage === "nssdb") {
+        if (storage === "nssdb") {
             parameter["cert-database"] = cockpit.variant("s", NSSDB_PATH);
-            parameter["cert-nickname"] = cockpit.variant("s", this.state.nickname);
+            parameter["cert-nickname"] = cockpit.variant("s", nickname);
             parameter["key-database"] = cockpit.variant("s", NSSDB_PATH);
-            parameter["key-nickname"] = cockpit.variant("s", this.state.nickname);
+            parameter["key-nickname"] = cockpit.variant("s", nickname);
         } else { // file
-            parameter["cert-file"] = cockpit.variant("s", this.state.certFile);
-            parameter["key-file"] = cockpit.variant("s", this.state.keyFile);
+            parameter["cert-file"] = cockpit.variant("s", certFile);
+            parameter["key-file"] = cockpit.variant("s", keyFile);
         }
 
-        console.log(parameter);
-
         addRequest(parameter)
-                .then(() => this.props.onClose())
-                .catch(error => this.onAddError(error.name, error.message));
-    }
+                .then(() => onClose())
+                .catch(error => {
+                    setErrorName(error.name);
+                    setErrorMessage(error.message);
+                });
+    };
 
-    render() {
-        const { onClose } = this.props;
-        const cas = Object.values(this.props.cas);
+    const body = (
+        <Form isHorizontal>
+            <CAsRow ca={ca} setCa={setCa} cas={Object.values(cas)} />
 
-        const body = (
-            <Form isHorizontal>
-                <CAsRow dialogValues={this.state} onValueChanged={this.onValueChanged} cas={cas} />
+            <StorageRow storage={storage} setStorage={setStorage} />
+            {storage === "nssdb" &&
+                <NicknameRow nickname={nickname} setNickname={setNickname} />}
 
-                <StorageRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                {this.state.storage === "nssdb" &&
-                    <NicknameRow dialogValues={this.state} onValueChanged={this.onValueChanged} />}
+            {storage === "file" && <>
+                <CertFileRow setCertFile={setCertFile} />
+                <KeyFileRow setKeyFile={setKeyFile} />
+            </>}
+        </Form>
+    );
 
-                {this.state.storage === "file" && <>
-                    <CertFileRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                    <KeyFileRow dialogValues={this.state} onValueChanged={this.onValueChanged} />
-                </>}
-            </Form>
-        );
+    return (
+        <Modal id="request-certificate-dialog" onClose={onClose}
+               position="top" variant="medium"
+               isOpen
+               title={_("Request Certificate")}
+               footer={<>
+                   {errorName && <ModalError dialogError={errorName} dialogErrorDetail={errorMessage} />}
+                   <Button variant="primary"
+                       onClick={onRequest}>
+                       {_("Request")}
+                   </Button>
+                   <Button variant="link" className="btn-cancel" onClick={onClose}>
+                       {_("Cancel")}
+                   </Button>
+               </>}>
+            {body}
+        </Modal>
+    );
+};
 
-        return (
-            <Modal id="request-certificate-dialog" onClose={onClose}
-                   position="top" variant="medium"
-                   isOpen
-                   title={_("Request Certificate")}
-                   footer={<>
-                       {this.state.errorName && <ModalError dialogError={this.state.errorName} dialogErrorDetail={this.state.errorMessage} />}
-                       <Button variant="primary"
-                           onClick={this.onRequest}>
-                           {_("Request")}
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={onClose}>
-                           {_("Cancel")}
-                       </Button>
-                   </>}>
-                {body}
-            </Modal>
-        );
-    }
-}
+export const RequestCertificate = ({ cas, addAlert }) => {
+    const [showDialog, setShowDialog] = useState(false);
+    const [hostname, setHostname] = useState("");
 
-export class RequestCertificate extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            showDialog: false,
-            hostname: "",
-        };
-
-        this.onOpen = this.onOpen.bind(this);
-        this.onClose = this.onClose.bind(this);
-    }
-
-    componentDidMount() {
+    useEffect(() => {
         cockpit.file("/etc/hostname", { superuser: "try" }).read()
-                .done((content, tag) => this.setState({ hostname: content.trim() }))
+                .done((content, tag) => setHostname(content.trim()))
                 .catch(error => console.error(error));
-    }
+    }, []);
 
-    onOpen() {
-        this.setState({ showDialog: true });
-    }
+    const authorities = Object.values(cas);
+    const canRequest = authorities.length !== 0;
 
-    onClose() {
-        this.setState({ showDialog: false });
-    }
+    return (
+        <>
+            <Button id={"request-certificate-action"}
+                    variant="secondary"
+                    isDisabled={!canRequest && hostname !== ""}
+                    onClick={() => setShowDialog(true)}>
+                {_("Request Certificate")}
+            </Button>
 
-    render() {
-        const { hostname } = this.state;
-        const cas = Object.values(this.props.cas);
-        const canRequest = cas.length !== 0;
-
-        return (
-            <>
-                <Button id="request-certificate-action"
-                        variant="secondary"
-                        isDisabled={!canRequest && hostname !== ""}
-                        onClick={this.onOpen}>
-                    {_("Request Certificate")}
-                </Button>
-
-                { canRequest && this.state.showDialog &&
-                    <RequestCertificateModal onClose={this.onClose} hostname={hostname} {...this.props} /> }
-            </>
-        );
-    }
-}
+            { canRequest && showDialog &&
+                <RequestCertificateModal onClose={() => setShowDialog(false)} hostname={hostname} cas={authorities} addAlert={addAlert} /> }
+        </>
+    );
+};
