@@ -22,10 +22,12 @@ import moment from "moment";
 
 import {
     Button,
+    Checkbox,
     Form, FormGroup,
     FormSelect, FormSelectOption,
     Modal,
     Radio,
+    TextArea,
     TextInput
 } from "@patternfly/react-core";
 
@@ -36,6 +38,49 @@ import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
 const _ = cockpit.gettext;
 
 const NSSDB_PATH = "/etc/pki/nssdb";
+
+const SetSigningParametersRow = ({ signingParameters, setSigningParameters }) => {
+    return (
+        <FormGroup>
+            <Checkbox id='set-signing-parameters'
+                      isChecked={signingParameters}
+                      label={_("Set optional signing request parameters")}
+                      onChange={() => setSigningParameters(!signingParameters)} />
+        </FormGroup>
+    );
+};
+
+const SubjectNameRow = ({ subjectName, setSubjectName }) => {
+    return (
+        <FormGroup fieldId="subject-name" label={_("Subject name")}>
+            <TextInput value={subjectName}
+                       id="subject-name"
+                       onChange={value => setSubjectName(value)} />
+        </FormGroup>
+    );
+};
+
+const DNSNameRow = ({ dnsName, setDnsName }) => {
+    return (
+        <FormGroup fieldId="dns-name" label={_("DNS names")}
+                   helperText={_("Comma separated list of DNS names. Example: example.com,sub.example.com")}>
+            <TextArea value={dnsName}
+                id="dns-name"
+                onChange={value => setDnsName(value)}
+                resizeOrientation='vertical' />
+        </FormGroup>
+    );
+};
+
+const PrincipalNameRow = ({ principalName, setPricipalName }) => {
+    return (
+        <FormGroup fieldId="principal-name" label={_("Principal name")}>
+            <TextInput value={principalName}
+                id="principal-name"
+                onChange={value => setPricipalName(value)} />
+        </FormGroup>
+    );
+};
 
 const StorageRow = ({ storage, setStorage }) => {
     return (
@@ -88,37 +133,45 @@ const NicknameRow = ({ nickname, setNickname }) => {
     );
 };
 
-const CertFileRow = ({ setCertFile }) => {
+const CertFileRow = ({ setCertFile, mode }) => {
     return (
         <FormGroup label={_("Certificate path")}>
             <FileAutoComplete id="cert-file"
                               isOptionCreatable
                               superuser="try"
-                              placeholder={_("Path to store the certificate")}
+                              fileExists={mode === "import"}
+                              placeholder={mode === "request" ? _("Path to store the certificate") : _("Path to an existing certificate file")}
                               onChange={value => setCertFile(value)} />
         </FormGroup>
     );
 };
 
-const KeyFileRow = ({ setKeyFile }) => {
+const KeyFileRow = ({ setKeyFile, mode }) => {
     return (
         <FormGroup label={_("Key path")}>
             <FileAutoComplete id="key-file"
                               isOptionCreatable
                               superuser="try"
-                              placeholder={_("Path to store the generated key or to an existing key")}
+                              fileExists={mode === "import"}
+                              placeholder={mode === "request"
+                                  ? _("Path to store the generated key or to an existing key")
+                                  : _("Path to an existing key file")}
                               onChange={value => setKeyFile(value)} />
         </FormGroup>
     );
 };
 
-export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert }) => {
+export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert, mode }) => {
     const [_userChangedNickname, setUserChangedNickname] = useState(false);
     const [ca, _setCa] = useState(cas[Object.keys(cas)[0]] ? cas[Object.keys(cas)[0]].nickname.v : undefined);
-    const [storage, setStorage] = useState("nssdb");
+    const [storage, setStorage] = useState(mode === "request" ? "nssdb" : "file");
     const [nickname, _setNickname] = useState(hostname + '_' + ca + '_' + moment().format("DD-MM-YYYYTHH:mm:ss"));
     const [certFile, setCertFile] = useState("");
     const [keyFile, setKeyFile] = useState("");
+    const [subjectName, setSubjectName] = useState("");
+    const [dnsName, _setDnsName] = useState("");
+    const [principalName, setPricipalName] = useState("");
+    const [signingParameters, setSigningParameters] = useState("");
     const [errorName, setErrorName] = useState();
     const [errorMessage, setErrorMessage] = useState();
 
@@ -132,6 +185,13 @@ export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert }) =>
     const setNickname = value => {
         setUserChangedNickname(true);
         _setNickname(value);
+    };
+
+    const setDnsName = value => {
+        value = value.replace(/\s/g, ',');
+        while (value.includes(",,"))
+            value = value.replace(",,", ',');
+        _setDnsName(value);
     };
 
     const onRequest = () => {
@@ -158,8 +218,23 @@ export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert }) =>
             parameter["key-file"] = cockpit.variant("s", keyFile);
         }
 
+        if (signingParameters) {
+            let subjectNameParam;
+            if (subjectName && !subjectName.includes("="))
+                subjectNameParam = "CN=" + subjectName;
+            let dnsNamesParam = dnsName.split(',');
+            dnsNamesParam = dnsNamesParam.filter(Boolean); // Removes empty string entries
+
+            if (subjectName)
+                parameter["template-subject"] = cockpit.variant("s", subjectNameParam);
+            if (principalName)
+                parameter["template-principal"] = cockpit.variant("as", [principalName]);
+            if (dnsName)
+                parameter["template-hostname"] = cockpit.variant("as", dnsNamesParam);
+        }
+
         addRequest(parameter)
-                .then(() => onClose())
+                .then(onClose)
                 .catch(error => {
                     setErrorName(error.name);
                     setErrorMessage(error.message);
@@ -175,8 +250,15 @@ export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert }) =>
                 <NicknameRow nickname={nickname} setNickname={setNickname} />}
 
             {storage === "file" && <>
-                <CertFileRow setCertFile={setCertFile} />
-                <KeyFileRow setKeyFile={setKeyFile} />
+                <CertFileRow setCertFile={setCertFile} mode={mode} />
+                <KeyFileRow setKeyFile={setKeyFile} mode={mode} />
+            </>}
+
+            <SetSigningParametersRow signingParameters={signingParameters} setSigningParameters={setSigningParameters} />
+            {signingParameters && <>
+                <SubjectNameRow subjectName={subjectName} setSubjectName={setSubjectName} />
+                <DNSNameRow dnsName={dnsName} setDnsName={setDnsName} />
+                <PrincipalNameRow principalName={principalName} setPricipalName={setPricipalName} />
             </>}
         </Form>
     );
@@ -185,12 +267,12 @@ export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert }) =>
         <Modal id="request-certificate-dialog" onClose={onClose}
                position="top" variant="medium"
                isOpen
-               title={_("Request Certificate")}
+               title={mode === "request" ? _("Request Certificate") : _("Import Certificate")}
                footer={<>
                    {errorName && <ModalError dialogError={errorName} dialogErrorDetail={errorMessage} />}
                    <Button variant="primary"
                        onClick={onRequest}>
-                       {_("Request")}
+                       {mode === "request" ? _("Request") : _("Import")}
                    </Button>
                    <Button variant="link" className="btn-cancel" onClick={onClose}>
                        {_("Cancel")}
@@ -201,30 +283,31 @@ export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert }) =>
     );
 };
 
-export const RequestCertificate = ({ cas, addAlert }) => {
+export const RequestCertificate = ({ cas, addAlert, mode }) => {
     const [showDialog, setShowDialog] = useState(false);
     const [hostname, setHostname] = useState("");
 
     useEffect(() => {
-        cockpit.file("/etc/hostname", { superuser: "try" }).read()
-                .done((content, tag) => setHostname(content.trim()))
-                .catch(error => console.error(error));
-    }, []);
+        if (mode === "request") {
+            cockpit.file("/etc/hostname", { superuser: "try" }).read()
+                    .done((content, tag) => setHostname(content.trim()))
+                    .catch(error => console.error(error));
+        }
+    }, [mode]);
 
-    const authorities = Object.values(cas);
-    const canRequest = authorities.length !== 0;
+    const canRequest = Object.values(cas).length !== 0;
 
     return (
         <>
-            <Button id={"request-certificate-action"}
+            <Button id={mode === "request" ? "request-certificate-action" : "import-certificate-action"}
                     variant="secondary"
                     isDisabled={!canRequest && hostname !== ""}
                     onClick={() => setShowDialog(true)}>
-                {_("Request Certificate")}
+                {mode === "request" ? _("Request Certificate") : _("Import Certificate")}
             </Button>
 
             { canRequest && showDialog &&
-                <RequestCertificateModal onClose={() => setShowDialog(false)} hostname={hostname} cas={authorities} addAlert={addAlert} /> }
+                <RequestCertificateModal onClose={() => setShowDialog(false)} hostname={hostname} cas={cas} addAlert={addAlert} mode={mode} /> }
         </>
     );
 };
