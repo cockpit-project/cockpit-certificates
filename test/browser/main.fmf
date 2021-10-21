@@ -4,7 +4,8 @@ require:
   - cockpit-certificates
   - cockpit-ws
   - cockpit-system
-  - git
+  - bzip2
+  - git-core
   - glibc-langpack-de
   - libvirt-python3
   - make
