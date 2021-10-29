@@ -18,7 +18,7 @@
  */
 
 import cockpit from "cockpit";
-import React from "react";
+import React, { useState } from "react";
 
 import "./certificateActions.css";
 
@@ -36,39 +36,23 @@ import { removeRequest } from "./dbus.js";
 
 const _ = cockpit.gettext;
 
-export class RemoveModal extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            deleteFiles: false,
-        };
+export const RemoveModal = ({ onClose, certs, cert, certPath, addAlert, appOnValueChanged, idPrefix }) => {
+    const [deleteFiles, setDeleteFiles] = useState(false);
 
-        this.onValueChanged = this.onValueChanged.bind(this);
-        this.onRemove = this.onRemove.bind(this);
-    }
-
-    onValueChanged(key, value) {
-        this.setState({ [key]: value });
-    }
-
-    onRemoveResponse() {
-        const { certPath, certs, appOnValueChanged, onClose } = this.props;
+    const onRemoveResponse = () => {
         delete certs[certPath];
 
         appOnValueChanged("certs, certs");
         onClose();
-    }
+    };
 
-    onRemove() {
-        const { certPath, cert, addAlert, onClose } = this.props;
-        const { deleteFiles } = this.state;
-
+    const onRemove = () => {
         if (deleteFiles) {
             cockpit.file(cert["key-file"].v, { superuser: "try" }).replace(null) // delete key file
                     .then(() => cockpit.file(cert["cert-file"].v, { superuser: "try" }).replace(null)) // delete cert file
                     .then(() => removeRequest(certPath))
                     // There is no dbus signal for cert removal, so we have to update UI manually
-                    .then(() => this.onRemoveResponse())
+                    .then(() => onRemoveResponse())
                     .catch(error => {
                         addAlert(_("Error: ") + (error.name || error.problem), error.message);
                         onClose();
@@ -76,136 +60,111 @@ export class RemoveModal extends React.Component {
         } else {
             removeRequest(certPath)
                     // There is no dbus signal for cert removal, so we have to update UI manually
-                    .then(() => this.onRemoveResponse())
+                    .then(() => onRemoveResponse())
                     .catch(error => {
                         addAlert(_("Error: ") + error.name, error.message);
                         onClose();
                     });
         }
-    }
+    };
 
-    render() {
-        const { idPrefix, onClose, cert } = this.props;
-        const { deleteFiles } = this.state;
+    const title = _("Remove certificate: ") + (cert["cert-storage"].v === "FILE" ? cert.nickname.v : cert["cert-nickname"].v);
 
-        const title = _("Remove certificate: ") + (cert["cert-storage"].v === "FILE" ? cert.nickname.v : cert["cert-nickname"].v);
+    const fileCertBody = (
+        <Form isHorizontal>
+            <FormGroup label={_("Certificate file")} hasNoPaddingTop>
+                <samp id={idPrefix + "cert-file"}>
+                    {cert["cert-file"].v}
+                </samp>
+            </FormGroup>
 
-        const fileCertBody = (
-            <Form isHorizontal>
-                <FormGroup label={_("Certificate file")} hasNoPaddingTop>
-                    <samp id={idPrefix + "cert-file"}>
-                        {cert["cert-file"].v}
-                    </samp>
-                </FormGroup>
+            <FormGroup label={_("Key file")}>
+                <samp id={idPrefix + "key-file"} hasNoPaddingTop>
+                    {cert["key-file"].v}
+                </samp>
+            </FormGroup>
+        </Form>
+    );
 
-                <FormGroup label={_("Key file")}>
-                    <samp id={idPrefix + "key-file"} hasNoPaddingTop>
-                        {cert["key-file"].v}
-                    </samp>
-                </FormGroup>
-            </Form>
-        );
+    const nssdbCertBody = (
+        <Form isHorizontal>
+            <FormGroup label={_("NSSDB path")} hasNoPaddingTop>
+                <samp id={idPrefix + "cert-database"}>
+                    {cert["cert-database"].v}
+                </samp>
+            </FormGroup>
 
-        const nssdbCertBody = (
-            <Form isHorizontal>
-                <FormGroup label={_("NSSDB path")} hasNoPaddingTop>
-                    <samp id={idPrefix + "cert-database"}>
-                        {cert["cert-database"].v}
-                    </samp>
-                </FormGroup>
+            <FormGroup label={_("Nickname")} hasNoPaddingTop>
+                <samp id={idPrefix + "cert-nickname"}>
+                    {cert["cert-nickname"].v}
+                </samp>
+            </FormGroup>
+        </Form>
+    );
 
-                <FormGroup label={_("Nickname")} hasNoPaddingTop>
-                    <samp id={idPrefix + "cert-nickname"}>
-                        {cert["cert-nickname"].v}
-                    </samp>
-                </FormGroup>
-            </Form>
-        );
+    const body = (<>
+        { cert["cert-storage"].v === "FILE" ? fileCertBody : nssdbCertBody }
+        { cert["key-file"] && cert["cert-file"] && cert["key-file"].v && cert["cert-file"].v && (
+            <Checkbox id={idPrefix + "-delete-files"}
+                      className="checkbox-delete-files"
+                      isChecked={deleteFiles}
+                      label={_("Also delete certificate and key files")}
+                      onChange={e => setDeleteFiles(!deleteFiles)} />
+        )}
+    </>);
 
-        const body = (<>
-            { cert["cert-storage"].v === "FILE" ? fileCertBody : nssdbCertBody }
-            { cert["key-file"] && cert["cert-file"] && cert["key-file"].v && cert["cert-file"].v && (
-                <Checkbox id={idPrefix + "-delete-files"}
-                          className="checkbox-delete-files"
-                          isChecked={deleteFiles}
-                          label={_("Also delete certificate and key files")}
-                          onChange={e => this.onValueChanged("deleteFiles", !deleteFiles)} />
-            )}
-        </>);
+    return (
+        <Modal id={idPrefix + "-remove-dialog"}
+               position="top" variant="medium"
+               onClose={onClose}
+               isOpen
+               title={title}
+               footer={<>
+                   <Button variant="danger" onClick={onRemove}>
+                       { deleteFiles ? _("Remove and delete") : _("Remove") }
+                   </Button>
+                   <Button variant="link" className="btn-cancel" onClick={onClose}>
+                       {_("Cancel")}
+                   </Button>
+               </>}>
+            {body}
+        </Modal>
+    );
+};
 
-        return (
-            <Modal id={idPrefix + "-remove-dialog"}
-                   position="top" variant="medium"
-                   onClose={onClose}
-                   isOpen
-                   title={title}
-                   footer={<>
-                       <Button variant="danger" onClick={this.onRemove}>
-                           { deleteFiles ? _("Remove and delete") : _("Remove") }
-                       </Button>
-                       <Button variant="link" className="btn-cancel" onClick={onClose}>
-                           {_("Cancel")}
-                       </Button>
-                   </>}>
-                {body}
-            </Modal>
-        );
-    }
-}
+export const CertificateActions = ({ certs, cert, certPath, addAlert, appOnValueChanged, idPrefix }) => {
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [showRemoveModal, setShowRemoveModal] = useState(false);
 
-export class CertificateActions extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {
-            dropdownOpen: false,
-            showRemoveModal: false,
-        };
+    const dropdownItems = [
+        <DropdownItem className="pf-m-danger"
+            key={`${idPrefix}-remove`}
+            id={`${idPrefix}-remove`}
+            onClick={() => setShowRemoveModal(true)}>
+            {_("Remove")}
+        </DropdownItem>,
+    ];
 
-        this.onValueChanged = this.onValueChanged.bind(this);
-        this.onRemoveModalOpen = this.onRemoveModalOpen.bind(this);
-        this.onRemoveModalClose = this.onRemoveModalClose.bind(this);
-    }
+    return (
+        <>
+            <Dropdown onSelect={() => setDropdownOpen(!dropdownOpen)}
+                id={`${idPrefix}-action-kebab`}
+                toggle={
+                    <KebabToggle key={`${idPrefix}-action-kebab-toggle`}
+                        onToggle={() => setDropdownOpen(!dropdownOpen)} />
+                }
+                isOpen={dropdownOpen}
+                position="right"
+                dropdownItems={dropdownItems}
+                isPlain />
 
-    onValueChanged(key, value) {
-        this.setState({ [key]: value });
-    }
-
-    onRemoveModalOpen() {
-        this.setState({ showRemoveModal: true });
-    }
-
-    onRemoveModalClose() {
-        this.setState({ showRemoveModal: false });
-    }
-
-    render() {
-        const { idPrefix } = this.props;
-        const { dropdownOpen, showRemoveModal } = this.state;
-
-        const dropdownItems = [
-            <DropdownItem className="pf-m-danger"
-                key={`${idPrefix}-remove`}
-                id={`${idPrefix}-remove`}
-                onClick={this.onRemoveModalOpen}>
-                {_("Remove")}
-            </DropdownItem>,
-        ];
-
-        return (
-            <>
-                <Dropdown onSelect={() => this.onValueChanged("dropdownOpen", !dropdownOpen)}
-                    id={`${idPrefix}-action-kebab`}
-                    toggle={
-                        <KebabToggle key={`${idPrefix}-action-kebab-toggle`}
-                            onToggle={() => this.onValueChanged("dropdownOpen", !dropdownOpen)} />
-                    }
-                    isOpen={dropdownOpen}
-                    position="right"
-                    dropdownItems={dropdownItems}
-                    isPlain />
-
-                {showRemoveModal && <RemoveModal onClose={this.onRemoveModalClose} {...this.props} />}
-            </>
-        );
-    }
-}
+            {showRemoveModal && <RemoveModal onClose={() => setShowRemoveModal(false)}
+                                    certs={certs}
+                                    cert={cert}
+                                    certPath={certPath}
+                                    addAlert={addAlert}
+                                    appOnValueChanged={appOnValueChanged}
+                                    idPrefix={idPrefix} />}
+        </>
+    );
+};
