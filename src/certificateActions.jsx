@@ -88,7 +88,7 @@ export class RemoveModal extends React.Component {
         const { idPrefix, onClose, cert } = this.props;
         const { deleteFiles } = this.state;
 
-        const title = _("Remove Certificate: ") + (cert["cert-storage"].v === "FILE" ? cert.nickname.v : cert["cert-nickname"].v);
+        const title = _("Remove certificate: ") + (cert["cert-storage"].v === "FILE" ? cert.nickname.v : cert["cert-nickname"].v);
 
         const fileCertBody = (
             <Form isHorizontal>

@@ -292,7 +292,7 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
         b.wait_not_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
@@ -302,7 +302,7 @@ class TestApplication(testlib.MachineCase):
         # Remove second certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -324,7 +324,7 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
         b.wait_visible("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
@@ -349,7 +349,7 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove Certificate")
+        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
         b.click("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
@@ -393,7 +393,7 @@ class TestApplication(testlib.MachineCase):
 
             def open(self):
                 b.click("#request-certificate-action")
-                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Request Certificate")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Request certificate")
 
             def fill(self):
                 if self.ca:
@@ -551,7 +551,7 @@ class TestApplication(testlib.MachineCase):
 
             def open(self):
                 b.click("#import-certificate-action")
-                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Import Certificate")
+                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Import certificate")
 
             def fill(self):
                 if self.ca:

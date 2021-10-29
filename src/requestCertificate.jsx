@@ -267,7 +267,7 @@ export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert, mode
         <Modal id="request-certificate-dialog" onClose={onClose}
                position="top" variant="medium"
                isOpen
-               title={mode === "request" ? _("Request Certificate") : _("Import Certificate")}
+               title={mode === "request" ? _("Request certificate") : _("Import certificate")}
                footer={<>
                    {errorName && <ModalError dialogError={errorName} dialogErrorDetail={errorMessage} />}
                    <Button variant="primary"
@@ -303,7 +303,7 @@ export const RequestCertificate = ({ cas, addAlert, mode }) => {
                     variant="secondary"
                     isDisabled={!canRequest && hostname !== ""}
                     onClick={() => setShowDialog(true)}>
-                {mode === "request" ? _("Request Certificate") : _("Import Certificate")}
+                {mode === "request" ? _("Request certificate") : _("Import certificate")}
             </Button>
 
             { canRequest && showDialog &&
