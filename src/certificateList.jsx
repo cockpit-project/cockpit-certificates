@@ -327,7 +327,8 @@ class CertificateList extends React.Component {
                     },
                     { title: cert.ca && cert.ca.v && caTitle },
                     {
-                        title: <CertificateActions certs={certs}
+                        title: <CertificateActions cas={cas}
+                                 certs={certs}
                                  cert={cert}
                                  certPath={certPath}
                                  addAlert={addAlert}

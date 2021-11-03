@@ -32,6 +32,7 @@ import {
     Modal,
 } from "@patternfly/react-core";
 
+import { ResubmitCertificateModal } from './requestCertificate.jsx';
 import { removeRequest } from "./dbus.js";
 
 const _ = cockpit.gettext;
@@ -132,11 +133,18 @@ export const RemoveModal = ({ onClose, certs, cert, certPath, addAlert, appOnVal
     );
 };
 
-export const CertificateActions = ({ certs, cert, certPath, addAlert, appOnValueChanged, idPrefix }) => {
+export const CertificateActions = ({ cas, certs, cert, certPath, addAlert, appOnValueChanged, idPrefix }) => {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);
+    const [showResubmitModal, setShowResubmitModal] = useState(false);
 
     const dropdownItems = [
+        <DropdownItem
+            key={`${idPrefix}-resubmit`}
+            id={`${idPrefix}-resubmit`}
+            onClick={() => setShowResubmitModal(true)}>
+            {_("Resubmit")}
+        </DropdownItem>,
         <DropdownItem className="pf-m-danger"
             key={`${idPrefix}-remove`}
             id={`${idPrefix}-remove`}
@@ -158,13 +166,20 @@ export const CertificateActions = ({ certs, cert, certPath, addAlert, appOnValue
                 dropdownItems={dropdownItems}
                 isPlain />
 
-            {showRemoveModal && <RemoveModal onClose={() => setShowRemoveModal(false)}
-                                    certs={certs}
-                                    cert={cert}
-                                    certPath={certPath}
-                                    addAlert={addAlert}
-                                    appOnValueChanged={appOnValueChanged}
-                                    idPrefix={idPrefix} />}
+            {showRemoveModal &&
+                <RemoveModal onClose={() => setShowRemoveModal(false)}
+                    certs={certs}
+                    cert={cert}
+                    certPath={certPath}
+                    addAlert={addAlert}
+                    appOnValueChanged={appOnValueChanged}
+                    idPrefix={idPrefix} />}
+            {showResubmitModal &&
+                <ResubmitCertificateModal onClose={() => setShowResubmitModal(false)}
+                    cas={cas}
+                    addAlert={addAlert}
+                    cert={cert}
+                    certPath={certPath} />}
         </>
     );
 };

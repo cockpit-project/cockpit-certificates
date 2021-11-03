@@ -30,9 +30,10 @@ import {
     TextInput
 } from "@patternfly/react-core";
 
-import { addRequest } from "./dbus.js";
+import { addRequest, modifyRequest, resubmitRequest } from "./dbus.js";
 import { ModalError } from "cockpit-components-inline-notification.jsx";
 import { FileAutoComplete } from "cockpit-components-file-autocomplete.jsx";
+import { getCAName } from "./helpers.js";
 
 const _ = cockpit.gettext;
 
@@ -157,6 +158,101 @@ const KeyFileRow = ({ setKeyFile, mode }) => {
                                   : _("Path to an existing key file")}
                               onChange={value => setKeyFile(value)} />
         </FormGroup>
+    );
+};
+
+export const ResubmitCertificateModal = ({ onClose, cas, addAlert, cert, certPath, mode }) => {
+    const [ca, setCa] = useState(getCAName(cas, cert));
+    const [subjectName, setSubjectName] = useState(cert.subject && cert.subject.v);
+    const [dnsName, _setDnsName] = useState(cert.hostname && cert.hostname.v.join(','));
+    const [principalName, setPricipalName] = useState(cert.principal && cert.principal.v.join(','));
+    const [errorName, setErrorName] = useState("");
+    const [errorMessage, setErrorMessage] = useState("");
+
+    const setDnsName = (value) => {
+        let newValue = value.replace(/\s/g, ',');
+        while (newValue.includes(",,"))
+            newValue = value.replace(",,", ',');
+
+        _setDnsName(newValue);
+    };
+
+    const onResubmit = () => {
+        const casKeys = Object.keys(cas);
+        let caPath;
+        casKeys.forEach(key => {
+            if (cas[key].nickname.v === ca)
+                caPath = key;
+        });
+
+        let subjectNameParam = subjectName;
+        if (subjectNameParam && !subjectNameParam.includes("="))
+            subjectNameParam = "CN=" + subjectNameParam;
+        let dnsNameParam;
+        if (dnsName) {
+            dnsNameParam = dnsName.split(',');
+            dnsNameParam = dnsNameParam.filter(Boolean); // Removes empty string entries
+        }
+
+        const parameter = { ca: cockpit.variant("s", caPath) };
+        parameter["template-subject"] = cockpit.variant("s", subjectNameParam || "");
+        parameter["template-principal"] = cockpit.variant("as", [principalName || ""]);
+        parameter["template-hostname"] = cockpit.variant("as", dnsNameParam || [""]);
+
+        modifyRequest(certPath, parameter)
+                .then(() => resubmitRequest(certPath))
+                .then(onClose)
+                .catch(error => {
+                    setErrorName(error.name);
+                    setErrorMessage(error.message);
+                });
+    };
+
+    const body = (
+        <Form isHorizontal>
+            {cert["cert-storage"].v === "NSSDB" && <>
+                <FormGroup label={_("Database path")} hasNoPaddingTop>
+                    <span id="database-path-row">{ cert["cert-database"].v }</span>
+                </FormGroup>
+                <FormGroup label={_("Nickname")} hasNoPaddingTop>
+                    <span id="nickname-row">{ cert["cert-nickname"].v }</span>
+                </FormGroup>
+            </>}
+
+            {cert["cert-storage"].v === "FILE" && <>
+                <FormGroup label={_("Certificate file")} hasNoPaddingTop>
+                    <span id="cert-file-row">{ cert["cert-file"].v }</span>
+                </FormGroup>
+                <FormGroup label={_("Key file")} hasNoPaddingTop>
+                    <span id="key-file-row">{ cert["key-file"].v }</span>
+                </FormGroup>
+            </>}
+
+            <CAsRow ca={ca} setCa={setCa} cas={Object.values(cas)} />
+
+            <SubjectNameRow subjectName={subjectName} setSubjectName={setSubjectName} />
+            <DNSNameRow dnsName={dnsName} setDnsName={setDnsName} />
+            <PrincipalNameRow principalName={principalName} setPricipalName={setPricipalName} />
+        </Form>
+    );
+
+    return (
+        <Modal id="resubmit-certificate-dialog"
+               position="top" variant="medium"
+               onClose={onClose}
+               isOpen
+               title={_("Resubmit Certificate")}
+               footer={<>
+                   {errorName && <ModalError dialogError={errorName} dialogErrorDetail={errorMessage} />}
+                   <Button variant="primary" onClick={onResubmit}>
+                       {_("Resubmit")}
+                   </Button>
+                   <Button variant="link" className="btn-cancel" onClick={onClose}>
+                       {_("Cancel")}
+                   </Button>
+               </>}>
+            {body}
+        </Modal>
     );
 };
 
