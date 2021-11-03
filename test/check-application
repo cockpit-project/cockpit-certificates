@@ -630,5 +630,54 @@ class TestApplication(testlib.MachineCase):
         ).execute()
 
 
+    def testResubmitCert(self):
+        b = self.browser
+        m = self.machine
+
+        cert_name = "Server-Cert"
+        db_path = "/etc/pki/nssdb"
+        dns_name = "example.com"
+        m.execute("selfsign-getcert request -d {0} -n {1} -D {2}".format(db_path, cert_name, dns_name))
+        self.addCleanup(self.cleanupCertificate, cert_name, db_path)
+
+        self.login_and_go("/certificates")
+        # Verify expected heading
+        b.wait_in_text(".ct-table-header h3", "Certificates")
+
+        b.wait_in_text("#certificate-0-name", cert_name)
+        b.click("button#expandable-toggle0")
+
+        b.wait_not_present("#certificate-0-general-principal")
+        b.wait_in_text("#certificate-0-general-dns", dns_name)
+
+        # Resubmit certificate with different signing request parameters
+        b.click("#certificate-0-action-kebab button")
+        b.click("#certificate-0-resubmit a")
+        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Resubmit Certificate")
+
+        # Change signing request propertes for resubmit
+        subject_name="CN=TEST_HOSTAME"
+        principal_name = "TEST_HOSTNAME@REDHAT.COM"
+        b.set_input_text("#subject-name", subject_name)
+        b.set_input_text("#principal-name", principal_name)
+        b.set_input_text("#dns-name", "") # Remove DNS name
+
+        old_validity = m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip()
+
+        # make sure the resubmition is done at least 1 second after the certificate was created
+        # This enables us to confirm success of resubmition by looking whetever date of issue of certificate, shown in seconds, changed
+        time.sleep(1)
+        b.click(".pf-c-modal-box__footer button:contains(Resubmit)")
+        b.wait_not_present(".pf-c-modal-box")
+
+        # Check validity time differs which means certificate was resubmitted and renewed
+        wait(lambda: old_validity not in m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip(), delay=1)
+
+        # Check signing properties are updated
+        b.wait_in_text("#certificate-0-general-subject", subject_name)
+        b.wait_in_text("#certificate-0-general-principal", principal_name)
+        b.wait_not_present("#certificate-0-general-dns")
+
+
 if __name__ == '__main__':
     testlib.test_main()
