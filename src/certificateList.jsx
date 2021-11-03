@@ -36,6 +36,7 @@ import { ListingPanel } from "cockpit-components-listing-panel.jsx";
 import { ListingTable } from "cockpit-components-table.jsx";
 import { modifyRequest } from "./dbus.js";
 import { certificateStates } from "./states.js";
+import { getCAName } from "./helpers.js";
 
 const _ = cockpit.gettext;
 
@@ -82,11 +83,6 @@ function getExpirationTime(cert) {
         }
         return _("Expires on ") + prettyTime(cert["not-valid-after"].v);
     }
-}
-
-function getCAName(cas, cert) {
-    if (cert.ca && cas[cert.ca.v.replace("request", "ca")])
-        return cas[cert.ca.v.replace("request", "ca")].nickname.v;
 }
 
 const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => {
