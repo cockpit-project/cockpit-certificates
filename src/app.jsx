@@ -32,8 +32,6 @@ import * as service from "service.js";
 import { page_status } from "notifications.js";
 import CertificateList from "./certificateList.jsx";
 
-import moment from "moment";
-
 const _ = cockpit.gettext;
 const CERTMONGER_SERVICE_NAME = "certmonger.service";
 
@@ -53,8 +51,6 @@ export class Application extends React.Component {
         this.onValueChanged = this.onValueChanged.bind(this);
         this.addAlert = this.addAlert.bind(this);
         this.removeAlert = this.removeAlert.bind(this);
-
-        moment.locale(cockpit.language);
     }
 
     onValueChanged(key, value) {

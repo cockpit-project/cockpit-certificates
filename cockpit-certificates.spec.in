@@ -21,7 +21,6 @@ Provides: bundled(nodejs-focus-trap) =  6.2.2
 Provides: bundled(nodejs-scheduler) = 0.19.1
 Provides: bundled(nodejs-react-dom) = 16.14.0
 Provides: bundled(nodejs-react) = 16.14.0
-Provides: bundled(nodejs-moment) = 2.29.1
 
 %description
 Cockpit component for managing certificates with certmonger.
