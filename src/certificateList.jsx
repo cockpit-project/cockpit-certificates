@@ -19,7 +19,6 @@
 
 import cockpit from "cockpit";
 import React from "react";
-import moment from "moment";
 
 import {
     Badge,
@@ -40,25 +39,27 @@ import { certificateStates } from "./states.js";
 
 const _ = cockpit.gettext;
 
+const dateLocale = () => cockpit.language.replace('_', '-');
+
 function prettyTime(unixTime) {
-    return moment(Number(unixTime) * 1000).calendar();
+    return new Date(Number(unixTime) * 1000).toLocaleString(dateLocale());
 }
 
 function getExpirationTime(cert) {
     if (cert.autorenew && cert.autorenew.v) {
         return _("Auto-renews before ") + prettyTime(cert["not-valid-after"].v).toLowerCase();
     } else {
-        const eventdate = moment(Number(cert["not-valid-after"].v) * 1000);
-        const todaysdate = moment();
-        const diff = eventdate.diff(todaysdate, "days");
-        const diffSeconds = eventdate.diff(todaysdate, "seconds");
+        const expiry = new Date(Number(cert["not-valid-after"].v) * 1000);
+        const now = new Date();
+        const diffSeconds = (expiry - now) / 1000;
+        const diffDays = diffSeconds / 86400;
 
         if (diffSeconds < 0) { // Expired
-            if (diff > -28) { // Expired X days ago
+            if (diffDays > -28) { // Expired X days ago
                 return (
                     <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
                         <TimesCircleIcon className="ct-icon-times-circle" />
-                        <FlexItem>{_("Expired ") + eventdate.fromNow()}</FlexItem>
+                        <FlexItem>{_("Expired ") + expiry.toLocaleDateString(dateLocale())}</FlexItem>
                     </Flex>
                 );
             }
@@ -71,11 +72,11 @@ function getExpirationTime(cert) {
         }
 
         // Expires
-        if (diff < 28) { // Expires in X days
+        if (diffDays < 28) { // Expires in X days
             return (
                 <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
                     <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
-                    <FlexItem>{_("Expires ") + eventdate.fromNow()}</FlexItem>
+                    <FlexItem>{_("Expires ") + expiry.toLocaleDateString(dateLocale())}</FlexItem>
                 </Flex>
             );
         }
