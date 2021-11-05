@@ -18,7 +18,6 @@
  */
 import cockpit from "cockpit";
 import React, { useState, useEffect } from "react";
-import moment from "moment";
 
 import {
     Button,
@@ -161,11 +160,18 @@ const KeyFileRow = ({ setKeyFile, mode }) => {
     );
 };
 
+function makeNickName(hostname, ca) {
+    // drop the unsightly 'Z' suffix and microseconds
+    const timestamp = new Date().toISOString()
+            .replace(/(\.\d+)?Z$/, '');
+    return hostname + '_' + ca + '_' + timestamp;
+}
+
 export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert, mode }) => {
     const [_userChangedNickname, setUserChangedNickname] = useState(false);
     const [ca, _setCa] = useState(cas[Object.keys(cas)[0]] ? cas[Object.keys(cas)[0]].nickname.v : undefined);
     const [storage, setStorage] = useState(mode === "request" ? "nssdb" : "file");
-    const [nickname, _setNickname] = useState(hostname + '_' + ca + '_' + moment().format("DD-MM-YYYYTHH:mm:ss"));
+    const [nickname, _setNickname] = useState(makeNickName(hostname, ca));
     const [certFile, setCertFile] = useState("");
     const [keyFile, setKeyFile] = useState("");
     const [subjectName, setSubjectName] = useState("");
@@ -177,7 +183,7 @@ export const RequestCertificateModal = ({ onClose, hostname, cas, addAlert, mode
 
     const setCa = value => {
         if (!_userChangedNickname)
-            _setNickname(hostname + '_' + value + '_' + moment().format("DD-MM-YYYYTHH:mm:ss"));
+            _setNickname(makeNickName(hostname, value));
 
         _setCa(value);
     };
