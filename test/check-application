@@ -164,7 +164,7 @@ class TestApplication(testlib.MachineCase):
         m = self.machine
 
         next_year = datetime.datetime.now() + datetime.timedelta(days=365)
-        next_year_str = next_year.strftime('%m/%d/%Y')
+        next_year_str = next_year.strftime('%-m/%-d/%Y')
 
         cert_name = "Server-Cert"
         db_path = "/etc/pki/nssdb"
@@ -235,7 +235,7 @@ class TestApplication(testlib.MachineCase):
         m = self.machine
 
         next_year = datetime.datetime.now() + datetime.timedelta(days=365)
-        next_year_str = next_year.strftime('%m/%d/%Y')
+        next_year_str = next_year.strftime('%-m/%-d/%Y')
 
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
