@@ -75,18 +75,6 @@ export class Application extends React.Component {
         this.setState({ alerts: alerts });
     }
 
-    checkExpiration(cert) {
-        const eventdate = moment(Number(cert["not-valid-after"].v) * 1000);
-        const todaysdate = moment();
-        const diffDays = eventdate.diff(todaysdate, "days");
-        const diffSeconds = eventdate.diff(todaysdate, "seconds");
-
-        if (diffSeconds < 0)
-            this.setState(prevState => { prevState.expiredCerts++ });
-        else if (diffDays > 28)
-            this.setState(prevState => { prevState.toExpireCerts++ });
-    }
-
     componentDidMount() {
         this.subscribeToCertmonger();
         this.subscribeToSystemd();
