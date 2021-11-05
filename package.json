@@ -56,7 +56,6 @@
     "@patternfly/react-styles": "4.18.8",
     "@patternfly/react-table": "4.37.8",
     "deep-equal": "2.0.5",
-    "moment": "2.29.1",
     "react": "16.14.0",
     "react-dom": "16.14.0",
     "throttle-debounce": "2.3.0"
