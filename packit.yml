@@ -18,5 +18,4 @@ jobs:
     trigger: pull_request
     metadata:
       targets:
-      - fedora-34
-      - fedora-rawhide
+      - fedora-all
