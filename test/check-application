@@ -12,8 +12,8 @@ import time
 TEST_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.join(TEST_DIR, "common"))
 sys.path.append(os.path.join(os.path.dirname(TEST_DIR), "bots/machine"))
-import testlib
 from testlib import nondestructive, wait
+import testlib
 
 
 class TestApplication(testlib.MachineCase):
@@ -153,7 +153,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("#certificate-0-general-autorenewal:not(:checked)")
 
         command_output = m.execute("selfsign-getcert list -d {0} -n {1} | grep 'auto-renew:' | awk '{{print $2}}'".format(db_path, cert_name))
-        if not renewal_state: # renewal state updated to the opposite
+        if not renewal_state:  # renewal state updated to the opposite
             self.assertEqual(command_output, "yes\n")
         else:
             self.assertEqual(command_output, "no\n")
@@ -184,7 +184,7 @@ class TestApplication(testlib.MachineCase):
         # Check General tab
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
         b.wait_in_text("#certificate-0-general-ca", "Self-signed")
-        b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str)) # TODO better date handling
+        b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))  # TODO better date handling
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
         b.click("#certificate-0-keys-tab")
@@ -293,7 +293,7 @@ class TestApplication(testlib.MachineCase):
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
-        b.wait_not_present("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.wait_not_present("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -325,7 +325,7 @@ class TestApplication(testlib.MachineCase):
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
-        b.wait_visible("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.wait_visible("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -350,7 +350,7 @@ class TestApplication(testlib.MachineCase):
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
-        b.click("#certificate-0-delete-files") # Check delete files option is not present for NSSDB-stored certificate
+        b.click("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
         b.click(".pf-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-c-modal-box")
 
@@ -433,7 +433,7 @@ class TestApplication(testlib.MachineCase):
                     self.test_obj.addCleanup(self.test_obj.cleanupCertificate, nickname, self.cert_path)
                 else:
                     self.test_obj.addCleanup(self.test_obj.cleanupFileCertificate, self.cert_path, self.key_path)
-                time.sleep(4) # Certificate enrollment takes some time
+                time.sleep(4)  # Certificate enrollment takes some time
 
             def verify_frontend(self):
                 if not self.ca:
@@ -517,7 +517,6 @@ class TestApplication(testlib.MachineCase):
             principal_name="HTTP/TEST_HOSTNAME",
         ).execute()
 
-
     @nondestructive
     def testImportCert(self):
         b = self.browser
@@ -599,7 +598,6 @@ class TestApplication(testlib.MachineCase):
                 b.reload()
                 b.enter_page('/certificates')
 
-
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
         subject_name = "TEST_HOSTNAME"
@@ -629,7 +627,6 @@ class TestApplication(testlib.MachineCase):
             principal_name=principal_name,
         ).execute()
 
-
     def testResubmitCert(self):
         b = self.browser
         m = self.machine
@@ -656,11 +653,11 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Resubmit Certificate")
 
         # Change signing request propertes for resubmit
-        subject_name="CN=TEST_HOSTAME"
+        subject_name = "CN=TEST_HOSTAME"
         principal_name = "TEST_HOSTNAME@REDHAT.COM"
         b.set_input_text("#subject-name", subject_name)
         b.set_input_text("#principal-name", principal_name)
-        b.set_input_text("#dns-name", "") # Remove DNS name
+        b.set_input_text("#dns-name", "")  # Remove DNS name
 
         old_validity = m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip()
 
