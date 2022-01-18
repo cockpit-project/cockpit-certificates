@@ -278,19 +278,16 @@ class CertificateList extends React.Component {
             const tabRenderers = [
                 {
                     name: _("General"),
-                    id: idPrefix + "-general-tab",
                     renderer: generalDetails,
                     data: { idPrefix, cas, cert, certPath, onAutorenewChanged }
                 },
                 {
                     name: _("Key"),
-                    id: idPrefix + "-keys-tab",
                     renderer: keyDetails,
                     data: { idPrefix, cert }
                 },
                 {
                     name: _("Certificate"),
-                    id: idPrefix + "-cert-tab",
                     renderer: certDetails,
                     data: { idPrefix, cert }
                 },
