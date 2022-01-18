@@ -146,13 +146,13 @@ bots:
 # when you start a new project, use the latest release, and update it from time to time
 test/common:
 	flock Makefile sh -ec '\
-	    git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 250; \
+	    git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 260; \
 	    git checkout --force FETCH_HEAD -- test/common; \
 	    git reset test/common'
 
 $(LIB_TEST):
 	flock Makefile sh -ec '\
-	    git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 250; \
+	    git fetch --depth=1 https://github.com/cockpit-project/cockpit.git 605deeff5008a4e8287edbd01be6590089a4af94; \
 	    git checkout --force FETCH_HEAD -- pkg/lib; \
 	    git reset -- pkg/lib'
 	mv pkg/lib src/ && rmdir -p pkg
