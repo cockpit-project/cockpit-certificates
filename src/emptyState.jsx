@@ -33,7 +33,7 @@ class EmptyState extends React.Component {
 
         service.start()
                 .then(() => updateService())
-                .fail(error => console.error(_("Starting a service failed: ") +
+                .catch(error => console.error(_("Starting a service failed: ") +
                 JSON.stringify(error))); // TODO better error handling
     }
 
