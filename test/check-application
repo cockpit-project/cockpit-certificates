@@ -146,7 +146,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_in_text("#certificate-0-name", cert_name)
 
-        b.click("button#expandable-toggle0")
+        b.click("button#expand-togglecertificate-0")
         # Check General tab
         renewal_state = b.get_checked("#certificate-0-general-autorenewal")
         b.set_checked("#certificate-0-general-autorenewal", not renewal_state)
@@ -180,14 +180,14 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-validity", "Auto-renews before {0}".format(next_year_str))
         b.wait_in_text("#certificate-0-ca", "Self-signed")
 
-        b.click("button#expandable-toggle0")
+        b.click("button#expand-togglecertificate-0")
         # Check General tab
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
         b.wait_in_text("#certificate-0-general-ca", "Self-signed")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))  # TODO better date handling
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
-        b.click("#certificate-0-keys-tab")
+        b.click("#expanded-content0 button:Contains(Key)")
         # Check Key tab
         b.wait_in_text("#certificate-0-key-nickname", cert_name)
         b.wait_in_text("#certificate-0-key-type", "RSA")
@@ -195,7 +195,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-key-storage", "NSSDB")
         b.wait_in_text("#certificate-0-key-location", db_path)
 
-        b.click("#certificate-0-cert-tab")
+        b.click("#expanded-content0 button:Contains(Certificate)")
         # Check Cert tab
         b.wait_in_text("#certificate-0-cert-nickname", cert_name)
         b.wait_in_text("#certificate-0-cert-token", "NSS Certificate DB")
@@ -217,7 +217,7 @@ class TestApplication(testlib.MachineCase):
 
         self.login_and_go("/certificates")
 
-        b.click("button#expandable-toggle0")
+        b.click("button#expand-togglecertificate-0")
         # Check General tab
         validity = b.text("#certificate-0-general-validity")
 
@@ -250,20 +250,20 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-validity", "Auto-renews before {0}".format(next_year_str))
         b.wait_in_text("#certificate-0-ca", "Self-signed")
 
-        b.click("button#expandable-toggle0")
+        b.click("button#expand-togglecertificate-0")
         # Check General tab
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
         b.wait_in_text("#certificate-0-general-ca", "Self-signed")
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
-        b.click("#certificate-0-keys-tab")
+        b.click("#expanded-content0 button:Contains(Key)")
         # Check Key tab
         b.wait_in_text("#certificate-0-key-type", "RSA")
         b.wait_in_text("#certificate-0-key-storage", "FILE")
         b.wait_in_text("#certificate-0-key-location", key_path)
 
-        b.click("#certificate-0-cert-tab")
+        b.click("#expanded-content0 button:Contains(Certificate)")
         # Check Cert tab
         b.wait_in_text("#certificate-0-cert-storage", "FILE")
         b.wait_in_text("#certificate-0-cert-location", cert_path)
@@ -441,7 +441,7 @@ class TestApplication(testlib.MachineCase):
                 if self.storage_type == "NSSDB" and not self.nickname:
                     self.nickname = b.text("#certificate-0-name")
 
-                b.click("button#expandable-toggle0")
+                b.click("button#expand-togglecertificate-0")
 
                 if self.subject_name:
                     b.wait_in_text("#certificate-0-general-subject", self.subject_name)
@@ -452,16 +452,16 @@ class TestApplication(testlib.MachineCase):
 
                 if self.storage_type == "NSSDB":
                     b.wait_in_text("#certificate-0-name", self.nickname)
-                    b.click("#certificate-0-cert-tab")
+                    b.click("#expanded-content0 button:Contains(Certificate)")
                     b.wait_in_text("#certificate-0-cert-storage", "NSSDB")
-                    b.click("#certificate-0-keys-tab")
+                    b.click("#expanded-content0 button:Contains(Key)")
                     b.wait_in_text("#certificate-0-key-storage", "NSSDB")
                 else:
                     if self.key_path:
-                        b.click("#certificate-0-keys-tab")
+                        b.click("#expanded-content0 button:Contains(Key)")
                         b.wait_in_text("#certificate-0-key-location", self.key_path)
                     if self.cert_path:
-                        b.click("#certificate-0-cert-tab")
+                        b.click("#expanded-content0 button:Contains(Certificate)")
                         b.wait_in_text("#certificate-0-cert-location", self.cert_path)
 
             def verify_backend(self):
@@ -570,15 +570,15 @@ class TestApplication(testlib.MachineCase):
                 b.wait_not_present(".modal-dialog")
 
             def verify_frontend(self):
-                b.click("button#expandable-toggle0")
+                b.click("button#expand-togglecertificate-0")
 
                 b.wait_in_text("#certificate-0-general-subject", self.subject_name)
                 b.wait_in_text("#certificate-0-general-principal", self.principal_name)
                 b.wait_in_text("#certificate-0-general-dns", self.dns_name)
 
-                b.click("#certificate-0-keys-tab")
+                b.click("#expanded-content0 button:Contains(Key)")
                 b.wait_in_text("#certificate-0-key-location", self.key_path)
-                b.click("#certificate-0-cert-tab")
+                b.click("#expanded-content0 button:Contains(Certificate)")
                 b.wait_in_text("#certificate-0-cert-location", self.cert_path)
 
             def verify_backend(self):
@@ -642,7 +642,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         b.wait_in_text("#certificate-0-name", cert_name)
-        b.click("button#expandable-toggle0")
+        b.click("button#expand-togglecertificate-0")
 
         b.wait_not_present("#certificate-0-general-principal")
         b.wait_in_text("#certificate-0-general-dns", dns_name)
