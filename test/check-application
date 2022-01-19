@@ -12,8 +12,8 @@ import time
 TEST_DIR = os.path.dirname(__file__)
 sys.path.append(os.path.join(TEST_DIR, "common"))
 sys.path.append(os.path.join(os.path.dirname(TEST_DIR), "bots/machine"))
-from testlib import nondestructive, wait
-import testlib
+from testlib import nondestructive, wait  # noqa
+import testlib  # noqa
 
 
 class TestApplication(testlib.MachineCase):
