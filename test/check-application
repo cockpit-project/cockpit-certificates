@@ -52,8 +52,11 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check Empty State is present if service was stopped when certificates page is open
+        # Mask the unit so it doesn't get activated if requests are still running.
+        m.execute("systemctl mask --runtime certmonger")
         m.execute("systemctl stop certmonger.service")
         b.wait_visible(".pf-c-empty-state")
+        m.execute("systemctl unmask --runtime certmonger")
 
         # Check Starting service from UI works
         b.click(".pf-c-empty-state button:contains(Start the certificate service)")
