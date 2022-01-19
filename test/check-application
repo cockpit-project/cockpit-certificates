@@ -23,6 +23,10 @@ class TestApplication(testlib.MachineCase):
         # When we disconnect while certmonger wants to tell us something
         self.allow_journal_messages("org.fedorahosted.certmonger: couldn't introspect /org/fedorahosted/certmonger/.*Remote peer disconnected")
 
+        # HACK: https://github.com/cockpit-project/cockpit/pull/16765
+        if self.machine.image == "fedora-34":
+            self.allow_journal_messages("json_object_get_string_member: assertion 'node != NULL' failed")
+
     def cleanupCertificate(self, cert_name, db_path):
         output = self.machine.execute("getcert list -d {0} -n {1} || exit 0".format(db_path, cert_name))
         if cert_name in output:
