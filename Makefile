@@ -1,13 +1,15 @@
 # extract name from package.json
 PACKAGE_NAME := $(shell awk '/"name":/ {gsub(/[",]/, "", $$2); print $$2}' package.json)
+RPM_NAME := cockpit-$(PACKAGE_NAME)
 VERSION := $(shell T=$$(git describe 2>/dev/null) || T=1; echo $$T | tr '-' '.')
 ifeq ($(TEST_OS),)
 TEST_OS = fedora-34
 endif
 export TEST_OS
-TARFILE=cockpit-$(PACKAGE_NAME)-$(VERSION).tar.xz
-NODE_CACHE=cockpit-$(PACKAGE_NAME)-node-$(VERSION).tar.xz
-RPMFILE=$(shell rpmspec -D"VERSION $(VERSION)" -q cockpit-$(PACKAGE_NAME).spec.in).rpm
+TARFILE=$(RPM_NAME)-$(VERSION).tar.xz
+NODE_CACHE=$(RPM_NAME)-node-$(VERSION).tar.xz
+SPEC=$(RPM_NAME).spec
+RPMFILE=$(shell rpmspec -D"VERSION $(VERSION)" -q packaging/$(SPEC).in).rpm
 APPSTREAMFILE=org.cockpit-project.$(PACKAGE_NAME).metainfo.xml
 VM_IMAGE=$(CURDIR)/test/images/$(TEST_OS)
 # stamp file to check if/when npm install ran
@@ -59,7 +61,7 @@ update-po: po/$(PACKAGE_NAME).pot
 # Build/Install/dist
 #
 
-%.spec: %.spec.in
+%.spec: packaging/%.spec.in
 	sed -e 's/%{VERSION}/$(VERSION)/g' $< > $@
 
 $(WEBPACK_TEST): $(NODE_MODULES_TEST) $(LIB_TEST) $(shell find src/ -type f) package.json webpack.config.js
@@ -70,7 +72,7 @@ watch:
 
 clean:
 	rm -rf dist/
-	[ ! -e cockpit-$(PACKAGE_NAME).spec.in ] || rm -f cockpit-$(PACKAGE_NAME).spec
+	rm -f $(SPEC)
 	rm -f po/LINGUAS
 
 install: $(WEBPACK_TEST) po/LINGUAS
@@ -93,28 +95,29 @@ dist: $(TARFILE)
 # we don't ship node_modules for license and compactness reasons; we ship a
 # pre-built dist/ (so it's not necessary) and ship packge-lock.json (so that
 # node_modules/ can be reconstructed if necessary)
-$(TARFILE): NODE_ENV=production
-$(TARFILE): $(WEBPACK_TEST) cockpit-$(PACKAGE_NAME).spec
+$(TARFILE): export NODE_ENV=production
+$(TARFILE): $(WEBPACK_TEST) $(SPEC)
+	if type appstream-util >/dev/null 2>&1; then appstream-util validate-relax --nonet *.metainfo.xml; fi
 	touch -r package.json $(NODE_MODULES_TEST)
 	touch dist/*
-	tar czf $(TARFILE) --transform 's,^,cockpit-$(PACKAGE_NAME)/,' \
-		--exclude cockpit-$(PACKAGE_NAME).spec.in --exclude node_modules \
-		$$(git ls-files) src/lib package-lock.json cockpit-$(PACKAGE_NAME).spec dist/
+	tar --xz -cf $(TARFILE) --transform 's,^,$(RPM_NAME)/,' \
+		--exclude packaging/$(SPEC).in --exclude node_modules \
+		$$(git ls-files) src/lib package-lock.json $(SPEC) dist/
 
 $(NODE_CACHE): $(NODE_MODULES_TEST)
 	tar --xz -cf $@ node_modules
 
 node-cache: $(NODE_CACHE)
 
-srpm: $(TARFILE) $(NODE_CACHE) cockpit-$(PACKAGE_NAME).spec
+srpm: $(TARFILE) $(NODE_CACHE) $(SPEC)
 	rpmbuild -bs \
 	  --define "_sourcedir `pwd`" \
 	  --define "_srcrpmdir `pwd`" \
-	  cockpit-$(PACKAGE_NAME).spec
+	  $(SPEC)
 
 rpm: $(RPMFILE)
 
-$(RPMFILE): $(TARFILE) $(NODE_CACHE) cockpit-$(PACKAGE_NAME).spec
+$(RPMFILE): $(TARFILE) $(NODE_CACHE) $(SPEC)
 	mkdir -p "`pwd`/output"
 	mkdir -p "`pwd`/rpmbuild"
 	rpmbuild -bb \
@@ -124,7 +127,7 @@ $(RPMFILE): $(TARFILE) $(NODE_CACHE) cockpit-$(PACKAGE_NAME).spec
 	  --define "_srcrpmdir `pwd`" \
 	  --define "_rpmdir `pwd`/output" \
 	  --define "_buildrootdir `pwd`/build" \
-	  cockpit-$(PACKAGE_NAME).spec
+	  $(SPEC)
 	find `pwd`/output -name '*.rpm' -printf '%f\n' -exec mv {} . \;
 	rm -r "`pwd`/rpmbuild"
 	rm -r "`pwd`/output" "`pwd`/build"
