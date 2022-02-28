@@ -57,7 +57,8 @@ class EmptyState extends React.Component {
                        paragraph={ errorMessage }
                        secondary={ troubleshoot }
                        action={ _("Start the certificate service") }
-                       onAction={ () => this.startCertmonger() } />;
+                       onAction={ () => this.startCertmonger() }
+            />;
         }
     }
 }
