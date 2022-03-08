@@ -12,6 +12,10 @@ ExclusiveArch:  %{nodejs_arches} noarch
 BuildRequires:  nodejs-devel
 BuildRequires:  libappstream-glib
 BuildRequires:  make
+BuildRequires: gettext
+%if 0%{?rhel} && 0%{?rhel} <= 8
+BuildRequires: libappstream-glib-devel
+%endif
 
 Requires: cockpit-bridge
 Requires: certmonger
