@@ -155,7 +155,11 @@ $(VM_IMAGE): $(RPMFILE) bots
 
 # convenience target for the above
 vm: $(VM_IMAGE)
-	echo $(VM_IMAGE)
+	@echo $(VM_IMAGE)
+
+# convenience target to print the filename of the test image
+print-vm:
+	@echo $(VM_IMAGE)
 
 # run the browser integration tests; skip check for SELinux denials
 check: $(NODE_MODULES_TEST) $(VM_IMAGE) test/common
@@ -172,4 +176,4 @@ $(NODE_MODULES_TEST): package.json
 	env -u NODE_ENV npm install
 	env -u NODE_ENV npm prune
 
-.PHONY: all clean install devel-install dist node-cache srpm rpm check vm
+.PHONY: all clean install devel-install dist node-cache srpm rpm check vm print-vm
