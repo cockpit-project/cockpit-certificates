@@ -31,8 +31,7 @@ Provides: bundled(nodejs-react) = 16.14.0
 Cockpit component for managing certificates with certmonger.
 
 %prep
-%setup -q -n %{name}
-%setup -q -a 1 -n %{name}
+%autosetup -n %{name} -a 1
 # ignore pre-built webpack in release tarball and rebuild it
 rm -rf dist
 
