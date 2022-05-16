@@ -50,11 +50,11 @@
     "webpack-cli": "^4.9.1"
   },
   "dependencies": {
-    "@patternfly/patternfly": "4.194.1",
-    "@patternfly/react-core": "4.211.3",
-    "@patternfly/react-icons": "4.62.3",
-    "@patternfly/react-styles": "4.61.3",
-    "@patternfly/react-table": "4.80.3",
+    "@patternfly/patternfly": "4.194.4",
+    "@patternfly/react-core": "4.214.2",
+    "@patternfly/react-icons": "4.65.2",
+    "@patternfly/react-styles": "4.64.2",
+    "@patternfly/react-table": "4.83.2",
     "deep-equal": "2.0.5",
     "react": "16.14.0",
     "react-dom": "16.14.0",
