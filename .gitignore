@@ -4,7 +4,7 @@
 *.rpm
 node_modules/
 dist/
-src/lib
+pkg
 /*.spec
 /.vagrant
 package-lock.json
