@@ -16,6 +16,5 @@ actions:
 jobs:
   - job: tests
     trigger: pull_request
-    metadata:
-      targets:
+    targets:
       - fedora-all
