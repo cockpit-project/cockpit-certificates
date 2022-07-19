@@ -54,7 +54,7 @@
     "@patternfly/react-icons": "4.67.0",
     "@patternfly/react-styles": "4.66.0",
     "@patternfly/react-table": "4.85.0",
-    "argparse": "^2.0.1",
+    "argparse": "2.0.1",
     "deep-equal": "2.0.5",
     "react": "16.14.0",
     "react-dom": "16.14.0",
