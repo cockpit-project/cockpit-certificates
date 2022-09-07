@@ -79,8 +79,8 @@ export const RemoveModal = ({ onClose, certs, cert, certPath, addAlert, appOnVal
                 </samp>
             </FormGroup>
 
-            <FormGroup label={_("Key file")}>
-                <samp id={idPrefix + "key-file"} hasNoPaddingTop>
+            <FormGroup label={_("Key file")} hasNoPaddingTop>
+                <samp id={idPrefix + "key-file"}>
                     {cert["key-file"].v}
                 </samp>
             </FormGroup>
