@@ -9,7 +9,10 @@ export TEST_OS
 TARFILE=$(RPM_NAME)-$(VERSION).tar.xz
 NODE_CACHE=$(RPM_NAME)-node-$(VERSION).tar.xz
 SPEC=$(RPM_NAME).spec
-RPMFILE=$(shell rpmspec -D"VERSION $(VERSION)" -q packaging/$(SPEC).in).rpm
+# rpmspec -q behaves differently in Fedora ≥ 37
+RPMQUERY=$(shell rpmspec -D"VERSION $(VERSION)" -q --srpm packaging/$(SPEC).in).rpm
+SRPMFILE=$(subst noarch,src,$(RPMQUERY))
+RPMFILE=$(subst src,noarch,$(RPMQUERY))
 APPSTREAMFILE=org.cockpit-project.$(PACKAGE_NAME).metainfo.xml
 VM_IMAGE=$(CURDIR)/test/images/$(TEST_OS)
 # stamp file to check for node_modules/
