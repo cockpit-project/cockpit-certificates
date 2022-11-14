@@ -51,8 +51,8 @@
   "dependencies": {
     "@patternfly/patternfly": "4.223.0",
     "@patternfly/react-core": "4.271.1",
-    "@patternfly/react-icons": "4.92.10",
-    "@patternfly/react-styles": "4.91.10",
+    "@patternfly/react-icons": "4.93.0",
+    "@patternfly/react-styles": "4.92.0",
     "@patternfly/react-table": "4.112.22",
     "argparse": "2.0.1",
     "deep-equal": "2.0.5",
