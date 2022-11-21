@@ -159,7 +159,7 @@ $(RPMFILE): $(TARFILE) $(NODE_CACHE) $(SPEC)
 # build a VM with locally built rpm/dsc installed
 $(VM_IMAGE): $(RPMFILE) bots
 	rm -f $(VM_IMAGE) $(VM_IMAGE).qcow2
-	bots/image-customize -i cockpit-ws -i `pwd`/$(RPMFILE) -s $(CURDIR)/test/vm.install $(TEST_OS)
+	bots/image-customize -i `pwd`/$(RPMFILE) -s $(CURDIR)/test/vm.install $(TEST_OS)
 
 # convenience target for the above
 vm: $(VM_IMAGE)
