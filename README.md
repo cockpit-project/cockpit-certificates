@@ -95,7 +95,7 @@ the VM, possibly with extra options for tracing and halting on test failures
 
 You can also run the test against a different Cockpit image, for example:
 
-    TEST_OS=fedora-34 make check
+    TEST_OS=fedora-testing make check
 
 # Running tests in CI
 
