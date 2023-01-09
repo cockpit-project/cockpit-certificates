@@ -50,10 +50,10 @@
   },
   "dependencies": {
     "@patternfly/patternfly": "4.222.4",
-    "@patternfly/react-core": "4.267.7",
+    "@patternfly/react-core": "4.267.14",
     "@patternfly/react-icons": "4.92.10",
     "@patternfly/react-styles": "4.91.10",
-    "@patternfly/react-table": "4.112.7",
+    "@patternfly/react-table": "4.112.15",
     "argparse": "2.0.1",
     "deep-equal": "2.0.5",
     "react": "16.14.0",
