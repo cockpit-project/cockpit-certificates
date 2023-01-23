@@ -49,11 +49,11 @@
     "webpack-cli": "^4.9.1"
   },
   "dependencies": {
-    "@patternfly/patternfly": "4.223.0",
-    "@patternfly/react-core": "4.271.1",
-    "@patternfly/react-icons": "4.93.0",
-    "@patternfly/react-styles": "4.92.0",
-    "@patternfly/react-table": "4.112.22",
+    "@patternfly/patternfly": "4.224.2",
+    "@patternfly/react-core": "4.276.2",
+    "@patternfly/react-icons": "4.93.5",
+    "@patternfly/react-styles": "4.92.5",
+    "@patternfly/react-table": "4.112.35",
     "argparse": "2.0.1",
     "deep-equal": "2.0.5",
     "react": "16.14.0",
