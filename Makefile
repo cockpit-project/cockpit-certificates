@@ -176,7 +176,7 @@ endif
 # build a VM with locally built rpm/dsc installed
 $(VM_IMAGE): $(TARFILE) $(NODE_CACHE) bots test/vm.install $(VM_DEPENDS)
 	rm -f $(VM_IMAGE) $(VM_IMAGE).qcow2
-	bots/image-customize --fresh \
+	bots/image-customize --fresh --no-network \
 		$(VM_CUSTOMIZE_FLAGS) \
 		--upload $(NODE_CACHE):/var/tmp/ --build $(TARFILE) \
 		--script $(CURDIR)/test/vm.install $(TEST_OS)
