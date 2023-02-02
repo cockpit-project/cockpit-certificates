@@ -157,9 +157,11 @@ $(RPMFILE): $(TARFILE) $(NODE_CACHE) $(SPEC)
 	test -e "$(RPMFILE)"
 
 # build a VM with locally built rpm/dsc installed
-$(VM_IMAGE): $(RPMFILE) bots
+$(VM_IMAGE): $(TARFILE) $(NODE_CACHE) bots test/vm.install
 	rm -f $(VM_IMAGE) $(VM_IMAGE).qcow2
-	bots/image-customize -i `pwd`/$(RPMFILE) -s $(CURDIR)/test/vm.install $(TEST_OS)
+	bots/image-customize --fresh \
+		--upload $(NODE_CACHE):/var/tmp/ --build $(TARFILE) \
+		--script $(CURDIR)/test/vm.install $(TEST_OS)
 
 # convenience target for the above
 vm: $(VM_IMAGE)
