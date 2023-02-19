@@ -32,7 +32,7 @@ Cockpit component for managing certificates with certmonger.
 
 %prep
 %autosetup -n %{name} -a 1
-# ignore pre-built webpack in release tarball and rebuild it
+# ignore pre-built bundle in release tarball and rebuild it
 rm -rf dist
 
 %build

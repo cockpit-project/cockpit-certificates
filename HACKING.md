@@ -13,7 +13,7 @@ Cockpit Certificates git repository checkout.
 Cockpit Certificates uses [ESLint](https://eslint.org/) to automatically check
 JavaScript code style in `.jsx` and `.js` files.
 
-The linter is executed within every build as a webpack preloader.
+eslint is executed within every build.
 
 For developer convenience, the ESLint can be started explicitly by:
 
