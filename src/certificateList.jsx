@@ -20,14 +20,11 @@
 import cockpit from "cockpit";
 import React from "react";
 
-import {
-    Badge,
-    Checkbox,
-    DescriptionList, DescriptionListGroup, DescriptionListTerm, DescriptionListDescription,
-    Flex, FlexItem,
-    Tooltip,
-    TooltipPosition
-} from "@patternfly/react-core";
+import { Badge } from "@patternfly/react-core/dist/esm/components/Badge/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm } from "@patternfly/react-core/dist/esm/components/DescriptionList/index.js";
+import { Flex, FlexItem } from "@patternfly/react-core/dist/esm/layouts/Flex/index.js";
+import { Tooltip, TooltipPosition } from "@patternfly/react-core/dist/esm/components/Tooltip/index.js";
 import { InfoAltIcon, ExclamationTriangleIcon, TimesCircleIcon } from '@patternfly/react-icons';
 
 import { CertificateActions } from "./certificateActions.jsx";

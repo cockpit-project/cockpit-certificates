@@ -22,15 +22,11 @@ import React, { useState } from "react";
 
 import "./certificateActions.css";
 
-import {
-    Button,
-    Checkbox,
-    Dropdown,
-    DropdownItem,
-    Form, FormGroup,
-    KebabToggle,
-    Modal,
-} from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Dropdown, DropdownItem, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 
 import { ResubmitCertificateModal } from './requestCertificate.jsx';
 import { removeRequest } from "./dbus.js";

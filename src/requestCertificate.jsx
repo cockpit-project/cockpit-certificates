@@ -19,16 +19,14 @@
 import cockpit from "cockpit";
 import React, { useState, useEffect } from "react";
 
-import {
-    Button,
-    Checkbox,
-    Form, FormGroup,
-    FormSelect, FormSelectOption,
-    Modal,
-    Radio,
-    TextArea,
-    TextInput
-} from "@patternfly/react-core";
+import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
+import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
+import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
+import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
+import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
+import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
+import { TextInput } from "@patternfly/react-core/dist/esm/components/TextInput/index.js";
 
 import { addRequest, modifyRequest, resubmitRequest } from "./dbus.js";
 import { ModalError } from "cockpit-components-inline-notification.jsx";

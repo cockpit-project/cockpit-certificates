@@ -21,10 +21,9 @@ import cockpit from "cockpit";
 import React from "react";
 import "./app.scss";
 
-import {
-    Alert, AlertGroup, AlertActionCloseButton, AlertVariant,
-    Page, PageSection, PageSectionVariants,
-} from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, AlertVariant } from "@patternfly/react-core/dist/esm/components/Alert/index.js";
+import { AlertGroup } from "@patternfly/react-core/dist/esm/components/AlertGroup/index.js";
+import { Page, PageSection, PageSectionVariants } from "@patternfly/react-core/dist/esm/components/Page/index.js";
 
 import EmptyState from "./emptyState.jsx";
 import { getRequests, getRequest, getCAs, getCA } from './dbus.js';
