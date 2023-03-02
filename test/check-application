@@ -166,7 +166,8 @@ class TestApplication(testlib.MachineCase):
         b = self.browser
         m = self.machine
 
-        next_year = datetime.datetime.now() + datetime.timedelta(days=365)
+        date_now = datetime.datetime.now()
+        next_year = date_now.replace(year = date_now.year + 1)
         next_year_str = next_year.strftime('%-m/%-d/%Y')
 
         cert_name = "Server-Cert"
@@ -237,7 +238,8 @@ class TestApplication(testlib.MachineCase):
         b = self.browser
         m = self.machine
 
-        next_year = datetime.datetime.now() + datetime.timedelta(days=365)
+        date_now = datetime.datetime.now()
+        next_year = date_now.replace(year = date_now.year + 1)
         next_year_str = next_year.strftime('%-m/%-d/%Y')
 
         cert_path = "/etc/pki/tls/certs/myCert.cert"
