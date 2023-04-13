@@ -40,7 +40,7 @@ After changing the code and running `make` again, reload the Cockpit page in
 your browser.
 
 You can also use
-[watch mode](https://webpack.js.org/guides/development/#using-watch-mode) to
+[watch mode](https://esbuild.github.io/api/#watch) to
 automatically update the bundle on every code change with
 
     $ npm run watch
