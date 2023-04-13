@@ -2,16 +2,11 @@
     "root": true,
     "env": {
         "browser": true,
-        "es6": true
+        "es2022": true
     },
-    "extends": ["eslint:recommended", "standard", "standard-react", "plugin:jsx-a11y/recommended"],
-    "parser": "@babel/eslint-parser",
+    "extends": ["eslint:recommended", "standard", "standard-jsx", "standard-react", "plugin:jsx-a11y/recommended"],
     "parserOptions": {
-        "ecmaVersion": "7",
-        "ecmaFeatures": {
-            "jsx": true
-        },
-        "sourceType": "module"
+        "ecmaVersion": 2022
     },
     "plugins": ["flowtype", "react", "react-hooks", "jsx-a11y"],
     "rules": {
@@ -29,15 +24,12 @@
         "react/jsx-indent": ["error", 4],
         "semi": ["error", "always", { "omitLastInOneLineBlock": true }],
 
-        "react-hooks/rules-of-hooks": "error",
-        "react-hooks/exhaustive-deps": "error",
-
         "camelcase": "off",
         "comma-dangle": "off",
         "curly": "off",
         "jsx-quotes": "off",
-        "key-spacing": "off",
         "no-console": "off",
+        "no-undef": "error",
         "quotes": "off",
         "react/jsx-curly-spacing": "off",
         "react/jsx-indent-props": "off",
@@ -51,12 +43,8 @@
         "standard/no-callback-literal": "off",
 
         "jsx-a11y/anchor-is-valid": "off",
-        "jsx-a11y/no-interactive-element-to-noninteractive-role": "off",
-        "jsx-a11y/no-onchange": "off",
 
         "eqeqeq": "off",
-        "import/no-webpack-loader-syntax": "off",
-        "object-property-newline": "off",
         "react/jsx-no-bind": "off"
     },
     "globals": {
