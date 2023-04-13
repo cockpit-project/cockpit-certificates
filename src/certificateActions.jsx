@@ -99,16 +99,18 @@ export const RemoveModal = ({ onClose, certs, cert, certPath, addAlert, appOnVal
         </Form>
     );
 
-    const body = (<>
-        { cert["cert-storage"].v === "FILE" ? fileCertBody : nssdbCertBody }
-        { cert["key-file"] && cert["cert-file"] && cert["key-file"].v && cert["cert-file"].v && (
-            <Checkbox id={idPrefix + "-delete-files"}
+    const body = (
+        <>
+            { cert["cert-storage"].v === "FILE" ? fileCertBody : nssdbCertBody }
+            { cert["key-file"] && cert["cert-file"] && cert["key-file"].v && cert["cert-file"].v && (
+                <Checkbox id={idPrefix + "-delete-files"}
                       className="checkbox-delete-files"
                       isChecked={deleteFiles}
                       label={_("Also delete certificate and key files")}
                       onChange={e => setDeleteFiles(!deleteFiles)} />
-        )}
-    </>);
+            )}
+        </>
+    );
 
     return (
         <Modal id={idPrefix + "-remove-dialog"}

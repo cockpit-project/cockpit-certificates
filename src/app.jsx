@@ -60,14 +60,14 @@ export class Application extends React.Component {
         const alerts = [...this.state.alerts];
         alerts.push({ title, message });
 
-        this.setState({ alerts: alerts });
+        this.setState({ alerts });
     }
 
     removeAlert(index) {
         const alerts = [...this.state.alerts];
         alerts.splice(index, 1);
 
-        this.setState({ alerts: alerts });
+        this.setState({ alerts });
     }
 
     componentDidMount() {
