@@ -52,13 +52,15 @@ class EmptyState extends React.Component {
         } else if (service.state === "starting") {
             return <EmptyStatePanel title={ _("Starting the certificate service") } loading />;
         } else if (!service.state !== "running") {
-            return <EmptyStatePanel title={ _("The certificate service is not active") }
+            return (
+                <EmptyStatePanel title={ _("The certificate service is not active") }
                        icon={ ExclamationCircleIcon }
                        paragraph={ errorMessage }
                        secondary={ troubleshoot }
                        action={ _("Start the certificate service") }
                        onAction={ () => this.startCertmonger() }
-            />;
+                />
+            );
         }
     }
 }

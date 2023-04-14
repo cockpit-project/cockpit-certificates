@@ -85,94 +85,96 @@ function getExpirationTime(cert) {
 const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) => {
     const caName = getCAName(cas, cert);
 
-    return (<Flex justifyContent={{ default: "justifyContentCenter" }}>
-        <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
-            <DescriptionList isHorizontal>
-                {cert.status && cert.status.v && <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
-                    <DescriptionListDescription id={`${idPrefix}-general-status`}>
-                        {cert.stuck.v && (
+    return (
+        <Flex justifyContent={{ default: "justifyContentCenter" }}>
+            <Flex direction={{ default: "column" }} flex={{ default: 'flex_1' }}>
+                <DescriptionList isHorizontal>
+                    {cert.status && cert.status.v && <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
+                        <DescriptionListDescription id={`${idPrefix}-general-status`}>
+                            {cert.stuck.v && (
+                                <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                                    <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
+                                    <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
+                                </Flex>
+                            )}
                             <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
-                                <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
-                                <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
-                            </Flex>
-                        )}
-                        <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
-                            <FlexItem>
-                                {cert.status.v.includes('_')
-                                    ? cert.status.v
-                                    : cert.status.v.charAt(0) + cert.status.v.slice(1).toLowerCase()}
-                            </FlexItem>
-                            <Tooltip position={TooltipPosition.top}
+                                <FlexItem>
+                                    {cert.status.v.includes('_')
+                                        ? cert.status.v
+                                        : cert.status.v.charAt(0) + cert.status.v.slice(1).toLowerCase()}
+                                </FlexItem>
+                                <Tooltip position={TooltipPosition.top}
                                 entryDelay={0}
                                 content={certificateStates[cert.status.v]}>
-                                <span className="info-circle">
-                                    <InfoAltIcon />
-                                </span>
-                            </Tooltip>
-                        </Flex>
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
+                                    <span className="info-circle">
+                                        <InfoAltIcon />
+                                    </span>
+                                </Tooltip>
+                            </Flex>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
 
-                {cert.ca && cert.ca.v && <DescriptionListGroup>
-                    <DescriptionListTerm>{_("Certificate authority")}</DescriptionListTerm>
-                    <DescriptionListDescription id={`${idPrefix}-general-ca`}>{caName == "SelfSign" ? _("Self-signed") : caName}</DescriptionListDescription>
-                </DescriptionListGroup>}
+                    {cert.ca && cert.ca.v && <DescriptionListGroup>
+                        <DescriptionListTerm>{_("Certificate authority")}</DescriptionListTerm>
+                        <DescriptionListDescription id={`${idPrefix}-general-ca`}>{caName == "SelfSign" ? _("Self-signed") : caName}</DescriptionListDescription>
+                    </DescriptionListGroup>}
 
-                {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <DescriptionListGroup>
-                    <DescriptionListTerm>
-                        {_("Valid")}
-                    </DescriptionListTerm>
-                    <DescriptionListDescription id={`${idPrefix}-general-validity`}>
-                        {prettyTime(cert["not-valid-before"].v) +
+                    {cert["not-valid-after"] && cert["not-valid-after"].v !== 0 && <DescriptionListGroup>
+                        <DescriptionListTerm>
+                            {_("Valid")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription id={`${idPrefix}-general-validity`}>
+                            {prettyTime(cert["not-valid-before"].v) +
                         _(" to ") + prettyTime(cert["not-valid-after"].v)}
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
 
-                {cert.autorenew && <DescriptionListGroup>
-                    <DescriptionListTerm>
-                        {_("Auto-renewal")}
-                    </DescriptionListTerm>
-                    <DescriptionListDescription>
-                        <Checkbox id={`${idPrefix}-general-autorenewal`}
+                    {cert.autorenew && <DescriptionListGroup>
+                        <DescriptionListTerm>
+                            {_("Auto-renewal")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <Checkbox id={`${idPrefix}-general-autorenewal`}
                                   isChecked={cert.autorenew.v}
                                   label={_("Renew before expiration")}
                                   onChange={() => onAutorenewChanged(cert, certPath)} />
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
-            </DescriptionList>
-        </Flex>
-        <Flex direction={{ default:"column" }} flex={{ default: 'flex_1' }}>
-            <DescriptionList isHorizontal>
-                {cert.subject && cert.subject.v && <DescriptionListGroup>
-                    <DescriptionListTerm>
-                        {_("Subject name")}
-                    </DescriptionListTerm>
-                    <DescriptionListDescription>
-                        <span id={`${idPrefix}-general-subject`}>{cert.subject.v}</span>
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
+                </DescriptionList>
+            </Flex>
+            <Flex direction={{ default: "column" }} flex={{ default: 'flex_1' }}>
+                <DescriptionList isHorizontal>
+                    {cert.subject && cert.subject.v && <DescriptionListGroup>
+                        <DescriptionListTerm>
+                            {_("Subject name")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <span id={`${idPrefix}-general-subject`}>{cert.subject.v}</span>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
 
-                {cert.principal && cert.principal.v.length > 0 && <DescriptionListGroup>
-                    <DescriptionListTerm>
-                        {_("Principal name")}
-                    </DescriptionListTerm>
-                    <DescriptionListDescription>
-                        <span id={`${idPrefix}-general-principal`}>{cert.principal.v.join(", ")}</span>
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
+                    {cert.principal && cert.principal.v.length > 0 && <DescriptionListGroup>
+                        <DescriptionListTerm>
+                            {_("Principal name")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <span id={`${idPrefix}-general-principal`}>{cert.principal.v.join(", ")}</span>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
 
-                {cert.hostname && cert.hostname.v.length > 0 && <DescriptionListGroup>
-                    <DescriptionListTerm>
-                        {_("DNS name")}
-                    </DescriptionListTerm>
-                    <DescriptionListDescription>
-                        <span id={`${idPrefix}-general-dns`}>{cert.hostname.v.join(", ")}</span>
-                    </DescriptionListDescription>
-                </DescriptionListGroup>}
-            </DescriptionList>
+                    {cert.hostname && cert.hostname.v.length > 0 && <DescriptionListGroup>
+                        <DescriptionListTerm>
+                            {_("DNS name")}
+                        </DescriptionListTerm>
+                        <DescriptionListDescription>
+                            <span id={`${idPrefix}-general-dns`}>{cert.hostname.v.join(", ")}</span>
+                        </DescriptionListDescription>
+                    </DescriptionListGroup>}
+                </DescriptionList>
+            </Flex>
         </Flex>
-    </Flex>);
+    );
 };
 
 const keyDetails = ({ idPrefix, cert }) => (
@@ -257,7 +259,7 @@ class CertificateList extends React.Component {
                 newExpanded.push(certId);
             else
                 newExpanded.splice(certIndex, 1);
-            return { expanded:  newExpanded };
+            return { expanded: newExpanded };
         });
     }
 
@@ -333,14 +335,16 @@ class CertificateList extends React.Component {
                 rowId: idPrefix,
                 props: { key: idPrefix },
                 initiallyExpanded: false,
-                expandedContent: expandedContent,
+                expandedContent,
             };
         });
 
-        const actions = (<>
-            <RequestCertificate cas={cas} addAlert={addAlert} mode="request" />
-            <RequestCertificate cas={cas} addAlert={addAlert} mode="import" />
-        </>);
+        const actions = (
+            <>
+                <RequestCertificate cas={cas} addAlert={addAlert} mode="request" />
+                <RequestCertificate cas={cas} addAlert={addAlert} mode="import" />
+            </>
+        );
 
         return (
             <ListingTable caption={_("Certificates")}
