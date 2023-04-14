@@ -34,7 +34,6 @@ rm -rf dist
 
 %build
 NODE_ENV=production make
-gzip -cd dist/index.js.LICENSE.txt.gz > LICENSE
 
 %install
 %make_install
