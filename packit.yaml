@@ -5,7 +5,7 @@
 specfile_path: cockpit-certificates.spec
 srpm_build_deps:
 - make
-- npm
+- nodejs-npm
 actions:
   post-upstream-clone:
     - make cockpit-certificates.spec
