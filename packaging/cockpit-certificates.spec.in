@@ -34,7 +34,6 @@ rm -rf dist
 
 %build
 NODE_ENV=production make
-gzip -cd dist/index.js.LICENSE.txt.gz > LICENSE
 
 %install
 %make_install
@@ -47,7 +46,7 @@ appstream-util validate-relax --nonet %{buildroot}/%{_datadir}/metainfo/*
 
 %files
 %doc README.md
-%license LICENSE
+%license LICENSE dist/index.js.LEGAL.txt dist/index.css.LEGAL.txt
 %{_datadir}/cockpit/*
 %{_datadir}/metainfo/*
 
