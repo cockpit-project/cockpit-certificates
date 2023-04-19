@@ -14,6 +14,11 @@ actions:
     - sh -c 'sed -i "/^Source1:/ s/https:.*/$(ls cockpit-certificates-node*.tar.xz)/" cockpit-certificates.spec'
   create-archive: make dist
 jobs:
+  - job: copr_build
+    trigger: pull_request
+    targets:
+    - fedora-all
+  
   - job: tests
     trigger: pull_request
     targets:
