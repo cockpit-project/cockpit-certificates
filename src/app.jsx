@@ -81,8 +81,10 @@ export class Application extends React.Component {
     getCertificateAuthority(path) {
         getCA(path)
                 .then(ret => {
-                    const cas = { ...this.state.cas, [path]: ret[0] };
-                    this.setState({ cas });
+                    this.setState((prevState) => {
+                        const cas = { ...prevState.cas, [path]: ret[0] };
+                        return { cas };
+                    });
                 })
                 .catch(error => {
                     this.addAlert(_("Error: ") + error.name, error.message);
@@ -102,8 +104,10 @@ export class Application extends React.Component {
     getCertificate(path) {
         getRequest(path)
                 .then(ret => {
-                    const certs = { ...this.state.certs, [path]: ret[0] };
-                    this.setState({ certs });
+                    this.setState((prevState) => {
+                        const certs = { ...prevState.certs, [path]: ret[0] };
+                        return { certs };
+                    });
                 })
                 .catch(error => {
                     this.addAlert(_("Error: ") + error.name, error.message);
