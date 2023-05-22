@@ -58,7 +58,7 @@ the remote hostname.
 To "uninstall" the locally installed version, run `make devel-uninstall`, or
 remove manually the symlink:
 
-    rm ~/.local/share/cockpit/starter-kit
+    rm ~/.local/share/cockpit/cockpit-certificates
 
 # Running eslint
 
