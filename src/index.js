@@ -18,12 +18,13 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 
 import 'patternfly/patternfly-4-cockpit.scss';
 
 import { Application } from './app.jsx';
 
 document.addEventListener("DOMContentLoaded", function () {
-    ReactDOM.render(React.createElement(Application, {}), document.getElementById('app'));
+    const root = createRoot(document.getElementById('app'));
+    root.render(<Application />);
 });
