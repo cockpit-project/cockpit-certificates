@@ -44,28 +44,28 @@ class TestApplication(testlib.MachineCase):
 
         self.login_and_go("/certificates")
 
-        b.wait_visible("table .pf-c-empty-state")
+        b.wait_visible("table .pf-v5-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check Empty State is present if service was stopped when certificates page is open
         # Mask the unit so it doesn't get activated if requests are still running.
         m.execute("systemctl mask --runtime certmonger")
         m.execute("systemctl stop certmonger.service")
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
         m.execute("systemctl unmask --runtime certmonger")
 
         # Check Starting service from UI works
-        b.click(".pf-c-empty-state button:contains(Start the certificate service)")
+        b.click(".pf-v5-c-empty-state button:contains(Start the certificate service)")
 
-        b.wait_visible("table .pf-c-empty-state")
+        b.wait_visible("table .pf-v5-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check check stopping and starting UI from command line reflects state of UI
         m.execute("systemctl stop certmonger.service")
-        b.wait_visible(".pf-c-empty-state")
+        b.wait_visible(".pf-v5-c-empty-state")
 
         m.execute("systemctl start certmonger.service")
-        b.wait_visible("table .pf-c-empty-state")
+        b.wait_visible("table .pf-v5-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
     @nondestructive
@@ -297,19 +297,19 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
+        b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
         b.wait_not_present("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
-        b.click(".pf-c-modal-box__footer button:contains(Remove)")
-        b.wait_not_present(".pf-c-modal-box")
+        b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-v5-c-modal-box")
 
         b.wait_in_text("#certificate-0-name", cert_name2)
 
         # Remove second certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
-        b.click(".pf-c-modal-box__footer button:contains(Remove)")
-        b.wait_not_present(".pf-c-modal-box")
+        b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
+        b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-v5-c-modal-box")
 
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
@@ -329,10 +329,10 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
+        b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
         b.wait_visible("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
-        b.click(".pf-c-modal-box__footer button:contains(Remove)")
-        b.wait_not_present(".pf-c-modal-box")
+        b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-v5-c-modal-box")
 
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
@@ -354,10 +354,10 @@ class TestApplication(testlib.MachineCase):
         # Remove certificate
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
-        b.wait_in_text(".pf-c-modal-box__title", "Remove certificate")
+        b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
         b.click("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
-        b.click(".pf-c-modal-box__footer button:contains(Remove)")
-        b.wait_not_present(".pf-c-modal-box")
+        b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
+        b.wait_not_present(".pf-v5-c-modal-box")
 
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
@@ -398,22 +398,22 @@ class TestApplication(testlib.MachineCase):
 
             def open(self):
                 b.click("#request-certificate-action")
-                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Request certificate")
+                b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Request certificate")
 
             def fill(self):
                 if self.ca:
                     b.select_from_dropdown("#ca", self.ca)
                 if self.storage_type:
-                    b.click(".pf-c-radio__input + label:contains({0})".format(self.storage_type))
+                    b.click(".pf-v5-c-radio__input + label:contains({0})".format(self.storage_type))
 
                 if self.storage_type == "NSSDB":
                     if self.nickname:
                         b.set_input_text("#nickname", self.nickname)
                 else:
                     b.set_input_text("input[placeholder='Path to store the certificate']", self.cert_path)
-                    b.click("#cert-file .pf-c-select__menu-item")
+                    b.click("#cert-file .pf-v5-c-select__menu-item")
                     b.set_input_text("input[placeholder='Path to store the generated key or to an existing key']", self.key_path)
-                    b.click("#key-file .pf-c-select__menu-item")
+                    b.click("#key-file .pf-v5-c-select__menu-item")
 
                 if self.subject_name or self.dns_name or self.principal_name:
                     b.click("#set-signing-parameters")
@@ -426,12 +426,12 @@ class TestApplication(testlib.MachineCase):
                         b.set_input_text("#principal-name", self.principal_name)
 
             def cancel(self):
-                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
-                b.wait_not_present(".pf-c-modal-box")
+                b.click(".pf-v5-c-modal-box__footer button:contains(Cancel)")
+                b.wait_not_present(".pf-v5-c-modal-box")
 
             def create(self):
-                b.click(".pf-c-modal-box__footer button:contains(Request)")
-                b.wait_not_present(".pf-c-modal-box")
+                b.click(".pf-v5-c-modal-box__footer button:contains(Request)")
+                b.wait_not_present(".pf-v5-c-modal-box")
                 if self.storage_type == "NSSDB":
                     # First issued certificate uses an autogenerated nickname
                     nickname = self.nickname if self.nickname else b.text("#certificate-0-name")
@@ -555,23 +555,23 @@ class TestApplication(testlib.MachineCase):
 
             def open(self):
                 b.click("#import-certificate-action")
-                b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Import certificate")
+                b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Import certificate")
 
             def fill(self):
                 if self.ca:
                     b.select_from_dropdown("#ca", self.ca)
 
                 b.set_input_text("input[placeholder='Path to an existing certificate file']", self.cert_path)
-                b.click("#cert-file .pf-c-select__menu-item")
+                b.click("#cert-file .pf-v5-c-select__menu-item")
                 b.set_input_text("input[placeholder='Path to an existing key file']", self.key_path)
-                b.click("#key-file .pf-c-select__menu-item")
+                b.click("#key-file .pf-v5-c-select__menu-item")
 
             def cancel(self):
-                b.click(".pf-c-modal-box__footer button:contains(Cancel)")
+                b.click(".pf-v5-c-modal-box__footer button:contains(Cancel)")
                 b.wait_not_present(".modal-dialog")
 
             def create(self):
-                b.click(".pf-c-modal-box__footer button:contains(Import)")
+                b.click(".pf-v5-c-modal-box__footer button:contains(Import)")
                 b.wait_not_present(".modal-dialog")
 
             def verify_frontend(self):
@@ -655,7 +655,7 @@ class TestApplication(testlib.MachineCase):
         # Resubmit certificate with different signing request parameters
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-resubmit a")
-        b.wait_in_text(".pf-c-modal-box .pf-c-modal-box__header .pf-c-modal-box__title", "Resubmit Certificate")
+        b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Resubmit Certificate")
 
         # Change signing request propertes for resubmit
         subject_name = "CN=TEST_HOSTAME"
@@ -669,8 +669,8 @@ class TestApplication(testlib.MachineCase):
         # make sure the resubmition is done at least 1 second after the certificate was created
         # This enables us to confirm success of resubmition by looking whetever date of issue of certificate, shown in seconds, changed
         time.sleep(1)
-        b.click(".pf-c-modal-box__footer button:contains(Resubmit)")
-        b.wait_not_present(".pf-c-modal-box")
+        b.click(".pf-v5-c-modal-box__footer button:contains(Resubmit)")
+        b.wait_not_present(".pf-v5-c-modal-box")
 
         # Check validity time differs which means certificate was resubmitted and renewed
         wait(lambda: old_validity not in m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip(), delay=1)

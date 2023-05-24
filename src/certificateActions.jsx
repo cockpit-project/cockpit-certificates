@@ -24,7 +24,7 @@ import "./certificateActions.css";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
-import { Dropdown, DropdownItem, KebabToggle } from "@patternfly/react-core/dist/esm/components/Dropdown/index.js";
+import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 
