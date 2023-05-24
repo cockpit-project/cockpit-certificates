@@ -21,8 +21,9 @@ import React, { useState, useEffect } from "react";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
-import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
+import { Form, FormGroup, FormHelperText } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { FormSelect, FormSelectOption } from "@patternfly/react-core/dist/esm/components/FormSelect/index.js";
+import { HelperText, HelperTextItem } from "@patternfly/react-core/dist/esm/components/HelperText/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 import { Radio } from "@patternfly/react-core/dist/esm/components/Radio/index.js";
 import { TextArea } from "@patternfly/react-core/dist/esm/components/TextArea/index.js";
@@ -53,19 +54,23 @@ const SubjectNameRow = ({ subjectName, setSubjectName }) => {
         <FormGroup fieldId="subject-name" label={_("Subject name")}>
             <TextInput value={subjectName}
                        id="subject-name"
-                       onChange={value => setSubjectName(value)} />
+                       onChange={(_event, value) => setSubjectName(value)} />
         </FormGroup>
     );
 };
 
 const DNSNameRow = ({ dnsName, setDnsName }) => {
     return (
-        <FormGroup fieldId="dns-name" label={_("DNS names")}
-                   helperText={_("Comma separated list of DNS names. Example: example.com,sub.example.com")}>
+        <FormGroup fieldId="dns-name" label={_("DNS names")}>
             <TextArea value={dnsName}
                 id="dns-name"
-                onChange={value => setDnsName(value)}
+                onChange={(_event, value) => setDnsName(value)}
                 resizeOrientation='vertical' />
+            <FormHelperText>
+                <HelperText>
+                    <HelperTextItem>{_("Comma separated list of DNS names. Example: example.com,sub.example.com")}</HelperTextItem>
+                </HelperText>
+            </FormHelperText>
         </FormGroup>
     );
 };
@@ -75,7 +80,7 @@ const PrincipalNameRow = ({ principalName, setPricipalName }) => {
         <FormGroup fieldId="principal-name" label={_("Principal name")}>
             <TextInput value={principalName}
                 id="principal-name"
-                onChange={value => setPricipalName(value)} />
+                onChange={(_event, value) => setPricipalName(value)} />
         </FormGroup>
     );
 };
@@ -107,7 +112,7 @@ const CAsRow = ({ ca, setCa, cas }) => {
         <FormGroup fieldId="ca" label={_("CA")}>
             <FormSelect id="ca"
                         value={ca}
-                        onChange={value => setCa(value)}>
+                        onChange={(_event, value) => setCa(value)}>
                 {cas.map(ca => {
                     const nick = ca.nickname.v == "SelfSign" ? _("Self-signed") : ca.nickname.v;
                     return (
@@ -125,7 +130,7 @@ const NicknameRow = ({ nickname, setNickname }) => {
         <FormGroup fieldId="nickname" label={_("Nickname")}>
             <TextInput value={nickname}
                        id="nickname"
-                       onChange={value => setNickname(value)}
+                       onChange={(_event, value) => setNickname(value)}
                        aria-label={_("Nickname input text")} />
         </FormGroup>
     );
