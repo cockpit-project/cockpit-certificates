@@ -32,8 +32,6 @@ all: $(DIST_TEST)
 COCKPIT_REPO_FILES = \
 	pkg/lib \
 	test/common \
-	tools/git-utils.sh \
-	tools/make-bots \
 	$(NULL)
 
 COCKPIT_REPO_URL = https://github.com/cockpit-project/cockpit.git
@@ -188,8 +186,8 @@ check: $(NODE_MODULES_TEST) $(VM_IMAGE) test/common
 	TEST_AUDIT_NO_SELINUX=1 test/common/run-tests ${RUN_TESTS_OPTIONS}
 
 # checkout Cockpit's bots for standard test VM images and API to launch them
-bots: tools/make-bots
-	tools/make-bots
+bots: $(COCKPIT_REPO_STAMP)
+	test/common/make-bots
 
 $(NODE_MODULES_TEST): package.json
 	# if it exists already, npm install won't update it; force that so that we always get up-to-date packages
