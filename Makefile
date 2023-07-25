@@ -84,8 +84,8 @@ po/LINGUAS:
 $(DIST_TEST): $(NODE_MODULES_TEST) $(COCKPIT_REPO_STAMP) $(shell find src/ -type f) package.json build.js
 	NODE_ENV=$(NODE_ENV) ./build.js
 
-watch:
-	NODE_ENV=$(NODE_ENV) npm run watch
+watch: $(NODE_MODULES_TEST)
+	NODE_ENV=$(NODE_ENV) ./build.js -w
 
 clean:
 	rm -rf dist/
