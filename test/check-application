@@ -34,6 +34,12 @@ class TestApplication(testlib.MachineCase):
             self.machine.execute("selfsign-getcert stop-tracking -k {0} -f {1}".format(key_path, cert_path))
             self.machine.execute("rm {0} {1} || exit 0".format(key_path, cert_path))
 
+    def selectKeyTab(self, row):
+        self.browser.click(f"#expanded-content{row} li:nth-child(2) button")
+
+    def selectCertificateTab(self, row):
+        self.browser.click(f"#expanded-content{row} li:nth-child(3) button")
+
     @nondestructive
     def testEmptyState(self):
         b = self.browser
@@ -191,7 +197,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))  # TODO better date handling
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
-        b.click("#expanded-content0 button:Contains(Key)")
+        self.selectKeyTab(0)
         # Check Key tab
         b.wait_in_text("#certificate-0-key-nickname", cert_name)
         b.wait_in_text("#certificate-0-key-type", "RSA")
@@ -199,7 +205,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-key-storage", "NSSDB")
         b.wait_in_text("#certificate-0-key-location", db_path)
 
-        b.click("#expanded-content0 button:Contains(Certificate)")
+        self.selectCertificateTab(0)
         # Check Cert tab
         b.wait_in_text("#certificate-0-cert-nickname", cert_name)
         b.wait_in_text("#certificate-0-cert-token", "NSS Certificate DB")
@@ -262,13 +268,13 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
-        b.click("#expanded-content0 button:Contains(Key)")
         # Check Key tab
+        self.selectKeyTab(0)
         b.wait_in_text("#certificate-0-key-type", "RSA")
         b.wait_in_text("#certificate-0-key-storage", "FILE")
         b.wait_in_text("#certificate-0-key-location", key_path)
 
-        b.click("#expanded-content0 button:Contains(Certificate)")
+        self.selectCertificateTab(0)
         # Check Cert tab
         b.wait_in_text("#certificate-0-cert-storage", "FILE")
         b.wait_in_text("#certificate-0-cert-location", cert_path)
@@ -457,16 +463,16 @@ class TestApplication(testlib.MachineCase):
 
                 if self.storage_type == "NSSDB":
                     b.wait_in_text("#certificate-0-name", self.nickname)
-                    b.click("#expanded-content0 button:Contains(Certificate)")
+                    self.test_obj.selectCertificateTab(0)
                     b.wait_in_text("#certificate-0-cert-storage", "NSSDB")
-                    b.click("#expanded-content0 button:Contains(Key)")
+                    self.test_obj.selectKeyTab(0)
                     b.wait_in_text("#certificate-0-key-storage", "NSSDB")
                 else:
                     if self.key_path:
-                        b.click("#expanded-content0 button:Contains(Key)")
+                        self.test_obj.selectKeyTab(0)
                         b.wait_in_text("#certificate-0-key-location", self.key_path)
                     if self.cert_path:
-                        b.click("#expanded-content0 button:Contains(Certificate)")
+                        self.test_obj.selectCertificateTab(0)
                         b.wait_in_text("#certificate-0-cert-location", self.cert_path)
 
             def verify_backend(self):
@@ -581,9 +587,9 @@ class TestApplication(testlib.MachineCase):
                 b.wait_in_text("#certificate-0-general-principal", self.principal_name)
                 b.wait_in_text("#certificate-0-general-dns", self.dns_name)
 
-                b.click("#expanded-content0 button:Contains(Key)")
+                self.test_obj.selectKeyTab(0)
                 b.wait_in_text("#certificate-0-key-location", self.key_path)
-                b.click("#expanded-content0 button:Contains(Certificate)")
+                self.test_obj.selectCertificateTab(0)
                 b.wait_in_text("#certificate-0-cert-location", self.cert_path)
 
             def verify_backend(self):

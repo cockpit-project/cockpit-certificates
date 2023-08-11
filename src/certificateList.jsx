@@ -93,12 +93,12 @@ const generalDetails = ({ idPrefix, cas, cert, certPath, onAutorenewChanged }) =
                         <DescriptionListTerm>{_("Status")}</DescriptionListTerm>
                         <DescriptionListDescription id={`${idPrefix}-general-status`}>
                             {cert.stuck.v && (
-                                <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                                <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'rowGapSm' }}>
                                     <ExclamationTriangleIcon className="ct-icon-exclamation-triangle" />
                                     <span id={`${idPrefix}-general-stuck`}>{_("Stuck: ")}</span>
                                 </Flex>
                             )}
-                            <Flex alignItems={{ default: 'alignItemsCenter' }} spaceItems={{ default: 'spaceItemsSm' }}>
+                            <Flex alignItems={{ default: 'alignItemsCenter' }} gap={{ default: 'rowGapSm' }}>
                                 <FlexItem>
                                     {cert.status.v.includes('_')
                                         ? cert.status.v
