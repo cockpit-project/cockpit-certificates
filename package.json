@@ -15,11 +15,11 @@
   "devDependencies": {
     "chrome-remote-interface": "^0.32.1",
     "cssnano-preset-lite": "^2.0.1",
-    "esbuild": "^0.18.6",
+    "esbuild": "^0.19.1",
     "esbuild-plugin-copy": "^2.1.1",
     "esbuild-plugin-replace": "^1.3.0",
     "esbuild-sass-plugin": "^2.10.0",
-    "esbuild-wasm": "^0.18.6",
+    "esbuild-wasm": "^0.19.1",
     "eslint": "^8.38.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-config-standard-jsx": "^11.0.0",
