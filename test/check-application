@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/python3 -cimport os, sys; os.execv(os.path.dirname(sys.argv[1]) + "/common/pywrap", sys.argv)
 # Run this with --help to see available options for tracing and debugging
 # See https://github.com/cockpit-project/cockpit/blob/main/test/common/testlib.py
 # "class Browser" and "class MachineCase" for the available API.
@@ -9,10 +9,6 @@ import datetime
 import time
 
 # import Cockpit's machinery for test VMs and its browser test API
-TEST_DIR = os.path.dirname(__file__)
-sys.path.append(os.path.join(TEST_DIR, "common"))
-sys.path.append(os.path.join(os.path.dirname(TEST_DIR), "bots/machine"))
-from testlib import nondestructive, wait  # noqa
 import testlib  # noqa
 
 
@@ -40,7 +36,7 @@ class TestApplication(testlib.MachineCase):
     def selectCertificateTab(self, row):
         self.browser.click(f"#expanded-content{row} li:nth-child(3) button")
 
-    @nondestructive
+    @testlib.nondestructive
     def testEmptyState(self):
         b = self.browser
         m = self.machine
@@ -74,7 +70,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("table .pf-v5-c-empty-state")
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
-    @nondestructive
+    @testlib.nondestructive
     def testNoCertificates(self):
         b = self.browser
 
@@ -83,7 +79,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_in_text(".ct-table-empty tr td", "No certificate is tracked on this host")
 
-    @nondestructive
+    @testlib.nondestructive
     def testWarningExpiredCert(self):
         b = self.browser
         m = self.machine
@@ -140,7 +136,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
         b.wait_visible("#certificate-0-validity .ct-icon-times-circle")
 
-    @nondestructive
+    @testlib.nondestructive
     def testModifyAutorenewal(self):
         b = self.browser
         m = self.machine
@@ -167,7 +163,7 @@ class TestApplication(testlib.MachineCase):
         else:
             self.assertEqual(command_output, "no\n")
 
-    @nondestructive
+    @testlib.nondestructive
     def testNssdbCert(self):
         b = self.browser
         m = self.machine
@@ -215,7 +211,7 @@ class TestApplication(testlib.MachineCase):
     # Test subscription to Dbus PropertyChanged signal which is emmitted when property of
     # dbus object is changed
     # Check whetever UI is dynamically updated
-    @nondestructive
+    @testlib.nondestructive
     def testDbusPropertyChanged(self):
         b = self.browser
         m = self.machine
@@ -239,7 +235,7 @@ class TestApplication(testlib.MachineCase):
         # Check validity time changed
         b.wait_not_in_text("#certificate-0-general-validity", validity)
 
-    @nondestructive
+    @testlib.nondestructive
     def testFileCert(self):
         b = self.browser
         m = self.machine
@@ -279,7 +275,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-cert-storage", "FILE")
         b.wait_in_text("#certificate-0-cert-location", cert_path)
 
-    @nondestructive
+    @testlib.nondestructive
     def testRemoveCert(self):
         b = self.browser
         m = self.machine
@@ -370,7 +366,7 @@ class TestApplication(testlib.MachineCase):
         # Check files were deleted
         m.execute("! test -f {0}; ! test -f {1}".format(cert_path, key_path))
 
-    @nondestructive
+    @testlib.nondestructive
     def testRequestCert(self):
         b = self.browser
         m = self.machine
@@ -528,7 +524,7 @@ class TestApplication(testlib.MachineCase):
             principal_name="HTTP/TEST_HOSTNAME",
         ).execute()
 
-    @nondestructive
+    @testlib.nondestructive
     def testImportCert(self):
         b = self.browser
         m = self.machine
@@ -616,7 +612,7 @@ class TestApplication(testlib.MachineCase):
         principal_name = "TEST_HOSTNAME@REDHAT.COM"
         # Request certificate which would result with a cert file with specified subject name, dns name and principal name
         m.execute("selfsign-getcert request -f {0} -k {1} -N 'CN={2}' -D {3} -K {4}".format(cert_path, key_path, subject_name, dns_name, principal_name))
-        wait(lambda: "MONITORING" in m.execute("selfsign-getcert list -f {0}".format(cert_path)), delay=1)
+        testlib.wait(lambda: "MONITORING" in m.execute("selfsign-getcert list -f {0}".format(cert_path)), delay=1)
         self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
         # Stop tracking the cert. Files should be left untouched.
         m.execute("selfsign-getcert stop-tracking -f {0}".format(cert_path, key_path))
@@ -679,7 +675,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_not_present(".pf-v5-c-modal-box")
 
         # Check validity time differs which means certificate was resubmitted and renewed
-        wait(lambda: old_validity not in m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip(), delay=1)
+        testlib.wait(lambda: old_validity not in m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip(), delay=1)
 
         # Check signing properties are updated
         b.wait_in_text("#certificate-0-general-subject", subject_name)
