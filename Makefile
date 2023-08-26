@@ -181,9 +181,9 @@ vm: $(VM_IMAGE)
 print-vm:
 	@echo $(VM_IMAGE)
 
-# run the browser integration tests; skip check for SELinux denials
+# run the browser integration tests
 check: $(NODE_MODULES_TEST) $(VM_IMAGE) test/common
-	TEST_AUDIT_NO_SELINUX=1 test/common/run-tests ${RUN_TESTS_OPTIONS}
+	test/common/run-tests ${RUN_TESTS_OPTIONS}
 
 # checkout Cockpit's bots for standard test VM images and API to launch them
 bots: $(COCKPIT_REPO_STAMP)
