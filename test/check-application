@@ -385,14 +385,14 @@ class TestApplication(testlib.MachineCase):
                 self.principal_name = principal_name
 
             def execute(self):
-                self.open()
+                self.open_dialog()
                 self.fill()
                 self.create()
                 self.verify_frontend()
                 self.verify_backend()
                 self.cleanup()
 
-            def open(self):
+            def open_dialog(self):
                 b.click("#request-certificate-action")
                 b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Request certificate")
 
@@ -541,14 +541,14 @@ class TestApplication(testlib.MachineCase):
                 self.principal_name = principal_name
 
             def execute(self):
-                self.open()
+                self.open_dialog()
                 self.fill()
                 self.create()
                 self.verify_backend()
                 self.verify_frontend()
                 self.cleanup()
 
-            def open(self):
+            def open_dialog(self):
                 b.click("#import-certificate-action")
                 b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Import certificate")
 
