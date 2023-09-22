@@ -22,7 +22,7 @@ class TestApplication(testlib.MachineCase):
 
         # Restore the nssdb as it keeps an old entry with the principal name which if the test
         # runs twice will be generated with a principal name which we don't want.
-        self.restore_dir("/etc/pki/nssdb", post_restore_action="systemctl try-restart certmonger")
+        self.restore_dir("/etc/pki/nssdb", restart_unit="certmonger")
 
     def cleanupCertificate(self, cert_name, db_path):
         output = self.machine.execute("getcert list -d {0} -n {1} || exit 0".format(db_path, cert_name))
