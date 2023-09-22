@@ -23,15 +23,15 @@ class TestApplication(testlib.MachineCase):
         self.restore_dir("/etc/pki/nssdb", restart_unit="certmonger")
 
     def cleanupCertificate(self, cert_name, db_path):
-        output = self.machine.execute("getcert list -d {0} -n {1} || exit 0".format(db_path, cert_name))
+        output = self.machine.execute(f"getcert list -d {db_path} -n {cert_name} || exit 0")
         if cert_name in output:
-            self.machine.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, cert_name))
+            self.machine.execute(f"selfsign-getcert stop-tracking -d {db_path} -n {cert_name}")
 
     def cleanupFileCertificate(self, cert_path, key_path):
-        output = self.machine.execute("getcert list -f {0} || exit 0".format(cert_path))
+        output = self.machine.execute(f"getcert list -f {cert_path} || exit 0")
         if cert_path in output:
-            self.machine.execute("selfsign-getcert stop-tracking -k {0} -f {1}".format(key_path, cert_path))
-            self.machine.execute("rm {0} {1} || exit 0".format(key_path, cert_path))
+            self.machine.execute(f"selfsign-getcert stop-tracking -k {key_path} -f {cert_path}")
+            self.machine.execute(f"rm {key_path} {cert_path} || exit 0")
 
     def selectKeyTab(self, row):
         self.browser.click(f"#expanded-content{row} li:nth-child(2) button")
@@ -89,7 +89,7 @@ class TestApplication(testlib.MachineCase):
         cert_name = "Server-Cert1"
         db_path = "/etc/pki/nssdb"
         # Request certificate without automatical renewal
-        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name} -R")
         self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.login_and_go("/certificates")
@@ -100,7 +100,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_not_present("#certificate-0-validity .ct-icon-exclamation-triangle")
 
         # Remove cert
-        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert stop-tracking -d {db_path} -n {cert_name}")
         self.browser.reload()
         self.browser.enter_page('/certificates')
 
@@ -108,7 +108,7 @@ class TestApplication(testlib.MachineCase):
         cert_name = 'Server-Cert2'
         m.execute("echo -e '[selfsign]\nvalidity_period = 2w' > /etc/certmonger/certmonger.conf")
         m.execute("systemctl restart certmonger.service")
-        m.execute("selfsign-getcert request -d {0} -n {1} -R".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name} -R")
         self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         # Check warning about near expiration
@@ -116,7 +116,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("#certificate-0-validity .ct-icon-exclamation-triangle")
 
         # Remove cert
-        m.execute("selfsign-getcert stop-tracking -d {0} -n {1}".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert stop-tracking -d {db_path} -n {cert_name}")
         self.browser.reload()
         self.browser.enter_page('/certificates')
 
@@ -127,7 +127,7 @@ class TestApplication(testlib.MachineCase):
         # TODO requesting itself takes some time and 4 seconds might now be enough.
         # Fix this if race condition starts to show up
         cert_name = "Server-Cert3"
-        m.execute("selfsign-getcert request -d {0} -n {1} -R && sleep 4".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name} -R && sleep 4")
         self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.browser.reload()
@@ -142,7 +142,7 @@ class TestApplication(testlib.MachineCase):
 
         cert_name = "Server-Cert"
         db_path = "/etc/pki/nssdb"
-        m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name}")
         self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.login_and_go("/certificates")
@@ -156,7 +156,7 @@ class TestApplication(testlib.MachineCase):
         b.set_checked("#certificate-0-general-autorenewal", not renewal_state)
         b.wait_visible("#certificate-0-general-autorenewal:not(:checked)")
 
-        command_output = m.execute("selfsign-getcert list -d {0} -n {1} | grep 'auto-renew:' | awk '{{print $2}}'".format(db_path, cert_name))
+        command_output = m.execute(f"selfsign-getcert list -d {db_path} -n {cert_name} | grep 'auto-renew:' | awk '{{print $2}}'")
         if not renewal_state:  # renewal state updated to the opposite
             self.assertEqual(command_output, "yes\n")
         else:
@@ -172,7 +172,7 @@ class TestApplication(testlib.MachineCase):
 
         cert_name = "Server-Cert"
         db_path = "/etc/pki/nssdb"
-        m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name}")
         self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.login_and_go("/certificates")
@@ -181,14 +181,14 @@ class TestApplication(testlib.MachineCase):
 
         # Check cert header
         b.wait_in_text("#certificate-0-name", cert_name)
-        b.wait_in_text("#certificate-0-validity", "Auto-renews before {0}".format(next_year_str))
+        b.wait_in_text("#certificate-0-validity", f"Auto-renews before {next_year_str}")
         b.wait_in_text("#certificate-0-ca", "Self-signed")
 
         b.click("button#expand-togglecertificate-0")
         # Check General tab
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
         b.wait_in_text("#certificate-0-general-ca", "Self-signed")
-        b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))  # TODO better date handling
+        b.wait_in_text("#certificate-0-general-validity", f" to {next_year_str}")  # TODO better date handling
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
         self.selectKeyTab(0)
@@ -215,7 +215,7 @@ class TestApplication(testlib.MachineCase):
 
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
-        m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+        m.execute(f"selfsign-getcert request -f {cert_path} -k {key_path}")
         self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
 
         self.login_and_go("/certificates")
@@ -228,7 +228,7 @@ class TestApplication(testlib.MachineCase):
         time.sleep(61)
 
         # Renew a certificate
-        m.execute("selfsign-getcert resubmit -f {0}".format(cert_path))
+        m.execute(f"selfsign-getcert resubmit -f {cert_path}")
         # Check validity time changed
         b.wait_not_in_text("#certificate-0-general-validity", validity)
 
@@ -242,7 +242,7 @@ class TestApplication(testlib.MachineCase):
 
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
-        m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+        m.execute(f"selfsign-getcert request -f {cert_path} -k {key_path}")
         self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
 
         self.login_and_go("/certificates")
@@ -250,14 +250,14 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text(".ct-table-header h3", "Certificates")
 
         # Check cert header
-        b.wait_in_text("#certificate-0-validity", "Auto-renews before {0}".format(next_year_str))
+        b.wait_in_text("#certificate-0-validity", f"Auto-renews before {next_year_str}")
         b.wait_in_text("#certificate-0-ca", "Self-signed")
 
         b.click("button#expand-togglecertificate-0")
         # Check General tab
         b.wait_in_text("#certificate-0-general-status", "Monitoring")
         b.wait_in_text("#certificate-0-general-ca", "Self-signed")
-        b.wait_in_text("#certificate-0-general-validity", " to {0}".format(next_year_str))
+        b.wait_in_text("#certificate-0-general-validity", f" to {next_year_str}")
         self.assertEqual(b.get_checked("#certificate-0-general-autorenewal"), True)
 
         # Check Key tab
@@ -278,11 +278,11 @@ class TestApplication(testlib.MachineCase):
         # Test removal of NSSDB-stored certificate
         cert_name = "Server-Cert"
         db_path = "/etc/pki/nssdb"
-        m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name}")
         self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         cert_name2 = "Server-Cert2"
-        m.execute("selfsign-getcert request -d {0} -n {1}".format(db_path, cert_name2))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name2}")
         self.addCleanup(self.cleanupCertificate, cert_name2, db_path)
 
         self.login_and_go("/certificates")
@@ -314,7 +314,7 @@ class TestApplication(testlib.MachineCase):
         # Test removal of files based certificate. Remove without deleting files
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
-        m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+        m.execute(f"selfsign-getcert request -f {cert_path} -k {key_path}")
         self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
 
         self.login_and_go("/certificates")
@@ -334,12 +334,12 @@ class TestApplication(testlib.MachineCase):
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
         # Check files were left untouched
-        m.execute("test -f {0}; test -f {1}".format(cert_path, key_path))
+        m.execute(f"test -f {cert_path}; test -f {key_path}")
 
         # Test removal of files based certificate. Remove without deleting files
         cert_path = "/etc/pki/tls/certs/myCert.cert"
         key_path = "/etc/pki/tls/private/myKey.key"
-        m.execute("selfsign-getcert request -f {0} -k {1}".format(cert_path, key_path))
+        m.execute(f"selfsign-getcert request -f {cert_path} -k {key_path}")
         self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
 
         self.login_and_go("/certificates")
@@ -359,7 +359,7 @@ class TestApplication(testlib.MachineCase):
         # Check cert is not present
         b.wait_not_present("#certificate-0-name")
         # Check files were deleted
-        m.execute("! test -f {0}; ! test -f {1}".format(cert_path, key_path))
+        m.execute(f"! test -f {cert_path}; ! test -f {key_path}")
 
     def testRequestCert(self):
         b = self.browser
@@ -400,7 +400,7 @@ class TestApplication(testlib.MachineCase):
                 if self.ca:
                     b.select_from_dropdown("#ca", self.ca)
                 if self.storage_type:
-                    b.click(".pf-v5-c-radio__input + label:contains({0})".format(self.storage_type))
+                    b.click(f".pf-v5-c-radio__input + label:contains({self.storage_type})")
 
                 if self.storage_type == "NSSDB":
                     if self.nickname:
@@ -468,21 +468,21 @@ class TestApplication(testlib.MachineCase):
             def verify_backend(self):
 
                 if self.storage_type == "NSSDB":
-                    command_output = m.execute("getcert list -d /etc/pki/nssdb -n {0} -c {1} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.nickname, self.ca))
-                    self.test_obj.assertIn(command_output.strip(), "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
-                    command_output = m.execute("getcert list -d /etc/pki/nssdb -n {0} -c {1} | grep 'certificate:' | awk '{{print $2}}'".format(self.nickname, self.ca))
-                    self.test_obj.assertIn(command_output.strip(), "type=NSSDB,location='/etc/pki/nssdb',nickname='{0}',token='NSS\n".format(self.nickname))
+                    command_output = m.execute(f"getcert list -d /etc/pki/nssdb -n {self.nickname} -c {self.ca} | grep 'key pair storage:' | awk '{{print $4}}'")
+                    self.test_obj.assertIn(command_output.strip(), f"type=NSSDB,location='/etc/pki/nssdb',nickname='{self.nickname}',token='NSS\n")
+                    command_output = m.execute(f"getcert list -d /etc/pki/nssdb -n {self.nickname} -c {self.ca} | grep 'certificate:' | awk '{{print $2}}'")
+                    self.test_obj.assertIn(command_output.strip(), f"type=NSSDB,location='/etc/pki/nssdb',nickname='{self.nickname}',token='NSS\n")
                 elif self.storage_type == "File":
-                    command_output = m.execute("getcert list -f {0} -c {1} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.cert_path, self.ca))
-                    self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.key_path))
-                    command_output = m.execute("getcert list -f {0} -c {1} | grep 'certificate:' | awk '{{print $2}}'".format(self.cert_path, self.ca))
-                    self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.cert_path))
+                    command_output = m.execute(f"getcert list -f {self.cert_path} -c {self.ca} | grep 'key pair storage:' | awk '{{print $4}}'")
+                    self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.key_path}'\n")
+                    command_output = m.execute(f"getcert list -f {self.cert_path} -c {self.ca} | grep 'certificate:' | awk '{{print $2}}'")
+                    self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.cert_path}'\n")
 
             def cleanup(self):
                 if self.storage_type == "NSSDB":
-                    m.execute("getcert stop-tracking -d /etc/pki/nssdb -n {0} -c {1}".format(self.nickname, self.ca))
+                    m.execute(f"getcert stop-tracking -d /etc/pki/nssdb -n {self.nickname} -c {self.ca}")
                 else:
-                    m.execute("getcert stop-tracking -f {0} -k {1} -c {2}".format(self.cert_path, self.key_path, self.ca))
+                    m.execute(f"getcert stop-tracking -f {self.cert_path} -k {self.key_path} -c {self.ca}")
                 b.reload()
                 b.enter_page('/certificates')
 
@@ -582,19 +582,19 @@ class TestApplication(testlib.MachineCase):
                 b.wait_in_text("#certificate-0-cert-location", self.cert_path)
 
             def verify_backend(self):
-                command_output = m.execute("getcert list -f {0} | grep 'subject:' | awk '{{print $2}}'".format(self.cert_path))
-                self.test_obj.assertEqual(command_output, "CN={0}\n".format(self.subject_name))
-                command_output = m.execute("getcert list -f {0} | grep 'dns:' | awk '{{print $2}}'".format(self.cert_path))
-                self.test_obj.assertEqual(command_output, "{0}\n".format(self.dns_name))
-                command_output = m.execute("getcert list -f {0} | grep 'principal name:' | awk '{{print $3}}'".format(self.cert_path))
-                self.test_obj.assertEqual(command_output, "{0}\n".format(self.principal_name))
-                command_output = m.execute("getcert list -f {0} | grep 'key pair storage:' | awk '{{print $4}}'".format(self.cert_path))
-                self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.key_path))
-                command_output = m.execute("getcert list -f {0} | grep 'certificate:' | awk '{{print $2}}'".format(self.cert_path))
-                self.test_obj.assertEqual(command_output, "type=FILE,location='{0}'\n".format(self.cert_path))
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'subject:' | awk '{{print $2}}'")
+                self.test_obj.assertEqual(command_output, f"CN={self.subject_name}\n")
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'dns:' | awk '{{print $2}}'")
+                self.test_obj.assertEqual(command_output, f"{self.dns_name}\n")
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'principal name:' | awk '{{print $3}}'")
+                self.test_obj.assertEqual(command_output, f"{self.principal_name}\n")
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'key pair storage:' | awk '{{print $4}}'")
+                self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.key_path}'\n")
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'certificate:' | awk '{{print $2}}'")
+                self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.cert_path}'\n")
 
             def cleanup(self):
-                m.execute("selfsign-getcert stop-tracking -f {0} -k {1}".format(self.cert_path, self.key_path))
+                m.execute(f"selfsign-getcert stop-tracking -f {self.cert_path} -k {self.key_path}")
                 b.reload()
                 b.enter_page('/certificates')
 
@@ -604,8 +604,8 @@ class TestApplication(testlib.MachineCase):
         dns_name = "example.com"
         principal_name = "TEST_HOSTNAME@REDHAT.COM"
         # Request certificate which would result with a cert file with specified subject name, dns name and principal name
-        m.execute("selfsign-getcert request -f {0} -k {1} -N 'CN={2}' -D {3} -K {4}".format(cert_path, key_path, subject_name, dns_name, principal_name))
-        testlib.wait(lambda: "MONITORING" in m.execute("selfsign-getcert list -f {0}".format(cert_path)), delay=1)
+        m.execute(f"selfsign-getcert request -f {cert_path} -k {key_path} -N 'CN={subject_name}' -D {dns_name} -K {principal_name}")
+        testlib.wait(lambda: "MONITORING" in m.execute(f"selfsign-getcert list -f {cert_path}"), delay=1)
         self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
         # Stop tracking the cert. Files should be left untouched.
         m.execute(f"selfsign-getcert stop-tracking -f {cert_path}")
@@ -634,7 +634,7 @@ class TestApplication(testlib.MachineCase):
         cert_name = "Server-Cert"
         db_path = "/etc/pki/nssdb"
         dns_name = "example.com"
-        m.execute("selfsign-getcert request -d {0} -n {1} -D {2}".format(db_path, cert_name, dns_name))
+        m.execute(f"selfsign-getcert request -d {db_path} -n {cert_name} -D {dns_name}")
         self.addCleanup(self.cleanupCertificate, cert_name, db_path)
 
         self.login_and_go("/certificates")
@@ -659,7 +659,7 @@ class TestApplication(testlib.MachineCase):
         b.set_input_text("#principal-name", principal_name)
         b.set_input_text("#dns-name", "")  # Remove DNS name
 
-        old_validity = m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip()
+        old_validity = m.execute(f"selfsign-getcert list -d {db_path} -n {cert_name} | grep 'issued:'").strip()
 
         # make sure the resubmition is done at least 1 second after the certificate was created
         # This enables us to confirm success of resubmition by looking whetever date of issue of certificate, shown in seconds, changed
@@ -668,7 +668,7 @@ class TestApplication(testlib.MachineCase):
         b.wait_not_present(".pf-v5-c-modal-box")
 
         # Check validity time differs which means certificate was resubmitted and renewed
-        testlib.wait(lambda: old_validity not in m.execute("selfsign-getcert list -d %s -n %s | grep 'issued:'" % (db_path, cert_name)).strip(), delay=1)
+        testlib.wait(lambda: old_validity not in m.execute(f"selfsign-getcert list -d {db_path} -n {cert_name} | grep 'issued:'").strip(), delay=1)
 
         # Check signing properties are updated
         b.wait_in_text("#certificate-0-general-subject", subject_name)
