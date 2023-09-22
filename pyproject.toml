@@ -31,8 +31,7 @@ ignore = [
     "FBT002", # Boolean default value in function definition
     "FBT003", # Boolean positional value in function call
 ]
-# FIXME: we want 118
-line-length = 173
+line-length = 118
 src = []
 
 [tool.ruff.flake8-pytest-style]

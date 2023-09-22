@@ -16,7 +16,8 @@ class TestApplication(testlib.MachineCase):
         super().setUp()
 
         # When we disconnect while certmonger wants to tell us something
-        self.allow_journal_messages("org.fedorahosted.certmonger: couldn't introspect /org/fedorahosted/certmonger/.*Remote peer disconnected")
+        self.allow_journal_messages("org.fedorahosted.certmonger: couldn't introspect "
+                                    "/org/fedorahosted/certmonger/.*Remote peer disconnected")
 
         # Restore the nssdb as it keeps an old entry with the principal name which if the test
         # runs twice will be generated with a principal name which we don't want.
@@ -156,7 +157,8 @@ class TestApplication(testlib.MachineCase):
         b.set_checked("#certificate-0-general-autorenewal", not renewal_state)
         b.wait_visible("#certificate-0-general-autorenewal:not(:checked)")
 
-        command_output = m.execute(f"selfsign-getcert list -d {db_path} -n {cert_name} | grep 'auto-renew:' | awk '{{print $2}}'")
+        command_output = m.execute(f"selfsign-getcert list -d {db_path} -n {cert_name} |"
+                                   f"grep 'auto-renew:' | awk '{{print $2}}'")
         if not renewal_state:  # renewal state updated to the opposite
             self.assertEqual(command_output, "yes\n")
         else:
@@ -295,7 +297,8 @@ class TestApplication(testlib.MachineCase):
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
-        b.wait_not_present("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
+        # Check delete files option is not present for NSSDB-stored certificate
+        b.wait_not_present("#certificate-0-delete-files")
         b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-v5-c-modal-box")
 
@@ -327,7 +330,8 @@ class TestApplication(testlib.MachineCase):
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
-        b.wait_visible("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
+        # Check delete files option is not present for NSSDB-stored certificate
+        b.wait_visible("#certificate-0-delete-files")
         b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-v5-c-modal-box")
 
@@ -352,7 +356,8 @@ class TestApplication(testlib.MachineCase):
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-remove a")
         b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
-        b.click("#certificate-0-delete-files")  # Check delete files option is not present for NSSDB-stored certificate
+        # Check delete files option is not present for NSSDB-stored certificate
+        b.click("#certificate-0-delete-files")
         b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-v5-c-modal-box")
 
@@ -394,7 +399,8 @@ class TestApplication(testlib.MachineCase):
 
             def open_dialog(self):
                 b.click("#request-certificate-action")
-                b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Request certificate")
+                b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title",
+                               "Request certificate")
 
             def fill(self):
                 if self.ca:
@@ -408,7 +414,8 @@ class TestApplication(testlib.MachineCase):
                 else:
                     b.set_input_text("input[placeholder='Path to store the certificate']", self.cert_path)
                     b.click("#cert-file .pf-v5-c-select__menu-item")
-                    b.set_input_text("input[placeholder='Path to store the generated key or to an existing key']", self.key_path)
+                    b.set_input_text("input[placeholder='Path to store the generated key or to an existing key']",
+                                     self.key_path)
                     b.click("#key-file .pf-v5-c-select__menu-item")
 
                 if self.subject_name or self.dns_name or self.principal_name:
@@ -468,14 +475,25 @@ class TestApplication(testlib.MachineCase):
             def verify_backend(self):
 
                 if self.storage_type == "NSSDB":
-                    command_output = m.execute(f"getcert list -d /etc/pki/nssdb -n {self.nickname} -c {self.ca} | grep 'key pair storage:' | awk '{{print $4}}'")
-                    self.test_obj.assertIn(command_output.strip(), f"type=NSSDB,location='/etc/pki/nssdb',nickname='{self.nickname}',token='NSS\n")
-                    command_output = m.execute(f"getcert list -d /etc/pki/nssdb -n {self.nickname} -c {self.ca} | grep 'certificate:' | awk '{{print $2}}'")
-                    self.test_obj.assertIn(command_output.strip(), f"type=NSSDB,location='/etc/pki/nssdb',nickname='{self.nickname}',token='NSS\n")
+                    command_output = m.execute(
+                        f"getcert list -d /etc/pki/nssdb -n {self.nickname} -c {self.ca} |"
+                        f"grep 'key pair storage:' |"
+                        f"awk '{{print $4}}'")
+                    self.test_obj.assertIn(
+                        command_output.strip(),
+                        f"type=NSSDB,location='/etc/pki/nssdb',nickname='{self.nickname}',token='NSS\n")
+                    command_output = m.execute(
+                        f"getcert list -d /etc/pki/nssdb -n {self.nickname} -c {self.ca} |"
+                        f"grep 'certificate:' | awk '{{print $2}}'")
+                    self.test_obj.assertIn(
+                        command_output.strip(),
+                        f"type=NSSDB,location='/etc/pki/nssdb',nickname='{self.nickname}',token='NSS\n")
                 elif self.storage_type == "File":
-                    command_output = m.execute(f"getcert list -f {self.cert_path} -c {self.ca} | grep 'key pair storage:' | awk '{{print $4}}'")
+                    command_output = m.execute(f"getcert list -f {self.cert_path} -c {self.ca} |"
+                                               f"grep 'key pair storage:' | awk '{{print $4}}'")
                     self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.key_path}'\n")
-                    command_output = m.execute(f"getcert list -f {self.cert_path} -c {self.ca} | grep 'certificate:' | awk '{{print $2}}'")
+                    command_output = m.execute(f"getcert list -f {self.cert_path} -c {self.ca} |"
+                                               f"grep 'certificate:' | awk '{{print $2}}'")
                     self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.cert_path}'\n")
 
             def cleanup(self):
@@ -550,7 +568,8 @@ class TestApplication(testlib.MachineCase):
 
             def open_dialog(self):
                 b.click("#import-certificate-action")
-                b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Import certificate")
+                b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title",
+                               "Import certificate")
 
             def fill(self):
                 if self.ca:
@@ -586,11 +605,14 @@ class TestApplication(testlib.MachineCase):
                 self.test_obj.assertEqual(command_output, f"CN={self.subject_name}\n")
                 command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'dns:' | awk '{{print $2}}'")
                 self.test_obj.assertEqual(command_output, f"{self.dns_name}\n")
-                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'principal name:' | awk '{{print $3}}'")
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'principal name:' |"
+                                           "awk '{print $3}'")
                 self.test_obj.assertEqual(command_output, f"{self.principal_name}\n")
-                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'key pair storage:' | awk '{{print $4}}'")
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'key pair storage:' |"
+                                           "awk '{print $4}'")
                 self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.key_path}'\n")
-                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'certificate:' | awk '{{print $2}}'")
+                command_output = m.execute(f"getcert list -f {self.cert_path} | grep 'certificate:' |"
+                                           "awk '{print $2}'")
                 self.test_obj.assertEqual(command_output, f"type=FILE,location='{self.cert_path}'\n")
 
             def cleanup(self):
@@ -603,8 +625,10 @@ class TestApplication(testlib.MachineCase):
         subject_name = "TEST_HOSTNAME"
         dns_name = "example.com"
         principal_name = "TEST_HOSTNAME@REDHAT.COM"
-        # Request certificate which would result with a cert file with specified subject name, dns name and principal name
-        m.execute(f"selfsign-getcert request -f {cert_path} -k {key_path} -N 'CN={subject_name}' -D {dns_name} -K {principal_name}")
+        # Request certificate which would result with a cert file with specified subject name,
+        # dns name and principal name
+        m.execute(f"selfsign-getcert request -f {cert_path} -k {key_path} -N 'CN={subject_name}' "
+                  f"-D {dns_name} -K {principal_name}")
         testlib.wait(lambda: "MONITORING" in m.execute(f"selfsign-getcert list -f {cert_path}"), delay=1)
         self.addCleanup(self.cleanupFileCertificate, cert_path, key_path)
         # Stop tracking the cert. Files should be left untouched.
@@ -650,7 +674,8 @@ class TestApplication(testlib.MachineCase):
         # Resubmit certificate with different signing request parameters
         b.click("#certificate-0-action-kebab button")
         b.click("#certificate-0-resubmit a")
-        b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title", "Resubmit Certificate")
+        b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title",
+                       "Resubmit Certificate")
 
         # Change signing request propertes for resubmit
         subject_name = "CN=TEST_HOSTAME"
@@ -662,13 +687,15 @@ class TestApplication(testlib.MachineCase):
         old_validity = m.execute(f"selfsign-getcert list -d {db_path} -n {cert_name} | grep 'issued:'").strip()
 
         # make sure the resubmition is done at least 1 second after the certificate was created
-        # This enables us to confirm success of resubmition by looking whetever date of issue of certificate, shown in seconds, changed
+        # This enables us to confirm success of resubmition by looking whether date of issue of
+        # certificate, shown in seconds, changed
         time.sleep(1)
         b.click(".pf-v5-c-modal-box__footer button:contains(Resubmit)")
         b.wait_not_present(".pf-v5-c-modal-box")
 
         # Check validity time differs which means certificate was resubmitted and renewed
-        testlib.wait(lambda: old_validity not in m.execute(f"selfsign-getcert list -d {db_path} -n {cert_name} | grep 'issued:'").strip(), delay=1)
+        cmd = f"selfsign-getcert list -d {db_path} -n {cert_name} | grep 'issued:'"
+        testlib.wait(lambda: old_validity not in m.execute(cmd).strip(), delay=1)
 
         # Check signing properties are updated
         b.wait_in_text("#certificate-0-general-subject", subject_name)
