@@ -39,7 +39,7 @@ export const RemoveModal = ({ onClose, certs, cert, certPath, addAlert, appOnVal
     const onRemoveResponse = () => {
         delete certs[certPath];
 
-        appOnValueChanged("certs, certs");
+        appOnValueChanged("certs", certs);
         onClose();
     };
 
