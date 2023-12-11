@@ -33,7 +33,7 @@
     "jed": "1.1.1",
     "sass": "1.69.5",
     "sizzle": "2.3.10",
-    "stylelint-formatter-pretty": "3.2.1"
+    "stylelint-formatter-pretty": "4.0.0"
   },
   "dependencies": {
     "@patternfly/patternfly": "5.1.0",
