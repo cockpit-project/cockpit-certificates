@@ -31,7 +31,7 @@
     "gettext-parser": "7.0.1",
     "htmlparser": "1.7.7",
     "jed": "1.1.1",
-    "sass": "1.69.5",
+    "sass": "1.69.6",
     "sizzle": "2.3.10",
     "stylelint-formatter-pretty": "4.0.0"
   },
