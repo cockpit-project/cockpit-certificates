@@ -12,6 +12,7 @@ Test*FAIL*
 bots/
 test/common/
 test/images/
+test/static-code
 *.pot
 POTFILES*
 tmp/
