@@ -10,14 +10,11 @@ import { cockpitCompressPlugin } from './pkg/lib/esbuild-compress-plugin.js';
 import { cockpitPoEsbuildPlugin } from './pkg/lib/cockpit-po-plugin.js';
 import { cockpitRsyncEsbuildPlugin } from './pkg/lib/cockpit-rsync-plugin.js';
 import { esbuildStylesPlugins } from './pkg/lib/esbuild-common.js';
-import { eslintPlugin } from './pkg/lib/esbuild-eslint-plugin.js';
 
 const useWasm = os.arch() !== 'x64';
 const esbuild = (await import(useWasm ? 'esbuild-wasm' : 'esbuild')).default;
 
 const production = process.env.NODE_ENV === 'production';
-// linters dominate the build time, so disable them for production builds by default, but enable in watch mode
-const lintDefault = process.env.LINT ? process.env.LINT === '0' : production;
 // List of directories to use when using import statements
 const nodePaths = ['pkg/lib'];
 const outdir = 'dist';
@@ -28,7 +25,6 @@ const packageJson = JSON.parse(fs.readFileSync('package.json'));
 const parser = (await import('argparse')).default.ArgumentParser();
 parser.add_argument('-r', '--rsync', { help: "rsync bundles to ssh target after build", metavar: "HOST" });
 parser.add_argument('-w', '--watch', { action: 'store_true', help: "Enable watch mode", default: process.env.ESBUILD_WATCH === "true" });
-parser.add_argument('-e', '--no-eslint', { action: 'store_true', help: "Disable eslint linting", default: lintDefault });
 const args = parser.parse_args();
 
 if (args.rsync)
@@ -53,8 +49,6 @@ function notifyEndPlugin() {
     };
 }
 
-const cwd = process.cwd();
-
 const context = await esbuild.context({
     ...!production ? { sourcemap: "linked" } : {},
     bundle: true,
@@ -68,7 +62,6 @@ const context = await esbuild.context({
     target: ['es2020'],
     plugins: [
         cleanPlugin(),
-        ...args.no_eslint ? [] : [eslintPlugin({ filter: new RegExp(cwd + '/src/.*\\.(jsx?|js?)$') })],
         // Esbuild will only copy assets that are explicitly imported and used
         // in the code. This is a problem for index.html and manifest.json which are not imported
         copy({
