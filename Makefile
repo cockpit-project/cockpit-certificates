@@ -72,6 +72,7 @@ po/$(PACKAGE_NAME).pot: po/$(PACKAGE_NAME).html.pot po/$(PACKAGE_NAME).js.pot po
 	msgcat --sort-output --output-file=$@ $^
 
 po/LINGUAS:
+	mkdir -p po
 	echo $(LINGUAS) | tr ' ' '\n' > $@
 
 #
