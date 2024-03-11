@@ -294,8 +294,8 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-name", cert_name)
 
         # Remove certificate
-        b.click("#certificate-0-action-kebab button")
-        b.click("#certificate-0-remove a")
+        b.click("#certificate-0-action-kebab")
+        b.click("#certificate-0-remove")
         b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
         # Check delete files option is not present for NSSDB-stored certificate
         b.wait_not_present("#certificate-0-delete-files")
@@ -305,8 +305,8 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-name", cert_name2)
 
         # Remove second certificate
-        b.click("#certificate-0-action-kebab button")
-        b.click("#certificate-0-remove a")
+        b.click("#certificate-0-action-kebab")
+        b.click("#certificate-0-remove")
         b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
         b.click(".pf-v5-c-modal-box__footer button:contains(Remove)")
         b.wait_not_present(".pf-v5-c-modal-box")
@@ -327,8 +327,8 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("#certificate-0-name")
 
         # Remove certificate
-        b.click("#certificate-0-action-kebab button")
-        b.click("#certificate-0-remove a")
+        b.click("#certificate-0-action-kebab")
+        b.click("#certificate-0-remove")
         b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
         # Check delete files option is not present for NSSDB-stored certificate
         b.wait_visible("#certificate-0-delete-files")
@@ -353,8 +353,8 @@ class TestApplication(testlib.MachineCase):
         b.wait_visible("#certificate-0-name")
 
         # Remove certificate
-        b.click("#certificate-0-action-kebab button")
-        b.click("#certificate-0-remove a")
+        b.click("#certificate-0-action-kebab")
+        b.click("#certificate-0-remove")
         b.wait_in_text(".pf-v5-c-modal-box__title", "Remove certificate")
         # Check delete files option is not present for NSSDB-stored certificate
         b.click("#certificate-0-delete-files")
@@ -664,8 +664,8 @@ class TestApplication(testlib.MachineCase):
         b.wait_in_text("#certificate-0-general-dns", dns_name)
 
         # Resubmit certificate with different signing request parameters
-        b.click("#certificate-0-action-kebab button")
-        b.click("#certificate-0-resubmit a")
+        b.click("#certificate-0-action-kebab")
+        b.click("#certificate-0-resubmit")
         b.wait_in_text(".pf-v5-c-modal-box .pf-v5-c-modal-box__header .pf-v5-c-modal-box__title",
                        "Resubmit Certificate")
 
