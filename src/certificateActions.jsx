@@ -24,12 +24,14 @@ import "./certificateActions.css";
 
 import { Button } from "@patternfly/react-core/dist/esm/components/Button/index.js";
 import { Checkbox } from "@patternfly/react-core/dist/esm/components/Checkbox/index.js";
-import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/dist/esm/deprecated/components/Dropdown/index.js';
+import { DropdownItem } from '@patternfly/react-core/dist/esm/components/Dropdown/index.js';
 import { Form, FormGroup } from "@patternfly/react-core/dist/esm/components/Form/index.js";
 import { Modal } from "@patternfly/react-core/dist/esm/components/Modal/index.js";
 
 import { ResubmitCertificateModal } from './requestCertificate.jsx';
 import { removeRequest } from "./dbus.js";
+
+import { KebabDropdown } from "cockpit-components-dropdown";
 
 const _ = cockpit.gettext;
 
@@ -132,7 +134,6 @@ export const RemoveModal = ({ onClose, certs, cert, certPath, addAlert, appOnVal
 };
 
 export const CertificateActions = ({ cas, certs, cert, certPath, addAlert, appOnValueChanged, idPrefix }) => {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
     const [showRemoveModal, setShowRemoveModal] = useState(false);
     const [showResubmitModal, setShowResubmitModal] = useState(false);
 
@@ -153,17 +154,7 @@ export const CertificateActions = ({ cas, certs, cert, certPath, addAlert, appOn
 
     return (
         <>
-            <Dropdown onSelect={() => setDropdownOpen(!dropdownOpen)}
-                id={`${idPrefix}-action-kebab`}
-                toggle={
-                    <KebabToggle key={`${idPrefix}-action-kebab-toggle`}
-                        onToggle={() => setDropdownOpen(!dropdownOpen)} />
-                }
-                isOpen={dropdownOpen}
-                position="right"
-                dropdownItems={dropdownItems}
-                isPlain />
-
+            <KebabDropdown toggleButtonId={`${idPrefix}-action-kebab`} position="right" dropdownItems={dropdownItems} />
             {showRemoveModal &&
                 <RemoveModal onClose={() => setShowRemoveModal(false)}
                     certs={certs}
