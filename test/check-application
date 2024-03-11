@@ -428,10 +428,6 @@ class TestApplication(testlib.MachineCase):
                     if self.principal_name:
                         b.set_input_text("#principal-name", self.principal_name)
 
-            def cancel(self):
-                b.click(".pf-v5-c-modal-box__footer button:contains(Cancel)")
-                b.wait_not_present(".pf-v5-c-modal-box")
-
             def create(self):
                 b.click(".pf-v5-c-modal-box__footer button:contains(Request)")
                 b.wait_not_present(".pf-v5-c-modal-box")
@@ -579,10 +575,6 @@ class TestApplication(testlib.MachineCase):
                 b.click("#cert-file .pf-v5-c-select__menu-item")
                 b.set_input_text("input[placeholder='Path to an existing key file']", self.key_path)
                 b.click("#key-file .pf-v5-c-select__menu-item")
-
-            def cancel(self):
-                b.click(".pf-v5-c-modal-box__footer button:contains(Cancel)")
-                b.wait_not_present(".modal-dialog")
 
             def create(self):
                 b.click(".pf-v5-c-modal-box__footer button:contains(Import)")
