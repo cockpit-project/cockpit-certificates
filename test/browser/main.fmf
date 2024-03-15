@@ -4,12 +4,7 @@ require:
   - cockpit-certificates
   - cockpit-ws
   - cockpit-system
-  - bzip2
-  - git-core
   - glibc-langpack-de
-  - libvirt-python3
-  - make
-  - npm
-  - python3
+  - podman
 test: ./browser.sh
 duration: 60m
