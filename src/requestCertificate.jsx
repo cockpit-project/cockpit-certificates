@@ -395,7 +395,7 @@ export const RequestCertificate = ({ cas, addAlert, mode }) => {
     useEffect(() => {
         if (mode === "request") {
             cockpit.file("/etc/hostname", { superuser: "try" }).read()
-                    .done((content, tag) => setHostname(content.trim()))
+                    .then((content, tag) => setHostname(content.trim()))
                     .catch(error => console.error(error));
         }
     }, [mode]);
